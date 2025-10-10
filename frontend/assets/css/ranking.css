@@ -1,0 +1,71 @@
+.ranking-title {
+  text-align: center;
+  font-size: 38px;
+  margin-top: 0;
+  margin-bottom: 10px;
+  font-weight: bold;
+  background: linear-gradient(95deg, #38c171 0%, #f9be40 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: 1px;
+}
+
+.ranking-subtitle {
+  text-align: center;
+  font-size: 19px;
+  color: #418553;
+  margin-bottom: 26px;
+}
+
+.ranking-card {
+  margin: 0 auto;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 3px 20px #aee9c91b;
+  background: #fdfdf8b5;
+  max-width: 740px;
+}
+
+.ranking-header, .ranking-row {
+  display: grid;
+  grid-template-columns: 70px 1fr 90px 120px 80px;
+  padding: 15px 11px;
+  align-items: center;
+  font-weight: 500;
+}
+
+.ranking-header {
+  background: linear-gradient(95deg, #cdfbe0 60%, #b1f69c 100%);
+  color: #227f2b;
+  font-weight: 700;
+  border-bottom: 2px solid #b6f3c6;
+}
+
+.ranking-row {
+  border-bottom: 1.5px solid #e8f6df;
+  background: transparent;
+  transition: background 0.2s;
+}
+.ranking-row:last-child { border-bottom: none; }
+.ranking-row.top3 { background: #eafff4b0; font-weight: 600; }
+.ranking-row.highlight { background: #78dba970; font-weight: 700;}
+.ranking-row > div { text-align: center; }
+
+.footer-note {
+  text-align: center;
+  margin-top: 22px;
+  font-size: 1.1em;
+  color: #388122;
+  opacity: 0.87;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .ranking-header, .ranking-row {
+    grid-template-columns: 32px 1fr 46px 56px 38px;
+    font-size: 13px;
+    padding: 8px 2px;
+  }
+  .ranking-title { font-size: 24px;}
+}

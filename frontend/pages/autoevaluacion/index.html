@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Autoevaluación</title>
+  <link rel="stylesheet" href="../../assets/css/autoevaluacion.css" />
+</head>
+<body>
+  <div class="container">
+    <!-- Botón Volver -->
+    <a href="#" class="back-link" id="btnVolver">← Volver</a>
+
+    <!-- Título -->
+    <h1 class="title">Autoevaluación</h1>
+    <p class="subtitle">Responde las siguientes preguntas sobre tu desempeño</p>
+
+    <!-- Información del Usuario -->
+    <div class="card user-info">
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="info-label">Periodo:</span>
+          <span class="info-value">Octubre 2025</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Estado:</span>
+          <span class="info-value status-pending" id="estadoAutoevaluacion">Pendiente</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Formulario de Preguntas -->
+    <div class="card questions-card">
+      <div id="preguntasContainer">
+        <!-- Las preguntas se cargarán dinámicamente aquí -->
+      </div>
+
+      <!-- Botón Enviar -->
+      <div class="actions">
+        <button class="btn btn-primary" id="enviarRespuestas">
+          <span>Enviar Autoevaluación</span>
+          <span class="arrow">→</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Progreso -->
+    <div class="progress-container">
+      <div class="progress-info">
+        <span id="progressText">0 de 0 preguntas respondidas</span>
+        <span id="progressPercent">0%</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+    </div>
+
+    <!-- Modal de éxito -->
+<div class="modal-success" id="successModal">
+  <div class="success-card">
+    <div class="success-checkmark">
+      <svg viewBox="0 0 52 52">
+        <circle cx="26" cy="26" r="25" fill="none"/>
+        <path d="M14 27 L22 35 L38 19"/>
+      </svg>
+    </div>
+    <div class="success-title" id="successMessage">¡Autoevaluación guardada correctamente!</div>
+    <div class="success-score" id="successScore"></div>
+    <button onclick="goToRanking()" class="btn btn-primary" style="margin-top: 14px;">Aceptar</button>
+  </div>
+</div>
+  </div>
+
+  <script src="../../js/pages/autoevaluacion.js"></script>
+</body>
+</html>

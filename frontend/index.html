@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Login | Sanilab</title>
+  <link rel="stylesheet" href="./assets/css/main.css">
+</head>
+<body>
+  <div class="login-bg"></div>
+  <section class="login-container">
+    <img src="./assets/images/Sanilab-logo.png" alt="Sanilab Logo" class="login-logo">
+    <form id="loginForm" autocomplete="off">
+      <label for="correo">Correo electrónico</label>
+      <input type="email" id="correo" name="correo" placeholder="Ingrese su correo" required />
+
+      <label for="password">Contraseña</label>
+      <input type="password" id="password" name="password" placeholder="Ingrese su contraseña" required />
+
+      <button type="submit">Ingresar</button>
+      <div class="login-footer">
+        ¿No tienes una cuenta? <a href="./pages/auth/registro.html">Regístrate</a>
+        <script src="../../js/pages/login.js"></script>
+
+      </div>
+    </form>
+  </section>
+</body>
+</html>

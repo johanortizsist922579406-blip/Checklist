@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Ranking Quincenal</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Tu CSS global -->
+  <link rel="stylesheet" href="../../assets/css/main.css" />
+  <!-- El CSS específico de ranking -->
+  <link rel="stylesheet" href="../../assets/css/ranking.css" />
+</head>
+<body>
+  <div class="container">
+    <h1 class="ranking-title">🌱 Ranking de Trabajadores</h1>
+    <p class="ranking-subtitle">¡Felicidades por tu esfuerzo y compromiso ecológico!</p>
+
+    <div class="ranking-card">
+      <div class="ranking-header">
+        <div>Puesto</div>
+        <div>Nombre</div>
+        <div>Puntaje</div>
+        <div>Quincena</div>
+        <div>Ruleta</div>
+      </div>
+      <!-- Los elementos serán llenados dinámicamente -->
+      <div id="listaRanking"></div>
+    </div>
+    <div class="footer-note">🍃 ¡Sigue creciendo y cuidando el planeta! 🍃</div>
+
+    <div id="ruleta-btn-container"></div>
+  </div>
+  <script src="../../js/pages/ranking.js"></script>
+</body>
+</html>

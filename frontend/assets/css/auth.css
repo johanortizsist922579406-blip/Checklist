@@ -1,0 +1,84 @@
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  min-height: 100vh;
+  background: #18352b;
+}
+.register-bg {
+  position: fixed; top: 0; left: 0;
+  width: 100vw; height: 100vh; z-index: -1;
+  background: url('../../assets/images/Fondo-verde.jpg'), #e0f9e4;
+  background-size: cover;
+  background-position: center;
+  opacity: .9;
+}
+.register-container {
+  max-width: 430px;
+  margin: 60px auto 0 auto;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 3px 32px #1b5b2735;
+  padding: 36px 34px 26px 34px;
+  display: flex; flex-direction: column; align-items: center;
+}
+.register-logo {
+  width: 150px; margin-bottom: 14px;
+}
+h1 {
+  margin: 0 0 10px 0;
+  color: #247554;
+  font-size: 1.4em;
+  font-weight: bold;
+}
+form {
+  width: 100%;
+  display: flex; flex-direction: column; gap: 9px;
+  margin-top: 5px;
+}
+label {
+  text-align: left;
+  font-weight: 600;
+  color: #165039;
+  margin-top: 4px;
+  font-size: 1.07em;
+}
+input[type='text'], input[type='email'], input[type='password'], select {
+  padding: 11px 9px;
+  border-radius: 6px;
+  border: 1px solid #bdd2ec;
+  font-size: 1em;
+  margin-bottom: 5px;
+  background: #f6faf7;
+  transition: border-color .2s;
+}
+input:focus, select:focus { border-color: #36a373; }
+button[type='submit'] {
+  background: #36a373;
+  color: white;
+  font-size: 1.1em;
+  padding: 11px 0;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  margin-top: 13px;
+  cursor: pointer;
+  transition: background .2s;
+}
+button[type='submit']:hover { background: #226954; }
+.register-footer {
+  margin-top: 20px;
+  font-size: 0.99em;
+  color: #2d3b30;
+}
+.register-footer a {
+  color: #226954;
+  text-decoration: underline;
+  margin-left: 4px;
+  font-weight: 500;
+}
+@media (max-width: 500px) {
+  .register-container {
+    max-width: 97vw; padding: 6vw 2vw 18px 2vw;
+  }
+  .register-logo { width: 90vw; max-width: 180px; }
+}
