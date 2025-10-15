@@ -3,12 +3,12 @@ let preguntasGlobales = [];
 let respuestas = {};
 
 window.onload = async function() {
-  const areaId = localStorage.getItem('areaid');
+  const areaid = localStorage.getItem('areaid');
   const token = localStorage.getItem('token');
 
   try {
     // Cargar preguntas desde el backend
-    const preguntasRes = await fetch(`/api/preguntas?areaid=${areaId}`, {
+    const preguntasRes = await fetch(`/api/preguntas?areaid=${areaid}`, {
       headers: { 'Authorization': `Bearer ${token}` }
     });
     const preguntas = await preguntasRes.json();
@@ -124,16 +124,29 @@ function updateProgress() {
   btnEnviar.disabled = !(respondidas === total && total > 0);
 }
 
-function showSuccessModal(msg, score) {
+function showSuccessModal(msg, score, mensajeMotivacional) {
   document.getElementById('successMessage').textContent = msg;
   document.getElementById('successScore').textContent = score ? ("Puntuación: " + score) : "";
+  document.getElementById('motivationalMessage').textContent = mensajeMotivacional || "";
   document.getElementById('successModal').classList.add('active');
+  
+  // Asigna el evento solo si el botón existe
+  const btnAceptar = document.getElementById('btnAceptarModal');
+  if (btnAceptar) {
+    btnAceptar.onclick = function() {
+      window.location.href = '/pages/ranking/ranking.html';
+    };
+  }
 }
+
+
+
+
 function closeSuccessModal() {
   document.getElementById('successModal').classList.remove('active');
 }
 
-// ========= MODIFICADO: siempre enviando quincena ===========
+// ========= MODIFICADO: sin guión bajo ===========
 async function enviarRespuestas() {
   const total = preguntasGlobales.length;
   const respondidas = Object.keys(respuestas).length;
@@ -143,22 +156,39 @@ async function enviarRespuestas() {
     return;
   }
 
-  const usuario_id = localStorage.getItem('usuarioid');
-  const area_id = localStorage.getItem('areaid');
+  const usuarioid = localStorage.getItem('usuarioid');
+  const areaid = localStorage.getItem('areaid');
   const token = localStorage.getItem('token');
-  const quincena = "1ra"; // Puedes hacerlo dinámico según lógica
+  const quincena = "1ra";
 
+  // Calcula el puntaje y el puntajetotal
   let puntaje = 0;
   Object.values(respuestas).forEach(valor => {
     if (valor === 'SI') puntaje += 100;
   });
+  const puntajetotal = Math.round(puntaje / total);
 
-  const puntaje_total = Math.round(puntaje / total);
+  // Calcula el mensaje motivacional DESPUÉS de puntajetotal
+  let mensajeMotivacional = '';
+if (puntajetotal === 0) {
+  mensajeMotivacional = '¡No te desanimes! Cada oportunidad es un nuevo comienzo. ¡Tú puedes mejorar!';
+} else if (puntajetotal >= 180) {
+  mensajeMotivacional = 'Buen desempeño, sigue así.';
+} else if (puntajetotal >= 150) {
+  mensajeMotivacional = 'Puedes mejorar en puntualidad.';
+} else {
+  mensajeMotivacional = 'Excelente rendimiento.';
+}
+
+
+  // Genera el array de respuestas
   const respuestasArray = [];
-  for (let pregunta_id in respuestas) {
+  for (let preguntaid in respuestas) {
+    const valor = respuestas[preguntaid];
     respuestasArray.push({
-      pregunta_id: parseInt(pregunta_id),
-      respuesta: respuestas[pregunta_id]
+      preguntaid: parseInt(preguntaid),
+      respuesta: valor,
+      puntaje: valor === "SI" ? 100 : 0
     });
   }
 
@@ -170,22 +200,24 @@ async function enviarRespuestas() {
   try {
     const res = await fetch('/api/autoevaluaciones', {
       method: 'POST',
-      headers: { 
+      headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`
       },
       body: JSON.stringify({
-        usuario_id: parseInt(usuario_id),
-        area_id: parseInt(area_id),
-        puntaje_total: puntaje_total,
-        quincena: quincena,    // <<------ SIEMPRE ENVÍA LA QUINCENA!
+        usuarioid: parseInt(usuarioid),
+        areaid: parseInt(areaid),
+        puntajetotal: puntajetotal,
+        quincena: quincena,
+        mensajemotivacional: mensajeMotivacional,
         respuestas: respuestasArray
       })
     });
 
     if (res.ok) {
       const resultado = await res.json();
-      showSuccessModal('¡Autoevaluación guardada correctamente!', puntaje_total + '/100');
+      console.log("Mensaje motivacional:", mensajeMotivacional);
+      showSuccessModal('¡Autoevaluación guardada correctamente!', puntajetotal + '/100', mensajeMotivacional);
       const estadoSpan = document.getElementById('estadoAutoevaluacion');
       if (estadoSpan) {
         estadoSpan.textContent = 'Enviado';
@@ -214,8 +246,8 @@ async function enviarRespuestas() {
   }
 }
 
-// ... el resto del archivo (historial, detalles, etc. igual que ya tienes) ...
-function cargarHistorial(usuarioId, token) { /* ... */ }
+// ... el resto del archivo igual ...
+function cargarHistorial(usuarioid, token) { /* ... */ }
 function renderHistorial(historial) { /* ... */ }
-function verDetalles(autoevaluacionId) { /* ... */ }
+function verDetalles(autoevaluacionid) { /* ... */ }
 function goToRanking() { window.location.href = "/pages/ranking/ranking.html"; }

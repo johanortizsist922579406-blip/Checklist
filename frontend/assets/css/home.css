@@ -22,7 +22,7 @@ body {
 }
 
 .welcome-section {
-  margin-bottom: 50px;
+  margin-bottom: 40px;
   animation: fadeInDown 0.6s ease;
 }
 
@@ -135,7 +135,7 @@ h1 {
 }
 
 .footer {
-  margin-top: 50px;
+  margin-top: 40px;
   padding-top: 30px;
   border-top: 1px solid #e8f5e9;
   animation: fadeIn 0.6s ease 0.4s backwards;
@@ -175,12 +175,17 @@ h1 {
   }
   to {
     opacity: 1;
+    transform: translateY(0);
   }
 }
 
 @media (max-width: 600px) {
   h1 {
     font-size: 2em;
+  }
+
+  .welcome-section {
+    margin-bottom: 30px;
   }
 
   .nav-button {
@@ -195,5 +200,9 @@ h1 {
 
   .button-title {
     font-size: 1.05em;
+  }
+
+  .footer {
+    margin-top: 30px;
   }
 }

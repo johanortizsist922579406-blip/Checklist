@@ -1,11 +1,11 @@
 window.onload = async function() {
-  const res = await fetch('/api/rankings?quincena=actual');
+  const res = await fetch('/api/rankings?quincena=actual', { cache: "no-store" });
   const ranking = await res.json();
   const lista = document.getElementById('listaRanking');
+  lista.innerHTML = ""; // <---- LIMPIA SIEMPRE
 
   if (Array.isArray(ranking) && ranking.length > 0) {
     const quincena = ranking[0]?.quincena || '';
-
     ranking.forEach((persona, i) => {
       let icon = "🌿";
       if (persona.posicion == 1) icon = "🥇";
