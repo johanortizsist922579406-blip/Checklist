@@ -161,27 +161,23 @@ async function enviarRespuestas() {
   const token = localStorage.getItem('token');
   const quincena = "1ra";
 
-  // Calcula el puntaje y el puntajetotal
   let puntaje = 0;
   Object.values(respuestas).forEach(valor => {
     if (valor === 'SI') puntaje += 100;
   });
   const puntajetotal = Math.round(puntaje / total);
 
-  // Calcula el mensaje motivacional DESPUÉS de puntajetotal
   let mensajeMotivacional = '';
-if (puntajetotal === 0) {
-  mensajeMotivacional = '¡No te desanimes! Cada oportunidad es un nuevo comienzo. ¡Tú puedes mejorar!';
-} else if (puntajetotal >= 180) {
-  mensajeMotivacional = 'Buen desempeño, sigue así.';
-} else if (puntajetotal >= 150) {
-  mensajeMotivacional = 'Puedes mejorar en puntualidad.';
-} else {
-  mensajeMotivacional = 'Excelente rendimiento.';
-}
+  if (puntajetotal === 0) {
+    mensajeMotivacional = '¡No te desanimes! Cada oportunidad es un nuevo comienzo. ¡Tú puedes mejorar!';
+  } else if (puntajetotal >= 180) {
+    mensajeMotivacional = 'Buen desempeño, sigue así.';
+  } else if (puntajetotal >= 150) {
+    mensajeMotivacional = 'Puedes mejorar en puntualidad.';
+  } else {
+    mensajeMotivacional = 'Excelente rendimiento.';
+  }
 
-
-  // Genera el array de respuestas
   const respuestasArray = [];
   for (let preguntaid in respuestas) {
     const valor = respuestas[preguntaid];
@@ -218,6 +214,23 @@ if (puntajetotal === 0) {
       const resultado = await res.json();
       console.log("Mensaje motivacional:", mensajeMotivacional);
       showSuccessModal('¡Autoevaluación guardada correctamente!', puntajetotal + '/100', mensajeMotivacional);
+
+      // --- RECALCULA RANKING Y ACTUALIZA TABLA ---
+      try {
+        await fetch('/api/rankings/recalcular?quincena=1ra', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const resRanking = await fetch('/api/rankings?quincena=actual', { cache: "no-store" });
+        const rankingActualizado = await resRanking.json();
+        if (typeof renderRanking === 'function') {
+          renderRanking(rankingActualizado);
+        }
+      } catch (error) {
+        console.error('Error al recalcular/actualizar ranking:', error);
+      }
+      // --------------------------------------------
+
       const estadoSpan = document.getElementById('estadoAutoevaluacion');
       if (estadoSpan) {
         estadoSpan.textContent = 'Enviado';
@@ -245,9 +258,3 @@ if (puntajetotal === 0) {
     btnEnviar.disabled = false;
   }
 }
-
-// ... el resto del archivo igual ...
-function cargarHistorial(usuarioid, token) { /* ... */ }
-function renderHistorial(historial) { /* ... */ }
-function verDetalles(autoevaluacionid) { /* ... */ }
-function goToRanking() { window.location.href = "/pages/ranking/ranking.html"; }

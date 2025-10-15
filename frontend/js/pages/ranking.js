@@ -1,8 +1,12 @@
 window.onload = async function() {
   const res = await fetch('/api/rankings?quincena=actual', { cache: "no-store" });
   const ranking = await res.json();
+  renderRanking(ranking);
+};
+
+function renderRanking(ranking) {
   const lista = document.getElementById('listaRanking');
-  lista.innerHTML = ""; // <---- LIMPIA SIEMPRE
+  lista.innerHTML = "";
 
   if (Array.isArray(ranking) && ranking.length > 0) {
     const quincena = ranking[0]?.quincena || '';
@@ -39,4 +43,5 @@ window.onload = async function() {
   } else {
     lista.innerHTML = '<div class="no-data">No hay ranking para mostrar.</div>';
   }
-};
+}
+
