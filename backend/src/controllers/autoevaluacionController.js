@@ -1,4 +1,5 @@
 const pool = require('../db');
+const axios = require('axios');
 
 exports.getAllAutoevaluaciones = async (req, res) => {
   try {
@@ -15,6 +16,7 @@ exports.getAllAutoevaluaciones = async (req, res) => {
   }
 };
 
+
 exports.getAutoevaluacionById = async (req, res) => {
   try {
     const [rows] = await pool.query('SELECT * FROM autoevaluaciones WHERE id = ?', [req.params.id]);
@@ -25,9 +27,9 @@ exports.getAutoevaluacionById = async (req, res) => {
   }
 };
 
+
 exports.crearAutoevaluacion = async (req, res) => {
   try {
-    // Agregar mensajemotivacional al destructuring
     const { usuarioid, puntajetotal, quincena, mensajemotivacional, respuestas } = req.body;
 
     if (!quincena) {
@@ -37,7 +39,6 @@ exports.crearAutoevaluacion = async (req, res) => {
     const fechaEvaluacion = new Date();
     const fechaFormateada = fechaEvaluacion.toISOString().slice(0, 19).replace('T', ' ');
 
-    // Agregar mensajemotivacional en el INSERT
     const [result] = await pool.query(
       'INSERT INTO autoevaluaciones (usuarioid, fechaevaluacion, puntajetotal, quincena, mensajemotivacional, completada) VALUES (?, ?, ?, ?, ?, ?)',
       [usuarioid, fechaFormateada, puntajetotal, quincena, mensajemotivacional, 'SI']
@@ -51,6 +52,10 @@ exports.crearAutoevaluacion = async (req, res) => {
         [autoevaluacionid, r.preguntaid, r.respuesta, r.puntaje]
       );
     }
+
+await axios.post('http://localhost:3000/api/rankings/recalcular', { 
+  quincena
+});
 
     res.json({
       message: 'Autoevaluación guardada correctamente',

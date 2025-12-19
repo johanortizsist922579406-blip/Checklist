@@ -5,7 +5,6 @@
 }
 
 body {
-    /* Fondo Degradado del CSS Original */
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     background: linear-gradient(135deg, #f5f7fa 0%, #e8f5e9 100%);
     min-height: 100vh;
@@ -13,7 +12,7 @@ body {
     color: #1a1a1a;
     display: flex; 
     justify-content: center;
-    align-items: center; /* Centra el contenido en el medio de la página */
+    align-items: center;
 }
 
 .container {
@@ -23,7 +22,6 @@ body {
     animation: fadeIn 0.6s ease;
 }
 
-/* Header */
 .header {
     text-align: center;
     margin-bottom: 40px;
@@ -31,7 +29,6 @@ body {
     padding: 0 50px;
 }
 
-/* Botón Volver */
 .back-button {
     position: absolute;
     left: 0;
@@ -55,7 +52,6 @@ body {
     box-shadow: 0 4px 12px rgba(46, 125, 50, 0.25);
 }
 
-/* Título con Efecto Degradado */
 h1 {
     font-size: 2.8em;
     font-weight: 700;
@@ -67,7 +63,6 @@ h1 {
     letter-spacing: -1px;
 }
 
-/* Info Card (Tarjeta principal, adaptada del diseño de asistencia) */
 .info-card {
     background: white;
     border-radius: 20px;
@@ -81,7 +76,6 @@ h1 {
 }
 
 .info-card::before {
-    /* Borde Superior con Animación Shimmer */
     content: '';
     position: absolute;
     top: 0;
@@ -98,7 +92,6 @@ h1 {
     50% { background-position: 100% 50%; }
 }
 
-/* Estilos Específicos para el Contenido del Premio */
 .prize-title {
     font-size: 1.8em;
     font-weight: 600;
@@ -122,7 +115,6 @@ h1 {
 }
 
 
-/* Botones de Acción (Estilo del botón de entrada/salida) */
 .btn-action {
     background: white;
     border: none;
@@ -140,10 +132,9 @@ h1 {
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     width: 100%;
     max-width: 350px;
-    margin: 0 auto; /* Centra el botón */
+    margin: 0 auto; 
 }
 
-/* Efecto Hover Shimmer */
 .btn-action::before {
     content: '';
     position: absolute;
@@ -168,7 +159,6 @@ h1 {
     transform: translateY(-2px) scale(1);
 }
 
-/* Color del Botón */
 .btn-claim {
     background: linear-gradient(135deg, #66bb6a 0%, #2e7d32 100%);
 }
@@ -189,13 +179,11 @@ h1 {
 }
 
 
-/* Animaciones */
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(30px); }
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* Responsive */
 @media (max-width: 600px) {
     .container {
         padding: 0;

@@ -1,4 +1,3 @@
-// src/controllers/preguntaController.js
 const pool = require('../../config/database');
 
 exports.getAllPreguntas = async (req, res) => {

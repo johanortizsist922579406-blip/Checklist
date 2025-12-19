@@ -4,7 +4,6 @@ window.onload = async function() {
   });
   const resultados = await res.json();
   
-  // Chart.js para gráfico (sólo demo, ajuste datos reales)
   const ctx = document.getElementById('graficoResultados').getContext('2d');
   new Chart(ctx, {
     type: 'bar',
@@ -14,7 +13,6 @@ window.onload = async function() {
     }
   });
 
-  // Botones de puntaje por rango
   const rangos = [50, 100, 150, 200, 250, 300];
   const div = document.getElementById('botonesPuntaje');
   rangos.forEach(r => {

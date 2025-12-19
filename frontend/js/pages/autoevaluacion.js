@@ -1,4 +1,3 @@
-// Variables globales
 let preguntasGlobales = [];
 let respuestas = {};
 
@@ -7,7 +6,6 @@ window.onload = async function() {
   const token = localStorage.getItem('token');
 
   try {
-    // Cargar preguntas desde el backend
     const preguntasRes = await fetch(`/api/preguntas?areaid=${areaid}`, {
       headers: { 'Authorization': `Bearer ${token}` }
     });
@@ -32,9 +30,19 @@ window.onload = async function() {
   }
 };
 
+function actualizarSliderVisual(input) {
+  const min = Number(input.min);
+  const max = Number(input.max);
+  const val = Number(input.value);
+
+  const percent = ((val - min) / (max - min)) * 100;
+  input.style.background = `linear-gradient(to right, #22c55e ${percent}%, #e5e7eb ${percent}%)`;
+}
+
 function renderPreguntas(preguntas) {
   const container = document.getElementById('preguntasContainer');
   container.innerHTML = '';
+  respuestas = {};
 
   preguntas.forEach((pregunta, index) => {
     const questionDiv = document.createElement('div');
@@ -56,59 +64,41 @@ function renderPreguntas(preguntas) {
     headerDiv.appendChild(textDiv);
     questionDiv.appendChild(headerDiv);
 
-    const optionsDiv = document.createElement('div');
-    optionsDiv.className = 'options-container';
+    const sliderWrapper = document.createElement('div');
+    sliderWrapper.className = 'slider-row';
 
-    // Opción SÍ
-    const optionSiDiv = document.createElement('div');
-    optionSiDiv.className = 'option-item';
-    const inputSi = document.createElement('input');
-    inputSi.type = 'radio';
-    inputSi.name = `pregunta_${pregunta.id}`;
-    inputSi.id = `pregunta_${pregunta.id}_si`;
-    inputSi.value = 'SI';
-    inputSi.addEventListener('change', () => {
-      respuestas[pregunta.id] = 'SI';
+    const inputRange = document.createElement('input');
+    inputRange.type = 'range';
+    inputRange.min = '1';
+    inputRange.max = '5';
+    inputRange.step = '0.5';
+    inputRange.value = '3';
+    inputRange.className = 'score-slider';
+    inputRange.dataset.preguntaId = pregunta.id;
+
+    const valueSpan = document.createElement('span');
+    valueSpan.className = 'slider-value';
+    valueSpan.textContent = Number(inputRange.value).toFixed(1);
+
+    actualizarSliderVisual(inputRange);
+
+    inputRange.addEventListener('input', () => {
+      valueSpan.textContent = Number(inputRange.value).toFixed(1);
+      respuestas[pregunta.id] = Number(inputRange.value);
+      actualizarSliderVisual(inputRange);
       updateProgress();
-      document.querySelectorAll(`input[name="pregunta_${pregunta.id}"]`).forEach(radio => {
-        radio.closest('.option-item').classList.remove('selected');
-      });
-      optionSiDiv.classList.add('selected');
     });
-    const labelSi = document.createElement('label');
-    labelSi.htmlFor = `pregunta_${pregunta.id}_si`;
-    labelSi.textContent = 'Sí';
-    optionSiDiv.appendChild(inputSi);
-    optionSiDiv.appendChild(labelSi);
 
-    // Opción NO
-    const optionNoDiv = document.createElement('div');
-    optionNoDiv.className = 'option-item';
-    const inputNo = document.createElement('input');
-    inputNo.type = 'radio';
-    inputNo.name = `pregunta_${pregunta.id}`;
-    inputNo.id = `pregunta_${pregunta.id}_no`;
-    inputNo.value = 'NO';
-    inputNo.addEventListener('change', () => {
-      respuestas[pregunta.id] = 'NO';
-      updateProgress();
-      document.querySelectorAll(`input[name="pregunta_${pregunta.id}"]`).forEach(radio => {
-        radio.closest('.option-item').classList.remove('selected');
-      });
-      optionNoDiv.classList.add('selected');
-    });
-    const labelNo = document.createElement('label');
-    labelNo.htmlFor = `pregunta_${pregunta.id}_no`;
-    labelNo.textContent = 'No';
-    optionNoDiv.appendChild(inputNo);
-    optionNoDiv.appendChild(labelNo);
-
-    optionsDiv.appendChild(optionSiDiv);
-    optionsDiv.appendChild(optionNoDiv);
-    questionDiv.appendChild(optionsDiv);
+    sliderWrapper.appendChild(inputRange);
+    sliderWrapper.appendChild(valueSpan);
+    questionDiv.appendChild(sliderWrapper);
 
     container.appendChild(questionDiv);
+
+    respuestas[pregunta.id] = Number(inputRange.value);
   });
+
+  updateProgress();
 }
 
 function updateProgress() {
@@ -116,12 +106,8 @@ function updateProgress() {
   const respondidas = Object.keys(respuestas).length;
   const porcentaje = total > 0 ? Math.round((respondidas / total) * 100) : 0;
 
-  document.getElementById('progressText').textContent = `${respondidas} de ${total} preguntas respondidas`;
-  document.getElementById('progressPercent').textContent = `${porcentaje}%`;
-  document.getElementById('progressFill').style.width = `${porcentaje}%`;
-
   const btnEnviar = document.getElementById('enviarRespuestas');
-  btnEnviar.disabled = !(respondidas === total && total > 0);
+  btnEnviar.disabled = !(total > 0); 
 }
 
 function showSuccessModal(msg, score, mensajeMotivacional) {
@@ -130,7 +116,6 @@ function showSuccessModal(msg, score, mensajeMotivacional) {
   document.getElementById('motivationalMessage').textContent = mensajeMotivacional || "";
   document.getElementById('successModal').classList.add('active');
   
-  // Asigna el evento solo si el botón existe
   const btnAceptar = document.getElementById('btnAceptarModal');
   if (btnAceptar) {
     btnAceptar.onclick = function() {
@@ -139,20 +124,15 @@ function showSuccessModal(msg, score, mensajeMotivacional) {
   }
 }
 
-
-
-
 function closeSuccessModal() {
   document.getElementById('successModal').classList.remove('active');
 }
 
-// ========= MODIFICADO: sin guión bajo ===========
 async function enviarRespuestas() {
   const total = preguntasGlobales.length;
-  const respondidas = Object.keys(respuestas).length;
 
-  if (respondidas < total) {
-    alert(`Por favor responde todas las preguntas. Te faltan ${total - respondidas} pregunta(s).`);
+  if (total === 0) {
+    alert('No hay preguntas para responder.');
     return;
   }
 
@@ -161,30 +141,32 @@ async function enviarRespuestas() {
   const token = localStorage.getItem('token');
   const quincena = "1ra";
 
-  let puntaje = 0;
+  let suma = 0;
   Object.values(respuestas).forEach(valor => {
-    if (valor === 'SI') puntaje += 100;
+    suma += Number(valor);
   });
-  const puntajetotal = Math.round(puntaje / total);
+
+  const puntajetotal = suma; 
 
   let mensajeMotivacional = '';
-  if (puntajetotal === 0) {
+  const promedio = puntajetotal / total;
+  if (promedio < 2) {
     mensajeMotivacional = '¡No te desanimes! Cada oportunidad es un nuevo comienzo. ¡Tú puedes mejorar!';
-  } else if (puntajetotal >= 180) {
+  } else if (promedio < 3.5) {
     mensajeMotivacional = 'Buen desempeño, sigue así.';
-  } else if (puntajetotal >= 150) {
-    mensajeMotivacional = 'Puedes mejorar en puntualidad.';
+  } else if (promedio < 4.5) {
+    mensajeMotivacional = 'Muy buen rendimiento, casi excelente.';
   } else {
     mensajeMotivacional = 'Excelente rendimiento.';
   }
 
   const respuestasArray = [];
   for (let preguntaid in respuestas) {
-    const valor = respuestas[preguntaid];
+    const valor = Number(respuestas[preguntaid]);
     respuestasArray.push({
       preguntaid: parseInt(preguntaid),
-      respuesta: valor,
-      puntaje: valor === "SI" ? 100 : 0
+      respuesta: null,   
+      puntaje: valor     
     });
   }
 
@@ -212,24 +194,11 @@ async function enviarRespuestas() {
 
     if (res.ok) {
       const resultado = await res.json();
-      console.log("Mensaje motivacional:", mensajeMotivacional);
-      showSuccessModal('¡Autoevaluación guardada correctamente!', puntajetotal + '/100', mensajeMotivacional);
-
-      // --- RECALCULA RANKING Y ACTUALIZA TABLA ---
-      try {
-        await fetch('/api/rankings/recalcular?quincena=1ra', {
-          method: 'POST',
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        const resRanking = await fetch('/api/rankings?quincena=actual', { cache: "no-store" });
-        const rankingActualizado = await resRanking.json();
-        if (typeof renderRanking === 'function') {
-          renderRanking(rankingActualizado);
-        }
-      } catch (error) {
-        console.error('Error al recalcular/actualizar ranking:', error);
-      }
-      // --------------------------------------------
+      showSuccessModal(
+        '¡Autoevaluación guardada correctamente!',
+        puntajetotal.toFixed(2),
+        mensajeMotivacional
+      );
 
       const estadoSpan = document.getElementById('estadoAutoevaluacion');
       if (estadoSpan) {
@@ -237,12 +206,7 @@ async function enviarRespuestas() {
         estadoSpan.classList.remove('status-pending');
         estadoSpan.classList.add('status-completed');
       }
-      respuestas = {};
-      document.querySelectorAll('input[type="radio"]').forEach(input => {
-        input.checked = false;
-        input.closest('.option-item').classList.remove('selected');
-      });
-      updateProgress();
+
       btnEnviar.innerHTML = textoOriginal;
       btnEnviar.disabled = true;
     } else {

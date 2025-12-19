@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Panel Admin</title>
+  <link rel="stylesheet" href="../../assets/css/admin.css">
+</head>
+<body>
+  <div class="container">
+    <a href="/pages/home/index.html" class="back-link">← Volver</a>
+    <h1>Panel Administrativo</h1>
+
+    <div class="filters">
+      <input type="text" id="buscarNombre" placeholder="Buscar por nombre">
+      <input type="date" id="fechaDesde">
+      <input type="date" id="fechaHasta">
+      <button id="btnFiltrarHoras">Filtrar horas</button>
+      <button id="btnFiltrarPuntajes">Filtrar puntajes</button>
+    </div>
+
+    <h2>Horas contabilizadas</h2>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Fecha</th>
+          <th>Horas</th>
+        </tr>
+      </thead>
+      <tbody id="tablaHoras"></tbody>
+    </table>
+
+    <h2>Puntajes de autoevaluación</h2>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Quincena</th>
+          <th>Puntaje total</th>
+          <th>Puesto</th>
+        </tr>
+      </thead>
+      <tbody id="tablaPuntajes"></tbody>
+    </table>
+  </div>
+
+  <script src="../../js/pages/admin.js"></script>
+</body>
+</html>

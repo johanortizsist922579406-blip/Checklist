@@ -1,7 +1,3 @@
-/* ========================================
-   ruleta.css - Ruleta Normal
-   ======================================== */
-
 * {
   margin: 0;
   padding: 0;
@@ -36,7 +32,6 @@ h1 {
   margin-bottom: 40px;
 }
 
-/* Flecha indicadora */
 .ruleta-pointer {
   position: absolute;
   top: -15px;
@@ -51,7 +46,6 @@ h1 {
   filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.3));
 }
 
-/* Contenedor de la ruleta */
 .ruleta-container {
   width: 100%;
   height: 100%;
@@ -71,7 +65,6 @@ h1 {
   );
 }
 
-/* Líneas divisorias entre segmentos */
 .divider {
   position: absolute;
   width: 2px;
@@ -89,7 +82,6 @@ h1 {
 .divider:nth-child(4) { transform: translateX(-50%) rotate(288deg); }
 .divider:nth-child(5) { transform: translateX(-50%) rotate(360deg); }
 
-/* Textos de los premios */
 .prize-text {
   position: absolute;
   width: 100%;
@@ -118,7 +110,6 @@ h1 {
 .prize-text:nth-child(9) { transform: rotate(252deg); }
 .prize-text:nth-child(10) { transform: rotate(324deg); }
 
-/* Círculo central */
 .center-circle {
   position: absolute;
   top: 50%;
@@ -137,7 +128,6 @@ h1 {
   z-index: 10;
 }
 
-/* Botón girar */
 #girarRuleta {
   border: none;
   padding: 18px 50px;
@@ -168,7 +158,6 @@ h1 {
   transform: none;
 }
 
-/* Mensaje del premio */
 #mensajePremio {
   margin-top: 30px;
   background: white;
@@ -192,7 +181,6 @@ h1 {
   display: none;
 }
 
-/* Responsive */
 @media (max-width: 768px) {
   h1 {
     font-size: 2em;

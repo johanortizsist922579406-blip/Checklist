@@ -1,18 +1,34 @@
 const jwt = require('jsonwebtoken');
-const JWT_SECRET = process.env.JWT_SECRET || 'miclaveultrasecreta';
 
-module.exports = (req, res, next) => {
-  const authHeader = req.headers['authorization'];
-  if (!authHeader) return res.status(401).json({ error: 'Token no enviado' });
+const JWT_SECRET = process.env.JWT_SECRET || 'sanilab2025';
 
-  const token = authHeader.split(' ')[1]; // Bearer TOKEN
-  if (!token) return res.status(401).json({ error: 'Token inválido' });
+const verifyToken = (req, res, next) => {
+  const authHeader = req.headers.authorization || '';
+  console.log('Authorization header =>', authHeader);
+
+  const [scheme, token] = authHeader.split(' ');
+
+  if (scheme !== 'Bearer' || !token) {
+    return res.status(403).json({ error: 'Token inválido o expirado' });
+  }
 
   try {
-    const decoded = jwt.verify(token, JWT_SECRET);
-    req.usuario = decoded;
+    const payload = jwt.verify(token, JWT_SECRET);
+    console.log('JWT payload =>', payload);
+
+    req.user = { id: payload.id, correo: payload.correo, rol: payload.rol };
     next();
   } catch (err) {
+    console.error('JWT error =>', err.message);
     return res.status(403).json({ error: 'Token inválido o expirado' });
   }
 };
+
+const verifyAdmin = (req, res, next) => {
+  if (!req.user || req.user.rol !== 'ADMIN') {
+    return res.status(403).json({ message: 'Acceso solo para administradores' });
+  }
+  next();
+};
+
+module.exports = { verifyToken, verifyAdmin };

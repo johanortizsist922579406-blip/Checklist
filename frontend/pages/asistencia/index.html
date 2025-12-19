@@ -7,8 +7,11 @@
   <link rel="stylesheet" href="../../assets/css/asistencia.css" />
 </head>
 <body>
+  <div id="toast" class="toast hidden">
+    <span id="toast-message"></span>
+  </div>
+
   <div class="container">
-    <!-- Header -->
     <div class="header">
       <button class="back-button" onclick="location.href='../home/index.html'">
         ← Volver
@@ -17,7 +20,6 @@
       <p class="date-display" id="currentDate"></p>
     </div>
 
-    <!-- Info Card -->
     <div class="info-card">
       <div class="time-display">
         <div class="clock" id="currentTime">00:00:00</div>
@@ -30,7 +32,6 @@
       </div>
     </div>
 
-    <!-- Asistencia Info (se llenará dinámicamente) -->
     <div class="asistencia-card" id="asistencia-info">
       <div class="info-row">
         <span class="info-label">Entrada:</span>
@@ -46,7 +47,6 @@
       </div>
     </div>
 
-    <!-- Action Buttons -->
     <div class="action-buttons">
       <button class="btn-action btn-entrada" id="btnEntrada">
         <span class="btn-icon">→</span>
@@ -59,7 +59,6 @@
       </button>
     </div>
 
-    <!-- Última Asistencia -->
     <div class="recent-section" id="ultimaAsistenciaSection" style="display: none;">
       <h3>Última Asistencia Registrada</h3>
       <div class="ultima-asistencia-card">
@@ -89,7 +88,6 @@
 
   <script src="../../js/pages/asistencia.js"></script>
   <script>
-    // Actualizar fecha y hora
     function updateDateTime() {
       const now = new Date();
       
@@ -103,9 +101,7 @@
     updateDateTime();
     setInterval(updateDateTime, 1000);
 
-    // Función para formatear la última asistencia desde JSON
     function mostrarUltimaAsistencia(data) {
-      // Si data es un string JSON, parsearlo
       if (typeof data === 'string') {
         try {
           data = JSON.parse(data);
@@ -120,12 +116,10 @@
       if (data && data.fecha) {
         section.style.display = 'block';
         
-        // Formatear fecha
         const fecha = new Date(data.fecha);
         document.getElementById('ultimaFecha').textContent = 
           fecha.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
         
-        // Formatear horas
         document.getElementById('ultimaEntrada').textContent = 
           data.hora_entrada || '--:--';
         
@@ -140,17 +134,13 @@
       }
     }
 
-    // Ejemplo de uso - Esto se conectaría con tu asistencia-info
-    // Puedes llamar esta función desde tu asistencia.js cuando obtengas los datos
     const asistenciaInfoDiv = document.getElementById('asistencia-info');
     
-    // Observar cambios en el div para detectar cuando se carga la información
     const observer = new MutationObserver(function(mutations) {
       mutations.forEach(function(mutation) {
         if (mutation.addedNodes.length) {
           const textContent = asistenciaInfoDiv.textContent;
           if (textContent.includes('usuario_id')) {
-            // Intentar extraer y parsear el JSON
             const jsonMatch = textContent.match(/\{[^}]+\}/);
             if (jsonMatch) {
               try {
@@ -167,7 +157,6 @@
 
     observer.observe(asistenciaInfoDiv, { childList: true, subtree: true });
 
-    // Funcionalidad de botones
     const btnEntrada = document.getElementById('btnEntrada');
     const btnSalida = document.getElementById('btnSalida');
     const statusIndicator = document.getElementById('statusIndicator');
@@ -200,7 +189,6 @@
       document.getElementById('totalTime').textContent = '8.5 hrs';
     });
 
-    // Función global para que tu asistencia.js pueda usarla
     window.mostrarUltimaAsistencia = mostrarUltimaAsistencia;
   </script>
 </body>

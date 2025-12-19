@@ -1,14 +1,23 @@
-// src/routes.js  o  routes/index.js
 const express = require('express');
 const router = express.Router();
 
-// IMPORTAS todos los routers específicos
-router.use('/areas', require('./areaRoutes'));
-router.use('/usuarios', require('./usuarios')); 
-router.use('/asistencias', require('./asistenciaRoutes'));
-router.use('/preguntas', require('./preguntas')); 
-router.use('/autoevaluaciones', require('./autoevaluacionRoutes'));
-router.use('/respuestas-autoevaluacion', require('./respuestaAutoevaluacionRoutes'));
-router.use('/rankings', require('./rankingRoutes'));
+const asistenciaRoutes = require('./asistenciaRoutes');
+const areaRoutes = require('./areaRoutes');
+const usuarioRoutes = require('./usuarios');
+const preguntaRoutes = require('./preguntas');
+const autoevaluacionRoutes = require('./autoevaluacionRoutes');
+const respuestaAutoevaluacionRoutes = require('./respuestaAutoevaluacionRoutes');
+const rankingRoutes = require('./rankingRoutes');
+const authRoutes = require('./authRoutes');
+const adminRoutes = require('./adminRoutes');
 
+router.use('/auth', authRoutes);
+router.use('/asistencias', asistenciaRoutes);
+router.use('/areas', areaRoutes);
+router.use('/usuarios', usuarioRoutes);
+router.use('/preguntas', preguntaRoutes);
+router.use('/autoevaluaciones', autoevaluacionRoutes);
+router.use('/respuestas-autoevaluacion', respuestaAutoevaluacionRoutes);
+router.use('/rankings', rankingRoutes);
+router.use('/admin', adminRoutes); 
 module.exports = router;

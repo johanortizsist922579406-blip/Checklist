@@ -1,4 +1,3 @@
-// src/controllers/areaController.js
 const pool = require('../../config/database');
 
 exports.getAllAreas = async (req, res) => {

@@ -1,6 +1,58 @@
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background: linear-gradient(135deg, #f1f8e9, #e8f5e9);
+  min-height: 100vh;
+  padding: 40px 20px;
+  color: #2d3436;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background-image: url('../../assets/images/PlantaFondo.jpg');
+  background-repeat: no-repeat;
+  background-position: center center;   /* centrada horizontal y verticalmente */
+  background-size: cover;               /* ocupa toda la pantalla */
+  min-height: 100vh;
+  padding: 40px 20px;
+  color: #2d3436;
+  
+}
+
+.back-button {
+  position: fixed;
+  top: 16px;
+  left: 20px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.9);
+  color: #166534;
+  text-decoration: none;
+  font-size: 0.95rem;
+  font-weight: 500;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.18);
+  border: 1px solid rgba(187, 247, 208, 0.9);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.back-button:hover {
+  background: #ecfdf3;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(22, 163, 74, 0.25);
+}
+
+.ranking-wrapper {
+  max-width: 980px;
+  margin: 0 auto;
+  text-align: center;
+}
+
 .ranking-title {
   text-align: center;
-  font-size: 38px;
+  font-size: 40px;
   margin-top: 0;
   margin-bottom: 10px;
   font-weight: bold;
@@ -20,52 +72,102 @@
 
 .ranking-card {
   margin: 0 auto;
-  border-radius: 18px;
+  margin-top: 10px;
+  border-radius: 24px;
+  max-width: 1020px;  /* antes 920px/880px, ahora más grande */
+  background: radial-gradient(circle at top left, #bbf7d0 0%, #f0fdf4 40%, #ffffff 100%);
+  box-shadow:
+    0 24px 60px rgba(22, 163, 74, 0.28),
+    0 0 0 1px rgba(187, 247, 208, 0.9);
+  border: 1px solid rgba(187, 247, 208, 0.9);
   overflow: hidden;
-  box-shadow: 0 3px 20px #aee9c91b;
-  background: #fdfdf8b5;
-  max-width: 740px;
 }
 
-.ranking-header, .ranking-row {
+.footer-note {
+  max-width: 880px;          
+  margin: 22px auto 0;     
+  font-size: 1.05em;
+  color: #388122;
+  opacity: 0.9;
+  text-align: center;
+}
+
+.ranking-header,
+.ranking-row {
   display: grid;
-  grid-template-columns: 70px 1fr 90px 120px 80px;
-  padding: 15px 11px;
+  grid-template-columns: 90px 2.2fr 120px 130px 90px;
   align-items: center;
+  padding: 20px 26px; 
   font-weight: 500;
 }
 
 .ranking-header {
-  background: linear-gradient(95deg, #cdfbe0 60%, #b1f69c 100%);
-  color: #227f2b;
+  background: linear-gradient(95deg, #22c55e 0%, #4ade80 40%, #a3e635 100%);
+  color: #f0fdf4;
   font-weight: 700;
-  border-bottom: 2px solid #b6f3c6;
+  border-bottom: 2px solid rgba(187, 247, 208, 0.9);
 }
 
 .ranking-row {
-  border-bottom: 1.5px solid #e8f6df;
-  background: transparent;
-  transition: background 0.2s;
+  background: rgba(255, 255, 255, 0.94);
+  border-bottom: 1px solid rgba(226, 232, 240, 0.9);
+  transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
 }
-.ranking-row:last-child { border-bottom: none; }
-.ranking-row.top3 { background: #eafff4b0; font-weight: 600; }
-.ranking-row.highlight { background: #78dba970; font-weight: 700;}
-.ranking-row > div { text-align: center; }
 
-.footer-note {
+.ranking-row:last-child {
+  border-bottom: none;
+}
+
+.ranking-row > div {
   text-align: center;
-  margin-top: 22px;
-  font-size: 1.1em;
-  color: #388122;
-  opacity: 0.87;
+  font-size: 0.98rem;
 }
 
-/* Responsive */
+.ranking-row:nth-child(1) {
+  box-shadow: inset 4px 0 0 #fbbf24;
+  background: #fffdf3;
+  font-weight: 700;
+}
+
+.ranking-row:nth-child(2) {
+  box-shadow: inset 4px 0 0 #9ca3af;
+  background: #f7f7fb;
+  font-weight: 600;
+}
+
+.ranking-row:nth-child(3) {
+  box-shadow: inset 4px 0 0 #fb923c;
+  background: #fff7f1;
+  font-weight: 600;
+}
+
+.ranking-row.highlight {
+  background: #ecfdf5;
+  box-shadow:
+    inset 0 0 0 1px #22c55e,
+    0 10px 30px rgba(34, 197, 94, 0.35);
+}
+
+.ranking-row:hover {
+  background: #f0fdf4;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(22, 163, 74, 0.25);
+}
+
 @media (max-width: 600px) {
-  .ranking-header, .ranking-row {
-    grid-template-columns: 32px 1fr 46px 56px 38px;
-    font-size: 13px;
-    padding: 8px 2px;
+  .ranking-card {
+    max-width: 100%;
+    border-radius: 18px;
   }
-  .ranking-title { font-size: 24px;}
+
+  .ranking-header,
+  .ranking-row {
+    grid-template-columns: 46px 1.6fr 70px 80px 52px;
+    padding: 10px 8px;
+    font-size: 13px;
+  }
+
+  .ranking-title {
+    font-size: 24px;
+  }
 }

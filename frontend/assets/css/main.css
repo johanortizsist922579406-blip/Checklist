@@ -7,7 +7,6 @@ body {
 }
 .login-bg {
   position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1;
-  /* Usa tu fondo de login personalizado o un color sólido */
   background: url('../../assets/images/Fondo-verde.jpg'), #182449;
   background-size: cover;
   background-position: center;

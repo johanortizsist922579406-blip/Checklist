@@ -32,7 +32,6 @@ document.getElementById('registroForm').addEventListener('submit', async functio
   }
 });
 
-// Cargar dinámicamente las áreas
 async function cargarAreas() {
   const res = await fetch('/api/areas');
   if(res.ok) {
@@ -40,7 +39,7 @@ async function cargarAreas() {
     const select = document.getElementById('area');
     areas.forEach(area => {
       const option = document.createElement('option');
-      option.value = area.id; // Si el campo es areaid, pon area.areaid
+      option.value = area.id; 
       option.textContent = area.nombre;
       select.appendChild(option);
     });

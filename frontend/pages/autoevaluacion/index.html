@@ -8,19 +8,16 @@
 </head>
 <body>
   <div class="container">
-    <!-- Botón Volver -->
     <a href="#" class="back-link" id="btnVolver">← Volver</a>
 
-    <!-- Título -->
     <h1 class="title">Autoevaluación</h1>
     <p class="subtitle">Responde las siguientes preguntas sobre tu desempeño</p>
 
-    <!-- Información del Usuario -->
     <div class="card user-info">
       <div class="info-grid">
         <div class="info-item">
           <span class="info-label">Periodo:</span>
-          <span class="info-value">Octubre 2025</span>
+          <span class="info-value" id="periodoTexto">Diciembre 2025</span>
         </div>
         <div class="info-item">
           <span class="info-label">Estado:</span>
@@ -29,13 +26,9 @@
       </div>
     </div>
 
-    <!-- Formulario de Preguntas -->
     <div class="card questions-card">
-      <div id="preguntasContainer">
-        <!-- Las preguntas se cargarán dinámicamente aquí -->
-      </div>
+      <div id="preguntasContainer"></div>
 
-      <!-- Botón Enviar -->
       <div class="actions">
         <button class="btn btn-primary" id="enviarRespuestas">
           <span>Enviar Autoevaluación</span>
@@ -44,32 +37,21 @@
       </div>
     </div>
 
-    <!-- Progreso -->
-    <div class="progress-container">
-      <div class="progress-info">
-        <span id="progressText">0 de 0 preguntas respondidas</span>
-        <span id="progressPercent">0%</span>
-      </div>
-      <div class="progress-bar">
-        <div class="progress-fill" id="progressFill"></div>
+    <div class="modal-success" id="successModal">
+      <div class="success-card">
+        <button id="btnAceptarModal" class="btn btn-success">Aceptar</button>
+        <div class="success-checkmark">
+          <svg viewBox="0 0 52 52">
+            <circle cx="26" cy="26" r="25" fill="none"></circle>
+            <path d="M14 27 L22 35 L38 19"></path>
+          </svg>
+        </div>
+        <div class="success-title" id="successMessage"></div>
+        <div class="success-score" id="successScore"></div>
+        <div class="success-motivational" id="motivationalMessage"
+             style="font-weight:bold;color:#31b46a;"></div>
       </div>
     </div>
-
-    <!-- Modal de éxito -->
-<div class="modal-success" id="successModal">
-  <div class="success-card">
-  <button id="btnAceptarModal" class="btn btn-success">Aceptar</button>
-    <div class="success-checkmark">
-      <svg viewBox="0 0 52 52">
-        <circle cx="26" cy="26" r="25" fill="none"/>
-        <path d="M14 27 L22 35 L38 19"/>
-      </svg>
-    </div>
-    <div class="success-title" id="successMessage"></div>
-<div class="success-score" id="successScore"></div>
-<div class="success-motivational" id="motivationalMessage" style="font-weight:bold;color:#31b46a;"></div>
-  </div>
-</div>
   </div>
 
   <script src="../../js/pages/autoevaluacion.js"></script>

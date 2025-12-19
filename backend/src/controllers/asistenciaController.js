@@ -1,55 +1,120 @@
-// src/controllers/asistenciaController.js
 const pool = require('../../config/database');
 
 exports.getAllAsistencias = async (req, res) => {
   try {
-    const [rows] = await pool.query('SELECT * FROM asistencias');
+    const usuarioid = req.user.id; 
+
+    const [rows] = await pool.query(
+      'SELECT * FROM asistencias WHERE usuarioid = ? ORDER BY fecha, horaentrada',
+      [usuarioid]
+    );
+
     res.json(rows);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
 
-exports.getAsistenciaById = async (req, res) => {
+exports.marcarEntrada = async (req, res) => {
   try {
-    const [rows] = await pool.query('SELECT * FROM asistencias WHERE id = ?', [req.params.id]);
-    if (rows.length === 0) return res.status(404).json({ error: 'Asistencia not found' });
-    res.json(rows[0]);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
+    const usuarioid = req.user.id;
 
-exports.createAsistencia = async (req, res) => {
-  try {
-    const { usuarioid, fecha, horaentrada, horasalida, estado } = req.body;
-    const [result] = await pool.query(
-      'INSERT INTO asistencias (usuarioid, fecha, horaentrada, horasalida, estado) VALUES (?, ?, ?, ?, ?)',
-      [usuarioid, fecha, horaEntrada, horasalida, estado]
+    let asistenciaId;
+    const [existentes] = await pool.query(
+      'SELECT id FROM asistencias WHERE usuarioid = ? AND fecha = CURDATE()',
+      [usuarioid]
     );
-    res.json({ id: result.insertid, usuarioid, fecha, horaentrada, horasalida, estado });
+
+    if (existentes.length) {
+      asistenciaId = existentes[0].id;
+    } else {
+      const [result] = await pool.query(
+        `INSERT INTO asistencias (usuarioid, fecha, estado)
+         VALUES (?, CURDATE(), 'En jornada')`,
+        [usuarioid]
+      );
+      asistenciaId = result.insertId;
+    }
+
+    const [tramosAbiertos] = await pool.query(
+      `SELECT id FROM asistencia_tramos
+       WHERE asistenciaid = ? AND horasalida IS NULL`,
+      [asistenciaId]
+    );
+
+    if (tramosAbiertos.length) {
+      return res.status(400).json({ error: 'Ya tienes un tramo de asistencia en curso' });
+    }
+
+    const [nuevoTramo] = await pool.query(
+      `INSERT INTO asistencia_tramos (asistenciaid, horaentrada)
+       VALUES (?, CURTIME())`,
+      [asistenciaId]
+    );
+
+    res.json({ message: 'Entrada registrada', asistenciaId, tramoId: nuevoTramo.insertId });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
 
 exports.marcarSalida = async (req, res) => {
-  const { asistenciaid } = req.body; // o ajústalo según cómo envíes el ID
+  try {
+    const usuarioid = req.user.id;
 
-  // Obtén la hora actual
-  const now = new Date();
-  const horasalida = now.toTimeString().split(' ')[0];
+    const [asisRows] = await pool.query(
+      `SELECT id
+       FROM asistencias
+       WHERE usuarioid = ? AND fecha = CURDATE()`,
+      [usuarioid]
+    );
 
-  // Busca hora_entrada de ese registro
-  const [rows] = await pool.query('SELECT horaentrada FROM asistencias WHERE id = ?', [asistenciaid]);
-  if (!rows.length) return res.status(404).json({ error: 'Asistencia no encontrada' });
+    if (!asisRows.length) {
+      return res.status(404).json({ error: 'No hay asistencia registrada hoy' });
+    }
 
-  // Actualiza registro con hora_salida y calcula hora_total
-  await pool.query(
-    `UPDATE asistencias
-     SET horasalida = ?, horatotal = TIMEDIFF(?, hora_entrada)
-     WHERE id = ?`,
-    [horasalida, horasalida, asistenciaid]
-  );
-  res.json({ message: 'Salida registrada y hora_total guardada' });
+    const asistenciaId = asisRows[0].id;
+
+    const [tramosAbiertos] = await pool.query(
+      `SELECT id, horaentrada
+       FROM asistencia_tramos
+       WHERE asistenciaid = ? AND horasalida IS NULL`,
+      [asistenciaId]
+    );
+
+    if (!tramosAbiertos.length) {
+      return res.status(404).json({ error: 'No hay tramo de asistencia en curso' });
+    }
+
+    const tramoId = tramosAbiertos[0].id;
+
+    await pool.query(
+      `UPDATE asistencia_tramos
+       SET horasalida = CURTIME()
+       WHERE id = ?`,
+      [tramoId]
+    );
+
+    const [sumRows] = await pool.query(
+      `SELECT
+         SUM(TIMESTAMPDIFF(SECOND, horaentrada, horasalida)) AS segundos_totales
+       FROM asistencia_tramos
+       WHERE asistenciaid = ? AND horasalida IS NOT NULL`,
+      [asistenciaId]
+    );
+
+    const segundosTotales = sumRows[0].segundos_totales || 0;
+
+    await pool.query(
+      `UPDATE asistencias
+       SET horatotal = SEC_TO_TIME(?),
+           estado = 'Presente'
+       WHERE id = ?`,
+      [segundosTotales, asistenciaId]
+    );
+
+    res.json({ message: 'Salida registrada', asistenciaId, segundosTotales });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 };
