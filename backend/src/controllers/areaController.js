@@ -2,13 +2,15 @@ const pool = require('../../config/database');
 
 exports.getAllAreas = async (req, res) => {
   try {
+    console.log('GET /api/areas llamado');
+
     const [rows] = await pool.query('SELECT * FROM areas WHERE activo = 1');
     res.json(rows);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error('ERROR /api/areas =>', err);
+    res.status(500).json({ error: err.message || 'Error interno en /api/areas' });
   }
 };
-
 exports.getAreaById = async (req, res) => {
   try {
     const [rows] = await pool.query('SELECT * FROM areas WHERE id = ?', [req.params.id]);

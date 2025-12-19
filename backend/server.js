@@ -18,8 +18,14 @@ app.get('/', (req, res) => {
 
 app.use('/api', routes);
 
+app.use((err, req, res, next) => {
+  console.error('ERROR GLOBAL =>', err);
+  res.status(err.status || 500).json({
+    error: err.message || 'Error interno del servidor'
+  });
+});
+
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
-  console.log(`Servidor corriendo en http://localhost:${PORT}`);
 });
