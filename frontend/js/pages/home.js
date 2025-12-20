@@ -22,10 +22,10 @@ function initHome() {
 
   if (btnAdmin && modal && closeBtn) {
     btnAdmin.onclick = function () {
-      const usuarioid = localStorage.getItem('usuarioid');
-      console.log('USUARIO ID EN HOME =>', usuarioid);
+      const usuario = JSON.parse(localStorage.getItem('usuario') || 'null');
+      console.log('USUARIO EN HOME =>', usuario);
 
-      if (usuarioid === '10') {   
+      if (usuario && usuario.rol === 'ADMIN') {
         window.location.href = '/pages/admin/index.html';
       } else {
         modal.classList.remove('hidden');

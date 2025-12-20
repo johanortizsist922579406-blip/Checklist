@@ -34,13 +34,14 @@ exports.login = async (req, res) => {
   );
 
     return res.json({
-      token,
-      usuario: {
-        id: usuario.id,
-        correo: usuario.correo,
-        areaid: usuario.areaid  
-      }
-    });
+    token,
+    usuario: {
+    id: usuario.id,
+    correo: usuario.correo,
+    areaid: usuario.areaid,
+    rol: usuario.rol        
+  }
+});
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }

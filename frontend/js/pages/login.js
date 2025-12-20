@@ -24,6 +24,7 @@ document.getElementById('loginForm').addEventListener('submit', async function (
     localStorage.setItem('token', data.token);
     localStorage.setItem('usuarioid', String(data.usuario.id));
     localStorage.setItem('areaid', String(data.usuario.areaid));
+    localStorage.setItem('usuario', JSON.stringify(data.usuario)); 
 
     window.location.href = '/pages/home/index.html';
   } catch (error) {
