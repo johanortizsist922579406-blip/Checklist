@@ -10,8 +10,8 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   background-image: url('../../assets/images/PlantaFondo.jpg');
   background-repeat: no-repeat;
-  background-position: center center;   /* centrada horizontal y verticalmente */
-  background-size: cover;               /* ocupa toda la pantalla */
+  background-position: center center; 
+  background-size: cover;            
   min-height: 100vh;
   padding: 40px 20px;
   color: #2d3436;

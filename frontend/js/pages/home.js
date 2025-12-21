@@ -8,14 +8,26 @@ function initHome() {
   const modal     = document.getElementById('no-access-modal');
   const closeBtn  = document.getElementById('closeNoAccess');
 
+  const userStr = localStorage.getItem('usuario');
+  if (userStr) {
+    const usuario = JSON.parse(userStr);
+    const welcomeTitle = document.getElementById('welcomeTitle');
+    if (welcomeTitle && usuario && usuario.nombre) {
+    const esMujer = usuario.genero === 'F';
+    const saludo = esMujer ? 'Bienvenida' : 'Bienvenido';
+    welcomeTitle.textContent = `${saludo} ${usuario.nombre}`;
+  }
+}
+
   if (modal) {
-    modal.classList.add('hidden');  
+    modal.classList.add('hidden');
   }
 
   if (btnLogout) {
     btnLogout.onclick = function () {
       localStorage.removeItem('token');
       localStorage.removeItem('usuarioid');
+      localStorage.removeItem('usuario');  
       window.location.href = '/';
     };
   }

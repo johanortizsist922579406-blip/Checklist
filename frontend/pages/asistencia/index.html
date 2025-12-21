@@ -156,39 +156,7 @@
     });
 
     observer.observe(asistenciaInfoDiv, { childList: true, subtree: true });
-
-    const btnEntrada = document.getElementById('btnEntrada');
-    const btnSalida = document.getElementById('btnSalida');
-    const statusIndicator = document.getElementById('statusIndicator');
-    const entradaTime = document.getElementById('entradaTime');
-    const salidaTime = document.getElementById('salidaTime');
-
-    btnEntrada.addEventListener('click', function() {
-      const now = new Date();
-      const timeString = now.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
-      entradaTime.textContent = timeString;
-      
-      btnEntrada.disabled = true;
-      btnSalida.disabled = false;
-      
-      statusIndicator.innerHTML = '<div class="status-dot active"></div><span>Entrada registrada</span>';
-      statusIndicator.classList.add('active');
-    });
-
-    btnSalida.addEventListener('click', function() {
-      const now = new Date();
-      const timeString = now.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
-      salidaTime.textContent = timeString;
-      
-      btnSalida.disabled = true;
-      
-      statusIndicator.innerHTML = '<div class="status-dot completed"></div><span>Jornada completada</span>';
-      statusIndicator.classList.add('completed');
-      statusIndicator.classList.remove('active');
-      
-      document.getElementById('totalTime').textContent = '8.5 hrs';
-    });
-
+    
     window.mostrarUltimaAsistencia = mostrarUltimaAsistencia;
   </script>
 </body>
