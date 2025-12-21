@@ -39,6 +39,13 @@ function actualizarSliderVisual(input) {
   input.style.background = `linear-gradient(to right, #22c55e ${percent}%, #e5e7eb ${percent}%)`;
 }
 
+function getEstadoTexto(valor) {
+  if (valor < 2) return '😞 Mal';
+  if (valor < 3.5) return '😐 Regular';
+  if (valor < 4.5) return '🙂 Bien';
+  return '😄 Excelente';
+}
+
 function renderPreguntas(preguntas) {
   const container = document.getElementById('preguntasContainer');
   container.innerHTML = '';
@@ -80,17 +87,24 @@ function renderPreguntas(preguntas) {
     valueSpan.className = 'slider-value';
     valueSpan.textContent = Number(inputRange.value).toFixed(1);
 
+    const moodSpan = document.createElement('span');
+    moodSpan.className = 'slider-mood';
+    moodSpan.textContent = getEstadoTexto(Number(inputRange.value));
+
     actualizarSliderVisual(inputRange);
 
     inputRange.addEventListener('input', () => {
-      valueSpan.textContent = Number(inputRange.value).toFixed(1);
-      respuestas[pregunta.id] = Number(inputRange.value);
+      const v = Number(inputRange.value);
+      valueSpan.textContent = v.toFixed(1);
+      moodSpan.textContent = getEstadoTexto(v);
+      respuestas[pregunta.id] = v;
       actualizarSliderVisual(inputRange);
       updateProgress();
     });
 
     sliderWrapper.appendChild(inputRange);
     sliderWrapper.appendChild(valueSpan);
+    sliderWrapper.appendChild(moodSpan);
     questionDiv.appendChild(sliderWrapper);
 
     container.appendChild(questionDiv);
@@ -107,7 +121,7 @@ function updateProgress() {
   const porcentaje = total > 0 ? Math.round((respondidas / total) * 100) : 0;
 
   const btnEnviar = document.getElementById('enviarRespuestas');
-  btnEnviar.disabled = !(total > 0); 
+  btnEnviar.disabled = !(total > 0);
 }
 
 function showSuccessModal(msg, score, mensajeMotivacional) {
@@ -146,7 +160,7 @@ async function enviarRespuestas() {
     suma += Number(valor);
   });
 
-  const puntajetotal = suma; 
+  const puntajetotal = suma;
 
   let mensajeMotivacional = '';
   const promedio = puntajetotal / total;
@@ -165,8 +179,8 @@ async function enviarRespuestas() {
     const valor = Number(respuestas[preguntaid]);
     respuestasArray.push({
       preguntaid: parseInt(preguntaid),
-      respuesta: null,   
-      puntaje: valor     
+      respuesta: null,
+      puntaje: valor
     });
   }
 
