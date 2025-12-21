@@ -1,7 +1,7 @@
 const pool = require('../../config/database');
 const jwt = require('jsonwebtoken');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'tuclavesecretasupersegura';
+const JWT_SECRET = process.env.JWT_SECRET || 'Sanilab2025';
 
 exports.login = async (req, res) => {
   try {
@@ -26,22 +26,26 @@ exports.login = async (req, res) => {
       return res.status(401).json({ error: 'Credenciales inválidas' });
     }
 
-    const payload = { id: usuario.id, correo: usuario.correo };
-    const token = jwt.sign(
-    { id: usuario.id, correo: usuario.correo, rol: usuario.rol },
-      JWT_SECRET,
-    { expiresIn: '8h' }
-  );
+    const payload = {
+      id: usuario.id,
+      correo: usuario.correo,
+      rol: usuario.rol,
+      nombre: usuario.nombre
+    };
+
+    const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '8h' });
 
     return res.json({
-    token,
-    usuario: {
-    id: usuario.id,
-    correo: usuario.correo,
-    areaid: usuario.areaid,
-    rol: usuario.rol        
-  }
-});
+      token,
+      usuario: {
+        id: usuario.id,
+        nombre: usuario.nombre,
+        correo: usuario.correo,
+        areaid: usuario.areaid,
+        rol: usuario.rol,
+        genero: usuario.genero
+      }
+    });
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }

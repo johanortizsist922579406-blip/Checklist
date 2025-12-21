@@ -17,6 +17,10 @@ exports.getAllAsistencias = async (req, res) => {
 
 exports.marcarEntrada = async (req, res) => {
   try {
+    console.log('--- marcarEntrada ---');
+    console.log('Usuario en token:', req.user);
+    console.log('Body recibido:', req.body);
+
     const usuarioid = req.user.id;
 
     let asistenciaId;
@@ -41,9 +45,12 @@ exports.marcarEntrada = async (req, res) => {
        WHERE asistenciaid = ? AND horasalida IS NULL`,
       [asistenciaId]
     );
+    console.log('Tramos abiertos encontrados:', tramosAbiertos);
 
     if (tramosAbiertos.length) {
-      return res.status(400).json({ error: 'Ya tienes un tramo de asistencia en curso' });
+      return res
+        .status(400)
+        .json({ error: 'Ya tienes un tramo de asistencia en curso' });
     }
 
     const [nuevoTramo] = await pool.query(
@@ -52,9 +59,16 @@ exports.marcarEntrada = async (req, res) => {
       [asistenciaId]
     );
 
-    res.json({ message: 'Entrada registrada', asistenciaId, tramoId: nuevoTramo.insertId });
+    return res.json({
+      message: 'Entrada registrada',
+      asistenciaId,
+      tramoId: nuevoTramo.insertId
+    });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error('Error en marcarEntrada:', err);
+    return res
+      .status(500)
+      .json({ error: 'Error interno al marcar entrada' });
   }
 };
 

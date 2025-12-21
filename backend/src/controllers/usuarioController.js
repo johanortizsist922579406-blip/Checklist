@@ -21,14 +21,41 @@ exports.getUsuarioById = async (req, res) => {
 
 exports.createUsuario = async (req, res) => {
   try {
-    const { correo, password, nombre, apellido, areaid, activo } = req.body;
-    const [result] = await pool.query(
-      'INSERT INTO usuarios (correo, passwordhash, nombre, apellido, areaid, activo) VALUES (?, ?, ?, ?, ?, ?)',
-      [correo, password, nombre, apellido, areaid, activo ?? 'SI']
+    const { correo, password, nombre, apellido, areaid, activo, genero } = req.body;
+
+    if (!correo || !password || !nombre || !apellido || !areaid || !genero) {
+      return res.status(400).json({ error: 'Todos los campos son obligatorios' });
+    }
+
+    if (!['M', 'F'].includes(genero)) {
+      return res.status(400).json({ error: 'Género inválido' });
+    }
+
+    const [existe] = await pool.query(
+      'SELECT id FROM usuarios WHERE correo = ?',
+      [correo]
     );
-    res.json({ id: result.insertId, correo, nombre, apellido, areaid });
+    if (existe.length) {
+      return res.status(409).json({ error: 'El correo ya está registrado' });
+    }
+
+    const [result] = await pool.query(
+      `INSERT INTO usuarios (correo, passwordhash, nombre, apellido, areaid, activo, genero, rol)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      [correo, password, nombre, apellido, areaid, activo ?? 'SI', genero, 'USER']
+    );
+
+    res.status(201).json({
+      id: result.insertId,
+      correo,
+      nombre,
+      apellido,
+      areaid,
+      genero
+    });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error('Error al registrar usuario =>', err.message);
+    res.status(500).json({ error: 'Error al registrar usuario' });
   }
 };
 
@@ -57,7 +84,7 @@ exports.loginUsuario = async (req, res) => {
       usuarioid: usuario.id
     });
   } catch (err) {
-    console.log("Error de login:", err);
+    console.log('Error de login:', err);
     res.status(500).json({ error: 'Error de servidor' });
   }
 };
