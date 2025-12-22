@@ -1,5 +1,4 @@
 const pool = require('../../config/database');
-
 exports.getAllAsistencias = async (req, res) => {
   try {
     const usuarioid = req.user.id;
@@ -38,12 +37,11 @@ exports.marcarEntrada = async (req, res) => {
     if (existentes.length) {
       asistenciaId = existentes[0].id;
     } else {
-    const [result] = await pool.query(
-    `INSERT INTO asistencias (usuarioid, fecha, horaentrada, estado)
-    VALUES (?, CURDATE(), CURTIME(), 'En jornada')`,
-    [usuarioid]
-    );
-
+      const [result] = await pool.query(
+        `INSERT INTO asistencias (usuarioid, fecha, horaentrada, estado)
+         VALUES (?, CURDATE(), CURTIME(), 'En jornada')`,
+        [usuarioid]
+      );
       asistenciaId = result.insertId;
     }
 
@@ -115,18 +113,18 @@ exports.marcarSalida = async (req, res) => {
     const tramoId = tramosAbiertos[0].id;
 
     await pool.query(
-    `UPDATE asistencia_tramos
-    SET horasalida = CURTIME()
-    WHERE id = ?`,
-    [tramoId]
+      `UPDATE asistencia_tramos
+       SET horasalida = CURTIME()
+       WHERE id = ?`,
+      [tramoId]
     );
 
-  await pool.query(
-  `UPDATE asistencias
-   SET horasalida = CURTIME()
-   WHERE id = ?`,
-  [asistenciaId]
-  );
+    await pool.query(
+      `UPDATE asistencias
+       SET horasalida = CURTIME()
+       WHERE id = ?`,
+      [asistenciaId]
+    );
 
     const [sumRows] = await pool.query(
       `SELECT
