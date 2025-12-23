@@ -9,12 +9,15 @@ router.get('/', async (req, res) => {
   }
 
   try {
+        console.log('Pool:', pool);
+        console.log('Areaid:', areaid);
     const [rows] = await pool.query(
       'SELECT * FROM preguntas WHERE areaid = ? AND activa = 1 ORDER BY orden',
       [areaid]
     );
     res.json(rows);
   } catch (err) {
+        console.error('Error en preguntas:', err);
     res.status(500).json({ error: err.message });
   }
 });
