@@ -3,13 +3,20 @@
 <head>
   <meta charset="UTF-8" />
   <title>Registro - Autoevaluaciones</title>
+  <link rel="icon" type="image/png" href="../../assets/images/favicon-128x128.png" />
   <link rel="stylesheet" href="../../assets/css/auth.css" />
+
 </head>
 <body>
   <div class="register-bg"></div>
+
   <section class="register-container">
-    <img src="../../assets/images/Sanilab-logo.png" alt="Sanilab Logo" class="register-logo">
+    <img src="../../assets/images/Sanilab-logo.png"
+         alt="Sanilab Logo"
+         class="register-logo">
+
     <h1>Registro</h1>
+
     <form id="registroForm" autocomplete="off">
       <label for="nombre">Nombre</label>
       <input type="text" id="nombre" name="nombre" required />
@@ -24,27 +31,58 @@
       <input type="password" id="password" name="password" required />
 
       <label for="area">Área</label>
-      <select id="area" name="area" required>
-      </select>
+      <select id="area" name="area" required></select>
+
       <label>Género</label>
       <div class="genero-group">
-      <label class="genero-option">
-      <input type="radio" name="genero" value="M" required />
-      Hombre
-      </label>
-      <label class="genero-option">
-      <input type="radio" name="genero" value="F" required />
-      Mujer
-      </label>
+        <label class="genero-option">
+          <input type="radio" name="genero" value="M" required />
+          Hombre
+        </label>
+        <label class="genero-option">
+          <input type="radio" name="genero" value="F" required />
+          Mujer
+        </label>
       </div>
 
-    <button type="submit">Registrarse</button>
+      <button type="submit">Registrarse</button>
     </form>
+
     <div class="register-footer">
       ¿Ya tienes cuenta?
       <a href="../../index.html">Iniciar sesión</a>
     </div>
   </section>
+
+<div id="modal-exito" class="modal-overlay oculto">
+  <div class="modal-card">
+    <div class="modal-icon">
+      ✓
+    </div>
+    <h2>Usuario registrado correctamente</h2>
+    <p>Tu cuenta se creó con éxito. Ahora puedes iniciar sesión en el sistema Sanilab.</p>
+    <button id="btn-ir-login">Ir a iniciar sesión</button>
+  </div>
+</div>
+
+  <div id="toast-exito" class="toast-oculto">
+    <div class="toast-contenido">
+      <span>Usuario registrado correctamente</span>
+    </div>
+  </div>
+
   <script src="../../js/pages/registro.js"></script>
+
+  <script>
+    function mostrarToastExito(mensaje) {
+      const toast = document.getElementById('toast-exito');
+      toast.querySelector('span').textContent = mensaje;
+      toast.classList.add('toast-mostrar');
+
+      setTimeout(() => {
+        toast.classList.remove('toast-mostrar');
+      }, 3000);
+    }
+  </script>
 </body>
 </html>

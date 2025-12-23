@@ -30,8 +30,7 @@ document.getElementById('registroForm').addEventListener('submit', async functio
     });
 
     if (res.ok) {
-      alert('Usuario registrado con éxito');
-      window.location.href = '../../index.html';
+      mostrarModalExito();
     } else {
       const data = await res.json();
       alert('Error: ' + (data.error || 'No se pudo registrar el usuario'));
@@ -55,3 +54,13 @@ async function cargarAreas() {
   }
 }
 cargarAreas();
+
+function mostrarModalExito() {
+  const modal = document.getElementById('modal-exito');
+  modal.classList.remove('oculto');
+
+  const btnIrLogin = document.getElementById('btn-ir-login');
+  btnIrLogin.onclick = () => {
+    window.location.href = '../../index.html';
+  };
+}
