@@ -58,13 +58,12 @@ window.addEventListener('load', async () => {
   const statusIndicator = document.getElementById('statusIndicator');
 
   try {
-    const res = await fetch('/api/asistencias/estado-actual', {
+    const res = await axios.get('/api/asistencias/estado-actual', {
       headers: {
-        'Authorization': `Bearer ${token}`
+        Authorization: `Bearer ${token}`
       }
     });
-    const data = await res.json();
-    console.log('Estado actual asistencia:', data);
+    const data = res.data;
 
     if (!data.tieneEntradaAbierta) {
       btnEntrada.disabled = false;
@@ -112,21 +111,21 @@ window.addEventListener('load', async () => {
 });
 
 document.getElementById('btnEntrada').onclick = async function () {
-  const res = await fetch('/api/asistencias/entrada', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${obtenerToken()}`
-    }
-  });
+  try {
+    const res = await axios.post('/api/asistencias/entrada', {}, {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${obtenerToken()}`
+      }
+    });
 
-  const data = await res.json();
+    const data = res.data;
 
-  if (res.ok) {
     mostrarToast('Entrada registrada', 'success');
     setTimeout(() => location.reload(), 800);
-  } else {
-    if (data.error === 'Ya tienes un tramo de asistencia en curso') {
+  } catch (error) {
+    const errData = error.response?.data || {};
+    if (errData.error === 'Ya tienes un tramo de asistencia en curso') {
       const btnEntrada = document.getElementById('btnEntrada');
       const btnSalida = document.getElementById('btnSalida');
       const statusIndicator = document.getElementById('statusIndicator');
@@ -138,26 +137,26 @@ document.getElementById('btnEntrada').onclick = async function () {
       statusIndicator.classList.add('active');
       statusIndicator.classList.remove('completed');
     } else {
-      mostrarToast(data.error || 'Error al marcar entrada', 'error');
+      mostrarToast(errData.error || 'Error al marcar entrada', 'error');
     }
   }
 };
 
 document.getElementById('btnSalida').onclick = async function () {
-  const res = await fetch('/api/asistencias/salida', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${obtenerToken()}`
-    }
-  });
+  try {
+    const res = await axios.post('/api/asistencias/salida', {}, {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${obtenerToken()}`
+      }
+    });
 
-  const data = await res.json();
+    const data = res.data;
 
-  if (res.ok) {
     mostrarToast('Salida registrada', 'success');
     setTimeout(() => location.reload(), 800);
-  } else {
-    mostrarToast(data.error || 'Error al marcar salida', 'error');
+  } catch (error) {
+    const errData = error.response?.data || {};
+    mostrarToast(errData.error || 'Error al marcar salida', 'error');
   }
 };

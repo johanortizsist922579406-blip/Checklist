@@ -13,11 +13,11 @@ function initHome() {
     const usuario = JSON.parse(userStr);
     const welcomeTitle = document.getElementById('welcomeTitle');
     if (welcomeTitle && usuario && usuario.nombre) {
-    const esMujer = usuario.genero === 'F';
-    const saludo = esMujer ? 'Bienvenida' : 'Bienvenido';
-    welcomeTitle.textContent = `${saludo} ${usuario.nombre}`;
+      const esMujer = usuario.genero === 'F';
+      const saludo = esMujer ? 'Bienvenida' : 'Bienvenido';
+      welcomeTitle.textContent = `${saludo} ${usuario.nombre}`;
+    }
   }
-}
 
   if (modal) {
     modal.classList.add('hidden');
@@ -27,7 +27,7 @@ function initHome() {
     btnLogout.onclick = function () {
       localStorage.removeItem('token');
       localStorage.removeItem('usuarioid');
-      localStorage.removeItem('usuario');  
+      localStorage.removeItem('usuario');
       window.location.href = '/';
     };
   }

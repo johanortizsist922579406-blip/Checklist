@@ -19,63 +19,65 @@ async function cargarHoras() {
   const fechaDesde = document.getElementById('fechaDesde').value;
   const fechaHasta = document.getElementById('fechaHasta').value;
 
-  const params = new URLSearchParams();
-  if (nombre) params.append('nombre', nombre);
-  if (fechaDesde) params.append('fechaDesde', fechaDesde);
-  if (fechaHasta) params.append('fechaHasta', fechaHasta);
+  const params = {};
+  if (nombre) params.nombre = nombre;
+  if (fechaDesde) params.fechaDesde = fechaDesde;
+  if (fechaHasta) params.fechaHasta = fechaHasta;
 
-  const res = await fetch('/api/admin/horas?' + params.toString(), {
-    headers: { 'Authorization': `Bearer ${token}` }
-  });
+  try {
+    const res = await axios.get('/api/admin/horas', {
+      params,
+      headers: { Authorization: `Bearer ${token}` }
+    });
 
-  if (!res.ok) {
+    const datos = res.data;
+    const tbody = document.getElementById('tablaHoras');
+    tbody.innerHTML = '';
+
+    datos.forEach(row => {
+      tbody.innerHTML += `
+        <tr>
+          <td>${row.nombre}</td>
+          <td>${row.fecha}</td>
+          <td>${row.horas}</td>
+        </tr>
+      `;
+    });
+  } catch (error) {
     alert('Error cargando horas');
-    return;
+    console.error('Error cargarHoras:', error);
   }
-
-  const datos = await res.json();
-  const tbody = document.getElementById('tablaHoras');
-  tbody.innerHTML = '';
-
-  datos.forEach(row => {
-    tbody.innerHTML += `
-      <tr>
-        <td>${row.nombre}</td>
-        <td>${row.fecha}</td>
-        <td>${row.horas}</td>
-      </tr>
-    `;
-  });
 }
 
 async function cargarPuntajes() {
   const token = localStorage.getItem('token');
   const nombre = document.getElementById('buscarNombre').value.trim();
 
-  const params = new URLSearchParams();
-  if (nombre) params.append('nombre', nombre);
+  const params = {};
+  if (nombre) params.nombre = nombre;
 
-  const res = await fetch('/api/admin/puntajes?' + params.toString(), {
-    headers: { 'Authorization': `Bearer ${token}` }
-  });
+  try {
+    const res = await axios.get('/api/admin/puntajes', {
+      params,
+      headers: { Authorization: `Bearer ${token}` }
+    });
 
-  if (!res.ok) {
+    const datos = res.data;
+    const tbody = document.getElementById('tablaPuntajes');
+    tbody.innerHTML = '';
+
+    datos.forEach(row => {
+      tbody.innerHTML += `
+        <tr>
+          <td>${row.nombre}</td>
+          <td>${row.quincena}</td>
+          <td>${row.puntajetotal}</td>
+          <td>${row.posicion}</td>
+        </tr>
+      `;
+    });
+  } catch (error) {
     alert('Error cargando puntajes');
-    return;
+    console.error('Error cargarPuntajes:', error);
   }
-
-  const datos = await res.json();
-  const tbody = document.getElementById('tablaPuntajes');
-  tbody.innerHTML = '';
-
-  datos.forEach(row => {
-    tbody.innerHTML += `
-      <tr>
-        <td>${row.nombre}</td>
-        <td>${row.quincena}</td>
-        <td>${row.puntajetotal}</td>
-        <td>${row.posicion}</td>
-      </tr>
-    `;
-  });
 }

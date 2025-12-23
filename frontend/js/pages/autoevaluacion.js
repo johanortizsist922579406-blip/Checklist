@@ -6,11 +6,12 @@ window.onload = async function() {
   const token = localStorage.getItem('token');
 
   try {
-    const preguntasRes = await fetch(`/api/preguntas?areaid=${areaid}`, {
-      headers: { 'Authorization': `Bearer ${token}` }
+    const preguntasRes = await axios.get(`/api/preguntas`, {
+      params: { areaid },
+      headers: { Authorization: `Bearer ${token}` }
     });
-    const preguntas = await preguntasRes.json();
 
+    const preguntas = preguntasRes.data;
     preguntasGlobales = preguntas;
     renderPreguntas(preguntas);
     updateProgress();
@@ -34,7 +35,6 @@ function actualizarSliderVisual(input) {
   const min = Number(input.min);
   const max = Number(input.max);
   const val = Number(input.value);
-
   const percent = ((val - min) / (max - min)) * 100;
   input.style.background = `linear-gradient(to right, #22c55e ${percent}%, #e5e7eb ${percent}%)`;
 }
@@ -129,7 +129,7 @@ function showSuccessModal(msg, score, mensajeMotivacional) {
   document.getElementById('successScore').textContent = score ? ("Puntuación: " + score) : "";
   document.getElementById('motivationalMessage').textContent = mensajeMotivacional || "";
   document.getElementById('successModal').classList.add('active');
-  
+
   const btnAceptar = document.getElementById('btnAceptarModal');
   if (btnAceptar) {
     btnAceptar.onclick = function() {
@@ -190,48 +190,45 @@ async function enviarRespuestas() {
   btnEnviar.disabled = true;
 
   try {
-    const res = await fetch('/api/autoevaluaciones', {
-      method: 'POST',
+    const res = await axios.post('/api/autoevaluaciones', {
+      usuarioid: parseInt(usuarioid),
+      areaid: parseInt(areaid),
+      puntajetotal: puntajetotal,
+      quincena: quincena,
+      mensajemotivacional: mensajeMotivacional,
+      respuestas: respuestasArray
+    }, {
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify({
-        usuarioid: parseInt(usuarioid),
-        areaid: parseInt(areaid),
-        puntajetotal: puntajetotal,
-        quincena: quincena,
-        mensajemotivacional: mensajeMotivacional,
-        respuestas: respuestasArray
-      })
+        Authorization: `Bearer ${token}`
+      }
     });
 
-    if (res.ok) {
-      const resultado = await res.json();
-      showSuccessModal(
-        '¡Autoevaluación guardada correctamente!',
-        puntajetotal.toFixed(2),
-        mensajeMotivacional
-      );
+    const resultado = res.data;
 
-      const estadoSpan = document.getElementById('estadoAutoevaluacion');
-      if (estadoSpan) {
-        estadoSpan.textContent = 'Enviado';
-        estadoSpan.classList.remove('status-pending');
-        estadoSpan.classList.add('status-completed');
-      }
+    showSuccessModal(
+      '¡Autoevaluación guardada correctamente!',
+      puntajetotal.toFixed(2),
+      mensajeMotivacional
+    );
 
-      btnEnviar.innerHTML = textoOriginal;
-      btnEnviar.disabled = true;
-    } else {
-      const error = await res.json();
-      alert('Error al guardar la autoevaluación: ' + (error.message || 'Error desconocido'));
-      btnEnviar.innerHTML = textoOriginal;
-      btnEnviar.disabled = false;
+    const estadoSpan = document.getElementById('estadoAutoevaluacion');
+    if (estadoSpan) {
+      estadoSpan.textContent = 'Enviado';
+      estadoSpan.classList.remove('status-pending');
+      estadoSpan.classList.add('status-completed');
     }
+
+    btnEnviar.innerHTML = textoOriginal;
+    btnEnviar.disabled = true;
   } catch (error) {
+    if (error.response) {
+      const errData = error.response.data;
+      alert('Error al guardar la autoevaluación: ' + (errData?.message || errData?.error || 'Error desconocido'));
+    } else {
+      alert('Error de conexión. Por favor, intenta nuevamente.');
+    }
     console.error('Error al enviar:', error);
-    alert('Error de conexión. Por favor, intenta nuevamente.');
     btnEnviar.innerHTML = textoOriginal;
     btnEnviar.disabled = false;
   }
