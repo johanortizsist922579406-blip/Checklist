@@ -1,7 +1,3 @@
-const api = axios.create({
-  baseURL: 'https://checklist-nqjz.onrender.com'  
-});
-
 window.onload = async function() {
   const token = localStorage.getItem('token');
   if (!token) {
@@ -29,7 +25,7 @@ async function cargarHoras() {
   if (fechaHasta) params.fechaHasta = fechaHasta;
 
   try {
-    const res = await api.get('/api/admin/horas', {
+    const res = await axios.get('/api/admin/horas', {
       params,
       headers: { Authorization: `Bearer ${token}` }
     });
@@ -61,7 +57,7 @@ async function cargarPuntajes() {
   if (nombre) params.nombre = nombre;
 
   try {
-    const res = await api.get('/api/admin/puntajes', {
+    const res = await axios.get('/api/admin/puntajes', {
       params,
       headers: { Authorization: `Bearer ${token}` }
     });
@@ -85,3 +81,4 @@ async function cargarPuntajes() {
     console.error('Error cargarPuntajes:', error);
   }
 }
+ 
