@@ -103,7 +103,7 @@ function showSuccessModal(msg, score, mensajeMotivacional) {
  document.getElementById('successMessage').textContent = msg;
  document.getElementById('successScore').textContent = score ? ("Puntuación: " + score) : "";
  document.getElementById('motivationalMessage').textContent = mensajeMotivacional || "";
- document.getElementById('successModal').classList.add('active');
+ document.getElementById('successModal').style.display = 'flex';
  const btnAceptar = document.getElementById('btnAceptarModal');
  if (btnAceptar) {
  btnAceptar.onclick = function() {
@@ -112,7 +112,7 @@ function showSuccessModal(msg, score, mensajeMotivacional) {
  }
 }
 function closeSuccessModal() {
- document.getElementById('successModal').classList.remove('active');
+ document.getElementById('successModal').style.display = 'nonecne';
 }
 async function enviarRespuestas() {
  const total = preguntasGlobales.length;
