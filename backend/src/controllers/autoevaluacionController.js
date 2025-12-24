@@ -54,9 +54,6 @@ exports.crearAutoevaluacion = async (req, res) => {
       );
     }
 
-await axios.post('/api/rankings/recalcular', { 
-  quincena
-});
 
     res.json({
       message: 'Autoevaluación guardada correctamente',
