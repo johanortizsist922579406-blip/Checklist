@@ -173,10 +173,7 @@ async function enviarRespuestas() {
  puntajetotal.toFixed(2),
  mensajeMotivacional
  );
-  setTimeout(() => {
-    window.location.href = '/pages/ranking/ranking.html';
-  }, 2000);
- const estadoSpan = document.getElementById('estadoAutoevaluacion');
+  onst estadoSpan = document.getElementById('estadoAutoevaluacion');
  if (estadoSpan) {
  estadoSpan.textContent = 'Enviado';
  estadoSpan.classList.remove('status-pending');
