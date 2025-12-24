@@ -112,7 +112,7 @@ function showSuccessModal(msg, score, mensajeMotivacional) {
  }
 }
 function closeSuccessModal() {
- document.getElementById('successModal').style.display = 'nonecne';
+ document.getElementById('successModal').style.display = 'none';
 }
 async function enviarRespuestas() {
  const total = preguntasGlobales.length;
@@ -173,7 +173,7 @@ async function enviarRespuestas() {
  puntajetotal.toFixed(2),
  mensajeMotivacional
  );
-  onst estadoSpan = document.getElementById('estadoAutoevaluacion');
+  const estadoSpan = document.getElementById('estadoAutoevaluacion');
  if (estadoSpan) {
  estadoSpan.textContent = 'Enviado';
  estadoSpan.classList.remove('status-pending');
