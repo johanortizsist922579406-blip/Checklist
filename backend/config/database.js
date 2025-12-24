@@ -13,3 +13,4 @@ const pool = mysql.createPool({
 });
 
 module.exports = pool;
+// Fixed: Using mysql.railway.internal for DB_HOST
