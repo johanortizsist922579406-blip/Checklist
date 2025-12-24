@@ -7,12 +7,27 @@ const pool = mysql.createPool({
   database: process.env.DB_NAME || 'sanilab_checklist',
   multipleStatements: true,
   waitForConnections: true,
-  connectionLimit: 10,
+  connectionLimit: 20,
   queueLimit: 0,
   enableKeepAlive: true,
-  keepAliveInitialDelayMs: 0,
-  enableTLS: 'true',
-  namedPlaceholders: true
+  keepAliveInitialDelayMs: 30000,
+  connectTimeout: 30000,
+  idleTimeout: 60000,
+  enableTLS: false,
+  namedPlaceholders: true,
+  decimalNumbers: true,
+  supportBigNumbers: true,
+  bigNumberStrings: true
 });
+
+// Test the connection on startup
+pool.getConnection()
+  .then(conn => {
+    console.log('✅ Database connection successful!');
+    conn.release();
+  })
+  .catch(err => {
+    console.error('❌ Database connection failed:', err.message);
+  });
 
 module.exports = pool;
