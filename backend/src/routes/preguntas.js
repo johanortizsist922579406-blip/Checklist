@@ -16,10 +16,18 @@ router.get('/', async (req, res) => {
       [areaid]
     );
     res.json(rows);
-  } catch (err) {
-        console.error('Error en preguntas:', err);
-    res.status(500).json({ error: err.message });
-  }
-});
+} catch (err) {
+  console.error('Error en preguntas completo:', {
+    message: err.message,
+    code: err.code,
+    sql: err.sql,
+    sqlState: err.sqlState,
+    stackTrace: err.stack
+  });
+  res.status(500).json({ 
+    error: err.message || 'Error desconocido',
+    code: err.code
+  });
+}
 
 module.exports = router;
