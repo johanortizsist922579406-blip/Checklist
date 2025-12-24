@@ -9,25 +9,26 @@ router.get('/', async (req, res) => {
   }
 
   try {
-        console.log('Pool:', pool);
-        console.log('Areaid:', areaid);
+    console.log('Pool:', pool);
+    console.log('Areaid:', areaid);
     const [rows] = await pool.query(
       'SELECT * FROM preguntas WHERE areaid = ? AND activa = 1 ORDER BY orden',
       [areaid]
     );
     res.json(rows);
-} catch (err) {
-  console.error('Error en preguntas completo:', {
-    message: err.message,
-    code: err.code,
-    sql: err.sql,
-    sqlState: err.sqlState,
-    stackTrace: err.stack
-  });
-  res.status(500).json({ 
-    error: err.message || 'Error desconocido',
-    code: err.code
-  });
-}
+  } catch (err) {
+    console.error('Error en preguntas completo:', {
+      message: err.message,
+      code: err.code,
+      sql: err.sql,
+      sqlState: err.sqlState,
+      stackTrace: err.stack
+    });
+    res.status(500).json({ 
+      error: err.message || 'Error desconocido',
+      code: err.code
+    });
+  }
+});
 
 module.exports = router;
