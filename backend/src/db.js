@@ -5,18 +5,13 @@ console.log('🔧 Variables de entorno disponibles:');
 const mysqlVars = Object.keys(process.env).filter(k => k.includes('MYSQL') || k.includes('DATABASE'));
 mysqlVars.forEach(v => console.log('  -', v));
 
-// Railway inyecta variables MYSQL_* que SIEMPRE debemos usar primero
 let pool;
 
-const requiredEnvVars = ['MYSQL_HOST', 'MYSQL_USER', 'MYSQL_PASSWORD', 'MYSQL_DATABASE'];
-const missingVars = requiredEnvVars.filter(varName => !process.env[varName]);
-
-if (missingVars.length === 0) {
-  // Todas las variables necesarias están disponibles - USAR ESTAS
-  console.log('🔧 Usando MYSQL_* variables para conectar a MySQL');
+// Intentar conectar con MYSQL_* variables (prioridad 1)
+if (process.env.MYSQL_HOST && process.env.MYSQL_USER && process.env.MYSQL_PASSWORD && process.env.MYSQL_DATABASE) {
+  console.log('🔧 Conectando con MYSQL_* variables...');
   console.log('  Host:', process.env.MYSQL_HOST);
   console.log('  Usuario:', process.env.MYSQL_USER);
-  console.log('  Base de datos:', process.env.MYSQL_DATABASE);
   console.log('  Puerto:', process.env.MYSQL_PORT || 3306);
   
   pool = mysql.createPool({
@@ -39,35 +34,40 @@ if (missingVars.length === 0) {
     namedPlaceholders: true,
   });
 } else if (process.env.DATABASE_URL) {
-  // Si faltan variables individuales, intentar DATABASE_URL
-  console.log('🔧 Usando DATABASE_URL para conectar a MySQL');
+  console.log('🔧 MYSQL_* variables no disponibles, usando DATABASE_URL...');
   pool = mysql.createPool(process.env.DATABASE_URL);
 } else {
-  console.error('❌ ERROR: No hay variables de conexión a BD disponibles');
-  console.error('Faltantes:', missingVars);
-  process.exit(1);
+  console.warn('⚠️ WARNING: No hay variables de conexión. Creando pool de fallback...');
+  // Fallback: crear pool con valores por defecto
+  // Esto NO se conectará, pero permitirá que el servidor inicie
+  pool = mysql.createPool({
+    host: 'localhost',
+    user: 'root',
+    password: '',
+    database: 'sanilab_checklist',
+    port: 3306,
+    connectionLimit: 5,
+    waitForConnections: true,
+    queueLimit: 0,
+  });
 }
 
-// Test de conexión al iniciar
+// Test de conexión
 pool.getConnection()
   .then(conn => {
-    console.log('✅ ✅ Database connection successful!');
-    console.log('   Connected to MySQL');
+    console.log('✅ ✅ ✅ DATABASE CONNECTION SUCCESS!');
+    console.log('   ✅ Backend can now query the database');
     conn.release();
   })
   .catch(err => {
-    console.error('❌ ❌ Database connection failed:', err.message);
-    console.error('   Código de error:', err.code);
-    if (err.code === 'PROTOCOL_CONNECTION_LOST') {
-      console.error('   La conexión se perdió (conexión rechazada)');
-    } else if (err.code === 'ECONNREFUSED') {
-      console.error('   La conexión fue rechazada (MySQL no accesible)');
-      console.error('   Verifica que MYSQL_HOST, MYSQL_PORT sean correctos');
-      console.error('   Verifica que MySQL esté Online en Railway');
+    console.error('❌ ❌ ❌ DATABASE CONNECTION FAILED:', err.message);
+    console.error('   Error code:', err.code);
+    if (err.code === 'ECONNREFUSED') {
+      console.error('   MySQL no está escuchando en ese host/puerto');
+      console.error('   Verifica MYSQL_HOST y MYSQL_PORT');
     } else if (err.code === 'ER_ACCESS_DENIED_ERROR') {
-      console.error('   Acceso denegado (verifica usuario/contraseña)');
+      console.error('   Acceso denegado - verifica credenciales');
     }
-    console.error('   Stack:', err.stack);
   });
 
 module.exports = pool;
