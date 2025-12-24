@@ -1,4 +1,5 @@
-const pool = require('../db');
+56
+  const pool = require('../db');
 const axios = require('axios');
 
 exports.getAllAutoevaluaciones = async (req, res) => {
@@ -53,7 +54,7 @@ exports.crearAutoevaluacion = async (req, res) => {
       );
     }
 
-await axios.post('http://localhost:3000/api/rankings/recalcular', { 
+await axios.post('/api/rankings/recalcular', { 
   quincena
 });
 
