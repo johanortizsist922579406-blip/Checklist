@@ -8,7 +8,11 @@ const pool = mysql.createPool({
   multipleStatements: true,
   waitForConnections: true,
   connectionLimit: 10,
-  queueLimit: 0
+  queueLimit: 0,
+  enableKeepAlive: true,
+  keepAliveInitialDelayMs: 0,
+  enableTLS: 'true',
+  namedPlaceholders: true
 });
 
 module.exports = pool;
