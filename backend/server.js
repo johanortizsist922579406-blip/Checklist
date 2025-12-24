@@ -1,4 +1,6 @@
 require('dotenv').config();
+
+// Force redeploy with fixed API endpoint
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
