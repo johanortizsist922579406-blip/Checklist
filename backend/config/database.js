@@ -1,3 +1,6 @@
+// config/database.js
+const mysql = require('mysql2/promise');
+
 const port = Number(process.env.MYSQL_PORT || process.env.MYSQLPORT || 3306);
 
 const pool = mysql.createPool({
@@ -11,3 +14,5 @@ const pool = mysql.createPool({
   queueLimit: 0,
   multipleStatements: true
 });
+
+module.exports = pool;
