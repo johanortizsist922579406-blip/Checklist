@@ -24,6 +24,8 @@ const pool = mysql.createPool({
 pool.getConnection()
   .then(conn => {
     console.log('✅ Database connection successful!');
+        console.log('Connected to database:', process.env.DB_HOST);
+    
     conn.release();
   })
   .catch(err => {
