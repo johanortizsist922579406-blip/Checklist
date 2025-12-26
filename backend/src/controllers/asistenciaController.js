@@ -1,10 +1,43 @@
+const pool = require('../../config/database');
+
+exports.getAllAsistencias = async (req, res) => {
+  try {
+    const usuarioid = req.user.id;
+
+    const [rows] = await pool.query(
+      `SELECT 
+        id,
+        usuarioid,
+        fecha,
+        TIME(horaentrada) AS horaentrada,
+        TIME(horasalida) AS horasalida,
+        estado,
+        horatotal
+       FROM asistencias
+       WHERE usuarioid = ?
+       ORDER BY fecha DESC`,
+      [usuarioid]
+    );
+
+    res.json(rows);
+  } catch (err) {
+    console.error('Error en getAllAsistencias:', err);
+    res.status(500).json({ error: err.message });
+  }
+};
+
 exports.marcarEntrada = async (req, res) => {
   try {
+    console.log('--- marcarEntrada ---');
+    console.log('Usuario en token:', req.user);
+    console.log('Body recibido:', req.body);
+
     const usuarioid = req.user.id;
 
     let asistenciaId;
     const [existentes] = await pool.query(
-      `SELECT id FROM asistencias
+      `SELECT id
+       FROM asistencias
        WHERE usuarioid = ? AND fecha = CURDATE()`,
       [usuarioid]
     );
@@ -14,25 +47,29 @@ exports.marcarEntrada = async (req, res) => {
     } else {
       const [result] = await pool.query(
         `INSERT INTO asistencias (usuarioid, fecha, horaentrada, estado)
-         VALUES (?, CURDATE(), CURTIME(), 'En jornada')`,  
+         VALUES (?, CURDATE(), CURTIME(), 'En jornada')`,
         [usuarioid]
       );
       asistenciaId = result.insertId;
     }
 
     const [tramosAbiertos] = await pool.query(
-      `SELECT id FROM asistencia_tramos
+      `SELECT id
+       FROM asistencia_tramos
        WHERE asistenciaid = ? AND horasalida IS NULL`,
       [asistenciaId]
     );
+    console.log('Tramos abiertos encontrados:', tramosAbiertos);
 
     if (tramosAbiertos.length) {
-      return res.status(400).json({ error: 'Ya tienes un tramo de asistencia en curso' });
+      return res
+        .status(400)
+        .json({ error: 'Ya tienes un tramo de asistencia en curso' });
     }
 
     const [nuevoTramo] = await pool.query(
       `INSERT INTO asistencia_tramos (asistenciaid, horaentrada)
-       VALUES (?, CURTIME())`,  // <-- SIN CONVERT_TZ
+       VALUES (?, CURTIME())`,
       [asistenciaId]
     );
 
@@ -43,7 +80,9 @@ exports.marcarEntrada = async (req, res) => {
     });
   } catch (err) {
     console.error('Error en marcarEntrada:', err);
-    return res.status(500).json({ error: 'Error interno al marcar entrada' });
+    return res
+      .status(500)
+      .json({ error: 'Error interno al marcar entrada' });
   }
 };
 
@@ -52,25 +91,31 @@ exports.marcarSalida = async (req, res) => {
     const usuarioid = req.user.id;
 
     const [asisRows] = await pool.query(
-      `SELECT id FROM asistencias
+      `SELECT id
+       FROM asistencias
        WHERE usuarioid = ? AND fecha = CURDATE()`,
       [usuarioid]
     );
 
     if (!asisRows.length) {
-      return res.status(404).json({ error: 'No hay asistencia registrada hoy' });
+      return res
+        .status(404)
+        .json({ error: 'No hay asistencia registrada hoy' });
     }
 
     const asistenciaId = asisRows[0].id;
 
     const [tramosAbiertos] = await pool.query(
-      `SELECT id FROM asistencia_tramos
+      `SELECT id, horaentrada
+       FROM asistencia_tramos
        WHERE asistenciaid = ? AND horasalida IS NULL`,
       [asistenciaId]
     );
 
     if (!tramosAbiertos.length) {
-      return res.status(404).json({ error: 'No hay tramo de asistencia en curso' });
+      return res
+        .status(404)
+        .json({ error: 'No hay tramo de asistencia en curso' });
     }
 
     const tramoId = tramosAbiertos[0].id;
@@ -78,19 +123,20 @@ exports.marcarSalida = async (req, res) => {
     await pool.query(
       `UPDATE asistencia_tramos
        SET horasalida = CURTIME()
-       WHERE id = ?`,  // <-- SIN CONVERT_TZ
+       WHERE id = ?`,
       [tramoId]
     );
 
     await pool.query(
       `UPDATE asistencias
        SET horasalida = CURTIME()
-       WHERE id = ?`,  // <-- SIN CONVERT_TZ
+       WHERE id = ?`,
       [asistenciaId]
     );
 
     const [sumRows] = await pool.query(
-      `SELECT SUM(TIMESTAMPDIFF(SECOND, horaentrada, horasalida)) AS segundos_totales
+      `SELECT
+          SUM(TIMESTAMPDIFF(SECOND, horaentrada, horasalida)) AS segundos_totales
        FROM asistencia_tramos
        WHERE asistenciaid = ? AND horasalida IS NOT NULL`,
       [asistenciaId]
