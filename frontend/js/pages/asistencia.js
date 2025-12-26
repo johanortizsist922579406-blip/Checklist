@@ -35,6 +35,19 @@ function decodificarToken(token) {
   }
 }
 
+// Función para convertir hora UTC a Perú
+function convertirHoraPeruana(horaUTC) {
+  if (!horaUTC) return '--:--';
+  const fecha = new Date(`1970-01-01T${horaUTC}Z`);
+  return fecha.toLocaleTimeString('es-PE', {
+    timeZone: 'America/Lima',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false
+  });
+}
+
 window.addEventListener('load', async () => {
   const token = obtenerToken();
   if (!token) return;
@@ -79,12 +92,12 @@ window.addEventListener('load', async () => {
     }
 
     if (data.horaentrada && entradaTime) {
-      entradaTime.textContent = data.horaentrada.substring(0, 5);
+      entradaTime.textContent = convertirHoraPeruana(data.horaentrada).substring(0, 5);
     }
 
     if (data.horasalida) {
       if (salidaTime) {
-        salidaTime.textContent = data.horasalida.substring(0, 5);
+        salidaTime.textContent = convertirHoraPeruana(data.horasalida).substring(0, 5);
       }
       if (data.horatotal && totalTime) {
         const [h, m, s] = data.horatotal.split(':');
