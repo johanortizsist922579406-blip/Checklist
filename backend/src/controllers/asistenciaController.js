@@ -1,13 +1,25 @@
 const pool = require('../../config/database');
+
+function obtenerHoraPeruana() {
+  return "CONVERT_TZ(CURTIME(), '+00:00', '-05:00')";
+}
+
 exports.getAllAsistencias = async (req, res) => {
   try {
     const usuarioid = req.user.id;
 
     const [rows] = await pool.query(
-      `SELECT *
+      `SELECT 
+        id,
+        usuarioid,
+        fecha,
+        TIME(CONVERT_TZ(horaentrada, '+00:00', '-05:00')) AS horaentrada,
+        TIME(CONVERT_TZ(horasalida, '+00:00', '-05:00')) AS horasalida,
+        estado,
+        horatotal
        FROM asistencias
        WHERE usuarioid = ?
-       ORDER BY fecha, horatotal`,
+       ORDER BY fecha DESC, horaentrada DESC`,
       [usuarioid]
     );
 
@@ -39,7 +51,7 @@ exports.marcarEntrada = async (req, res) => {
     } else {
       const [result] = await pool.query(
         `INSERT INTO asistencias (usuarioid, fecha, horaentrada, estado)
-         VALUES (?, CURDATE(), CURTIME(), 'En jornada')`,
+         VALUES (?, CURDATE(), CONVERT_TZ(CURTIME(), '+00:00', '-05:00'), 'En jornada')`,
         [usuarioid]
       );
       asistenciaId = result.insertId;
@@ -61,7 +73,7 @@ exports.marcarEntrada = async (req, res) => {
 
     const [nuevoTramo] = await pool.query(
       `INSERT INTO asistencia_tramos (asistenciaid, horaentrada)
-       VALUES (?, CURTIME())`,
+       VALUES (?, CONVERT_TZ(CURTIME(), '+00:00', '-05:00'))`,
       [asistenciaId]
     );
 
@@ -114,14 +126,14 @@ exports.marcarSalida = async (req, res) => {
 
     await pool.query(
       `UPDATE asistencia_tramos
-       SET horasalida = CURTIME()
+       SET horasalida = CONVERT_TZ(CURTIME(), '+00:00', '-05:00')
        WHERE id = ?`,
       [tramoId]
     );
 
     await pool.query(
       `UPDATE asistencias
-       SET horasalida = CURTIME()
+       SET horasalida = CONVERT_TZ(CURTIME(), '+00:00', '-05:00')
        WHERE id = ?`,
       [asistenciaId]
     );
