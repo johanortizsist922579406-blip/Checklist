@@ -43,14 +43,11 @@ async function cargarHoras() {
       const horaEntrada = row.horaentrada ? row.horaentrada.substring(0, 5) : '--:--';
       const horaSalida = row.horasalida ? row.horasalida.substring(0, 5) : '--:--';
       const totalHoras = row.horatotal ? row.horatotal.substring(0, 8) : '--:--:--';
-      
-      // Formatear la fecha correctamente
-      const fecha = row.fecha ? new Date(row.fecha).toLocaleDateString('es-ES', {year: 'numeric', month: '2-digit', day: '2-digit'}) : '--';
 
       tbody.innerHTML += `
         <tr>
           <td>${row.nombre}</td>
-          <td>${fecha}</td>
+          <td>${row.fecha}</td>
           <td>${horaEntrada}</td>
           <td>${horaSalida}</td>
           <td>${totalHoras}</td>
