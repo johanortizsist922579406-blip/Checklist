@@ -1,14 +1,14 @@
 require('dotenv').config();
 
-// Force redeploy with fixed API endpoint
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
+const pool = require('./config/database');
+
 const app = express();
 const routes = require('./src/routes');
 
-// Get the root directory - go up from backend directory to project root
 const projectRoot = path.dirname(__dirname);
 const frontendPath = path.join(projectRoot, 'frontend');
 
@@ -17,16 +17,23 @@ console.log('Frontend path:', frontendPath);
 console.log('Frontend exists:', fs.existsSync(frontendPath));
 console.log('Index.html exists:', fs.existsSync(path.join(frontendPath, 'index.html')));
 
+pool.getConnection()
+  .then(conn => {
+    console.log('✅ DATABASE CONNECTED SUCCESSFULLY');
+    conn.release();
+  })
+  .catch(err => {
+    console.error('❌ DATABASE CONNECTION FAILED:', err.message);
+  });
+
 app.use(cors());
 app.use(express.json());
 
-// Serve static files from the frontend directory
 app.use(express.static(frontendPath, {
   dotfiles: 'ignore',
   index: false
 }));
 
-// Route for serving the main HTML file
 app.get('/', (req, res) => {
   const indexPath = path.join(frontendPath, 'index.html');
   console.log('Attempting to serve:', indexPath);

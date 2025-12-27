@@ -1,12 +1,13 @@
+require('dotenv').config();
 const mysql = require('mysql2/promise');
 
-const port = Number(process.env.MYSQL_PORT || process.env.MYSQLPORT || 3306);
-const host = process.env.MYSQL_HOST || process.env.MYSQLHOST || 'mysql.railway.internal';
-const user = process.env.MYSQL_USER || process.env.MYSQLUSER || 'root';
-const password = process.env.MYSQL_PASSWORD || process.env.MYSQLPASSWORD || '';
-const database = process.env.MYSQL_DATABASE || process.env.MYSQLDATABASE || 'railway';
+const host = process.env.DB_HOST || 'localhost';
+const user = process.env.DB_USER || 'root';
+const password = process.env.DB_PASSWORD || '';
+const database = process.env.DB_NAME || 'sanilab_checklist';
+const port = Number(process.env.DB_PORT) || 3306;
 
-console.log('🔧 Conectando con MYSQL_* variables...');
+console.log('🔧 Conectando con variables...');
 console.log('  Host:', host);
 console.log('  Usuario:', user);
 console.log('  Puerto:', port);
@@ -23,5 +24,14 @@ const pool = mysql.createPool({
   queueLimit: 0,
   multipleStatements: true
 });
+
+pool.getConnection()
+  .then(conn => {
+    console.log('✅ DATABASE CONNECTION SUCCESS!');
+    conn.release();
+  })
+  .catch(err => {
+    console.error('❌ DATABASE CONNECTION FAILED:', err.message);
+  });
 
 module.exports = pool;
