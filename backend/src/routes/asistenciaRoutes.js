@@ -46,8 +46,8 @@ router.get('/estado-actual', async (req, res) => {
         tieneEntradaAbierta: false,
         asistenciaId: asistencia.id,
         fecha: asistencia.fecha,
-        horaentrada: tramo.horaentrada ? tramo.horaentrada.substring(0, 5) : null,
-        horasalida: tramo.horasalida ? tramo.horasalida.substring(0, 5) : null,
+        horaentrada: null,
+        horasalida: null,
         horatotal: asistencia.horatotal || null
       });
     }
@@ -56,7 +56,7 @@ router.get('/estado-actual', async (req, res) => {
       tieneEntradaAbierta: true,
       asistenciaId: asistencia.id,
       fecha: asistencia.fecha,
-      horaentrada: tramo.horaentrada ? tramo.horaentrada.substring(0, 5) : null,
+      horaentrada: tramo.horaentrada,
       horasalida: null,
       horatotal: asistencia.horatotal || null
     });
@@ -65,6 +65,5 @@ router.get('/estado-actual', async (req, res) => {
     return res.status(500).json({ error: 'Error al obtener estado de asistencia' });
   }
 });
-
 
 module.exports = router;
