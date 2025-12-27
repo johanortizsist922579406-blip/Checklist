@@ -29,16 +29,14 @@ exports.getAllAsistencias = async (req, res) => {
 exports.marcarEntrada = async (req, res) => {
   try {
     console.log('--- marcarEntrada ---');
-    console.log('Usuario en token:', req.user);
-    console.log('Body recibido:', req.body);
-
     const usuarioid = req.user.id;
+
+    const fechaPeruana = 'CONVERT_TZ(CURDATE(), \'+00:00\', \'-05:00\')';
 
     let asistenciaId;
     const [existentes] = await pool.query(
-      `SELECT id
-       FROM asistencias
-       WHERE usuarioid = ? AND fecha = CURDATE()`,
+      `SELECT id FROM asistencias
+       WHERE usuarioid = ? AND DATE(CONVERT_TZ(fecha, '+00:00', '-05:00')) = CURDATE()`,
       [usuarioid]
     );
 
@@ -47,29 +45,25 @@ exports.marcarEntrada = async (req, res) => {
     } else {
       const [result] = await pool.query(
         `INSERT INTO asistencias (usuarioid, fecha, horaentrada, estado)
-         VALUES (?, CURDATE(), CURTIME(), 'En jornada')`,
+         VALUES (?, CURDATE(), CONVERT_TZ(CURTIME(), '+00:00', '-05:00'), 'En jornada')`,
         [usuarioid]
       );
       asistenciaId = result.insertId;
     }
 
     const [tramosAbiertos] = await pool.query(
-      `SELECT id
-       FROM asistencia_tramos
+      `SELECT id FROM asistencia_tramos
        WHERE asistenciaid = ? AND horasalida IS NULL`,
       [asistenciaId]
     );
-    console.log('Tramos abiertos encontrados:', tramosAbiertos);
 
     if (tramosAbiertos.length) {
-      return res
-        .status(400)
-        .json({ error: 'Ya tienes un tramo de asistencia en curso' });
+      return res.status(400).json({ error: 'Ya tienes un tramo de asistencia en curso' });
     }
 
     const [nuevoTramo] = await pool.query(
       `INSERT INTO asistencia_tramos (asistenciaid, horaentrada)
-       VALUES (?, CURTIME())`,
+       VALUES (?, CONVERT_TZ(CURTIME(), '+00:00', '-05:00'))`,
       [asistenciaId]
     );
 
@@ -80,9 +74,7 @@ exports.marcarEntrada = async (req, res) => {
     });
   } catch (err) {
     console.error('Error en marcarEntrada:', err);
-    return res
-      .status(500)
-      .json({ error: 'Error interno al marcar entrada' });
+    return res.status(500).json({ error: 'Error interno al marcar entrada' });
   }
 };
 
@@ -91,52 +83,45 @@ exports.marcarSalida = async (req, res) => {
     const usuarioid = req.user.id;
 
     const [asisRows] = await pool.query(
-      `SELECT id
-       FROM asistencias
-       WHERE usuarioid = ? AND fecha = CURDATE()`,
+      `SELECT id FROM asistencias
+       WHERE usuarioid = ? AND DATE(CONVERT_TZ(fecha, '+00:00', '-05:00')) = CURDATE()`,
       [usuarioid]
     );
 
     if (!asisRows.length) {
-      return res
-        .status(404)
-        .json({ error: 'No hay asistencia registrada hoy' });
+      return res.status(404).json({ error: 'No hay asistencia registrada hoy' });
     }
 
     const asistenciaId = asisRows[0].id;
 
     const [tramosAbiertos] = await pool.query(
-      `SELECT id, horaentrada
-       FROM asistencia_tramos
+      `SELECT id FROM asistencia_tramos
        WHERE asistenciaid = ? AND horasalida IS NULL`,
       [asistenciaId]
     );
 
     if (!tramosAbiertos.length) {
-      return res
-        .status(404)
-        .json({ error: 'No hay tramo de asistencia en curso' });
+      return res.status(404).json({ error: 'No hay tramo de asistencia en curso' });
     }
 
     const tramoId = tramosAbiertos[0].id;
 
     await pool.query(
       `UPDATE asistencia_tramos
-       SET horasalida = CURTIME()
+       SET horasalida = CONVERT_TZ(CURTIME(), '+00:00', '-05:00')
        WHERE id = ?`,
       [tramoId]
     );
 
     await pool.query(
       `UPDATE asistencias
-       SET horasalida = CURTIME()
+       SET horasalida = CONVERT_TZ(CURTIME(), '+00:00', '-05:00')
        WHERE id = ?`,
       [asistenciaId]
     );
 
     const [sumRows] = await pool.query(
-      `SELECT
-          SUM(TIMESTAMPDIFF(SECOND, horaentrada, horasalida)) AS segundos_totales
+      `SELECT SUM(TIMESTAMPDIFF(SECOND, horaentrada, horasalida)) AS segundos_totales
        FROM asistencia_tramos
        WHERE asistenciaid = ? AND horasalida IS NOT NULL`,
       [asistenciaId]
@@ -147,7 +132,7 @@ exports.marcarSalida = async (req, res) => {
     await pool.query(
       `UPDATE asistencias
        SET horatotal = SEC_TO_TIME(?),
-           estado    = 'Presente'
+           estado = 'Presente'
        WHERE id = ?`,
       [segundosTotales, asistenciaId]
     );
