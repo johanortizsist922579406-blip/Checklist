@@ -18,7 +18,7 @@ router.get('/estado-actual', async (req, res) => {
       `SELECT id, fecha, horatotal
        FROM asistencias
        WHERE usuarioid = ?
-         AND fecha = CURDATE()
+         AND DATE(CONVERT_TZ(fecha, '+00:00', '-05:00')) = CURDATE()
        ORDER BY id DESC
        LIMIT 1`,
       [usuarioId]
@@ -46,8 +46,8 @@ router.get('/estado-actual', async (req, res) => {
         tieneEntradaAbierta: false,
         asistenciaId: asistencia.id,
         fecha: asistencia.fecha,
-        horaentrada: null,
-        horasalida: null,
+        horaentrada: tramo.horaentrada ? tramo.horaentrada.substring(0, 5) : null,
+        horasalida: tramo.horasalida ? tramo.horasalida.substring(0, 5) : null,
         horatotal: asistencia.horatotal || null
       });
     }
@@ -56,7 +56,7 @@ router.get('/estado-actual', async (req, res) => {
       tieneEntradaAbierta: true,
       asistenciaId: asistencia.id,
       fecha: asistencia.fecha,
-      horaentrada: tramo.horaentrada,
+      horaentrada: tramo.horaentrada ? tramo.horaentrada.substring(0, 5) : null,
       horasalida: null,
       horatotal: asistencia.horatotal || null
     });
@@ -65,5 +65,6 @@ router.get('/estado-actual', async (req, res) => {
     return res.status(500).json({ error: 'Error al obtener estado de asistencia' });
   }
 });
+
 
 module.exports = router;
