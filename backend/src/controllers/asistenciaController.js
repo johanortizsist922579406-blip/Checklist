@@ -33,7 +33,7 @@ exports.marcarEntrada = async (req, res) => {
     let asistenciaId;
     const [existentes] = await pool.query(
       `SELECT id FROM asistencias
-       WHERE usuarioid = ? AND fecha = CURDATE()`,
+       WHERE usuarioid = ? AND DATE(CONVERT_TZ(fecha, '+00:00', '-05:00')) = CURDATE()`,
       [usuarioid]
     );
 
@@ -81,7 +81,7 @@ exports.marcarSalida = async (req, res) => {
 
     const [asisRows] = await pool.query(
       `SELECT id FROM asistencias
-       WHERE usuarioid = ? AND fecha = CURDATE()`,
+       WHERE usuarioid = ? AND DATE(CONVERT_TZ(fecha, '+00:00', '-05:00')) = CURDATE()`,
       [usuarioid]
     );
 
