@@ -8,6 +8,7 @@ const pool = require('./config/database');
 
 const app = express();
 const routes = require('./src/routes');
+const adminRoutes = require('./src/routes/adminRoutes');
 
 const projectRoot = path.dirname(__dirname);
 const frontendPath = path.join(projectRoot, 'frontend');
@@ -52,6 +53,7 @@ app.get('/', (req, res) => {
 });
 
 app.use('/api', routes);
+app.use('/api/admin', adminRoutes);
 
 app.use((err, req, res, next) => {
   console.error('ERROR GLOBAL =>', err);

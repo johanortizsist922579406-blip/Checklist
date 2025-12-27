@@ -1,4 +1,4 @@
-window.onload = async function() {
+document.addEventListener('DOMContentLoaded', function() {
   const token = localStorage.getItem('token');
   if (!token) {
     alert('Sesión no válida');
@@ -9,9 +9,9 @@ window.onload = async function() {
   document.getElementById('btnFiltrarHoras').onclick = cargarHoras;
   document.getElementById('btnFiltrarPuntajes').onclick = cargarPuntajes;
 
-  await cargarHoras();
-  await cargarPuntajes();
-};
+  cargarHoras();
+  cargarPuntajes();
+});
 
 async function cargarHoras() {
   const token = localStorage.getItem('token');
@@ -34,20 +34,32 @@ async function cargarHoras() {
     const tbody = document.getElementById('tablaHoras');
     tbody.innerHTML = '';
 
+    if (datos.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="5">No hay datos</td></tr>';
+      return;
+    }
+
     datos.forEach(row => {
+      const horaEntrada = row.horaentrada ? row.horaentrada.substring(0, 5) : '--:--';
+      const horaSalida = row.horasalida ? row.horasalida.substring(0, 5) : '--:--';
+      const totalHoras = row.horatotal ? row.horatotal.substring(0, 8) : '--:--:--';
+      
+      // Formatear la fecha correctamente
+      const fecha = row.fecha ? new Date(row.fecha).toLocaleDateString('es-ES', {year: 'numeric', month: '2-digit', day: '2-digit'}) : '--';
+
       tbody.innerHTML += `
         <tr>
           <td>${row.nombre}</td>
-          <td>${row.fecha}</td>
-          <td>${row.horaentrada || '--:--'}</td>
-          <td>${row.horasalida || '--:--'}</td>
-          <td>${row.horatotal || '--:--'}</td>
+          <td>${fecha}</td>
+          <td>${horaEntrada}</td>
+          <td>${horaSalida}</td>
+          <td>${totalHoras}</td>
         </tr>
       `;
     });
   } catch (error) {
-    alert('Error cargando horas');
     console.error('Error cargarHoras:', error);
+    alert('Error cargando horas: ' + error.message);
   }
 }
 
@@ -68,6 +80,11 @@ async function cargarPuntajes() {
     const tbody = document.getElementById('tablaPuntajes');
     tbody.innerHTML = '';
 
+    if (datos.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="4">No hay datos</td></tr>';
+      return;
+    }
+
     datos.forEach(row => {
       tbody.innerHTML += `
         <tr>
@@ -79,8 +96,7 @@ async function cargarPuntajes() {
       `;
     });
   } catch (error) {
-    alert('Error cargando puntajes');
     console.error('Error cargarPuntajes:', error);
+    alert('Error cargando puntajes: ' + error.message);
   }
 }
- 

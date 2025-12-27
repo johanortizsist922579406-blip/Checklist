@@ -18,7 +18,7 @@ router.get('/estado-actual', async (req, res) => {
       `SELECT id, fecha, horatotal
        FROM asistencias
        WHERE usuarioid = ?
-         AND DATE(CONVERT_TZ(fecha, '+00:00', '-05:00')) = CURDATE()
+         AND fecha = CURDATE()
        ORDER BY id DESC
        LIMIT 1`,
       [usuarioId]
@@ -31,7 +31,9 @@ router.get('/estado-actual', async (req, res) => {
     const asistencia = asisRows[0];
 
     const [tramoRows] = await pool.query(
-      `SELECT id, horaentrada, horasalida
+      `SELECT id, 
+              TIME(horaentrada) AS horaentrada,
+              TIME(horasalida) AS horasalida
        FROM asistencia_tramos
        WHERE asistenciaid = ?
        ORDER BY id DESC

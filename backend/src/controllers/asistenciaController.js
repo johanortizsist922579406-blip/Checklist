@@ -8,9 +8,9 @@ exports.getAllAsistencias = async (req, res) => {
       `SELECT 
         id,
         usuarioid,
-        fecha,
-        TIME(CONVERT_TZ(horaentrada, '+00:00', '-05:00')) AS horaentrada,
-        TIME(CONVERT_TZ(horasalida, '+00:00', '-05:00')) AS horasalida,
+        DATE(fecha) AS fecha,
+        TIME(horaentrada) AS horaentrada,
+        TIME(horasalida) AS horasalida,
         estado,
         horatotal
        FROM asistencias
@@ -33,7 +33,7 @@ exports.marcarEntrada = async (req, res) => {
     let asistenciaId;
     const [existentes] = await pool.query(
       `SELECT id FROM asistencias
-       WHERE usuarioid = ? AND DATE(CONVERT_TZ(fecha, '+00:00', '-05:00')) = CURDATE()`,
+       WHERE usuarioid = ? AND fecha = CURDATE()`,
       [usuarioid]
     );
 
@@ -42,7 +42,7 @@ exports.marcarEntrada = async (req, res) => {
     } else {
       const [result] = await pool.query(
         `INSERT INTO asistencias (usuarioid, fecha, horaentrada, estado)
-         VALUES (?, CURDATE(), CONVERT_TZ(CURTIME(), '+00:00', '-05:00'), 'En jornada')`,
+         VALUES (?, CURDATE(), CURTIME(), 'En jornada')`,
         [usuarioid]
       );
       asistenciaId = result.insertId;
@@ -60,7 +60,7 @@ exports.marcarEntrada = async (req, res) => {
 
     const [nuevoTramo] = await pool.query(
       `INSERT INTO asistencia_tramos (asistenciaid, horaentrada)
-       VALUES (?, CONVERT_TZ(CURTIME(), '+00:00', '-05:00'))`,
+       VALUES (?, CURTIME())`,
       [asistenciaId]
     );
 
@@ -81,7 +81,7 @@ exports.marcarSalida = async (req, res) => {
 
     const [asisRows] = await pool.query(
       `SELECT id FROM asistencias
-       WHERE usuarioid = ? AND DATE(CONVERT_TZ(fecha, '+00:00', '-05:00')) = CURDATE()`,
+       WHERE usuarioid = ? AND fecha = CURDATE()`,
       [usuarioid]
     );
 
@@ -105,14 +105,14 @@ exports.marcarSalida = async (req, res) => {
 
     await pool.query(
       `UPDATE asistencia_tramos
-       SET horasalida = CONVERT_TZ(CURTIME(), '+00:00', '-05:00')
+       SET horasalida = CURTIME()
        WHERE id = ?`,
       [tramoId]
     );
 
     await pool.query(
       `UPDATE asistencias
-       SET horasalida = CONVERT_TZ(CURTIME(), '+00:00', '-05:00')
+       SET horasalida = CURTIME()
        WHERE id = ?`,
       [asistenciaId]
     );

@@ -35,83 +35,24 @@ function decodificarToken(token) {
   }
 }
 
-window.addEventListener('load', async () => {
-  const token = obtenerToken();
-  if (!token) return;
-
-  const userStr = localStorage.getItem('usuario');
-  if (userStr) {
-    const usuario = JSON.parse(userStr);
-    if (usuario.nombre) {
-      const welcomeTitle = document.getElementById('welcomeTitle');
-      if (welcomeTitle) {
-        welcomeTitle.textContent = `Bienvenido ${usuario.nombre}`;
-      }
-    }
-  }
-
+setTimeout(function() {
   const btnEntrada = document.getElementById('btnEntrada');
   const btnSalida = document.getElementById('btnSalida');
-  const entradaTime = document.getElementById('entradaTime');
-  const salidaTime = document.getElementById('salidaTime');
-  const totalTime = document.getElementById('totalTime');
-  const statusIndicator = document.getElementById('statusIndicator');
-
-  try {
-    const res = await axios.get('/api/asistencias/estado-actual', {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    });
-    const data = res.data;
-
-    if (!data.tieneEntradaAbierta) {
-      btnEntrada.disabled = false;
-      btnSalida.disabled = true;
-      if (entradaTime) entradaTime.textContent = '--:--';
-      if (salidaTime) salidaTime.textContent = '--:--';
-      if (totalTime) totalTime.textContent = '--:--:--';
-
-      statusIndicator.innerHTML =
-        '<div class="status-dot"></div><span>Sin registrar</span>';
-      statusIndicator.classList.remove('active', 'completed');
-      return;
-    }
-
-    if (data.horaentrada && entradaTime) {
-      entradaTime.textContent = data.horaentrada.substring(0, 5);
-    }
-
-    if (data.horasalida) {
-      if (salidaTime) {
-        salidaTime.textContent = data.horasalida.substring(0, 5);
-      }
-      if (data.horatotal && totalTime) {
-        const [h, m, s] = data.horatotal.split(':');
-        totalTime.textContent = `${h}:${m}:${s}`;
-      }
-
-      btnEntrada.disabled = true;
-      btnSalida.disabled = true;
-      statusIndicator.innerHTML =
-        '<div class="status-dot completed"></div><span>Jornada completada</span>';
-      statusIndicator.classList.add('completed');
-      statusIndicator.classList.remove('active');
-    } else {
-      btnEntrada.disabled = true;
-      btnSalida.disabled = false;
-      statusIndicator.innerHTML =
-        '<div class="status-dot active"></div><span>En jornada</span>';
-      statusIndicator.classList.add('active');
-      statusIndicator.classList.remove('completed');
-    }
-  } catch (err) {
-    console.error('Error al obtener estado actual:', err);
+  
+  if (btnEntrada) {
+    btnEntrada.addEventListener('click', marcarEntrada);
   }
-});
+  if (btnSalida) {
+    btnSalida.addEventListener('click', marcarSalida);
+  }
+  
+  cargarEstado();
+}, 100);
 
-document.getElementById('btnEntrada').onclick = async function () {
+async function marcarEntrada() {
+  console.log('1. Botón clickeado');
   try {
+    console.log('2. Enviando petición...');
     const res = await axios.post('/api/asistencias/entrada', {}, {
       headers: {
         'Content-Type': 'application/json',
@@ -119,31 +60,39 @@ document.getElementById('btnEntrada').onclick = async function () {
       }
     });
 
-    const data = res.data;
-
+    console.log('3. Respuesta recibida:', res.data);
+    
+    const btnEntrada = document.getElementById('btnEntrada');
+    const btnSalida = document.getElementById('btnSalida');
+    const statusIndicator = document.getElementById('statusIndicator');
+    const entradaTime = document.getElementById('entradaTime');
+    
+    // Obtener la hora actual en formato HH:MM
+    const now = new Date();
+    const horas = String(now.getHours()).padStart(2, '0');
+    const minutos = String(now.getMinutes()).padStart(2, '0');
+    entradaTime.textContent = `${horas}:${minutos}`;
+    
+    btnEntrada.disabled = true;
+    btnSalida.disabled = false;
+    statusIndicator.innerHTML = '<div class="status-dot active"></div><span>En jornada</span>';
+    statusIndicator.classList.add('active');
+    statusIndicator.classList.remove('completed');
+    
     mostrarToast('Entrada registrada', 'success');
-    setTimeout(() => location.reload(), 800);
+    console.log('4. Estado actualizado');
   } catch (error) {
-    const errData = error.response?.data || {};
-    if (errData.error === 'Ya tienes un tramo de asistencia en curso') {
-      const btnEntrada = document.getElementById('btnEntrada');
-      const btnSalida = document.getElementById('btnSalida');
-      const statusIndicator = document.getElementById('statusIndicator');
-
-      btnEntrada.disabled = true;
-      btnSalida.disabled = false;
-      statusIndicator.innerHTML =
-        '<div class="status-dot active"></div><span>En jornada</span>';
-      statusIndicator.classList.add('active');
-      statusIndicator.classList.remove('completed');
-    } else {
-      mostrarToast(errData.error || 'Error al marcar entrada', 'error');
-    }
+    console.error('5. Error capturado:', error);
+    console.error('   Status:', error.response?.status);
+    console.error('   Data:', error.response?.data);
+    mostrarToast(error.response?.data?.error || 'Error al marcar entrada', 'error');
   }
-};
+}
 
-document.getElementById('btnSalida').onclick = async function () {
+async function marcarSalida() {
+  console.log('1. Botón clickeado');
   try {
+    console.log('2. Enviando petición...');
     const res = await axios.post('/api/asistencias/salida', {}, {
       headers: {
         'Content-Type': 'application/json',
@@ -151,12 +100,88 @@ document.getElementById('btnSalida').onclick = async function () {
       }
     });
 
-    const data = res.data;
-
+    console.log('3. Respuesta recibida:', res.data);
+    
+    const btnEntrada = document.getElementById('btnEntrada');
+    const btnSalida = document.getElementById('btnSalida');
+    const statusIndicator = document.getElementById('statusIndicator');
+    const salidaTime = document.getElementById('salidaTime');
+    const totalTime = document.getElementById('totalTime');
+    
+    // Obtener la hora actual en formato HH:MM
+    const now = new Date();
+    const horas = String(now.getHours()).padStart(2, '0');
+    const minutos = String(now.getMinutes()).padStart(2, '0');
+    salidaTime.textContent = `${horas}:${minutos}`;
+    
+    // Calcular tiempo total en horas
+    if (res.data.segundosTotales) {
+      const horas_total = Math.floor(res.data.segundosTotales / 3600);
+      const minutos_total = Math.floor((res.data.segundosTotales % 3600) / 60);
+      const segundos_total = res.data.segundosTotales % 60;
+      totalTime.textContent = `${String(horas_total).padStart(2, '0')}:${String(minutos_total).padStart(2, '0')}:${String(segundos_total).padStart(2, '0')}`;
+    }
+    
+    btnEntrada.disabled = false;
+    btnSalida.disabled = true;
+    statusIndicator.innerHTML = '<div class="status-dot"></div><span>Sin registrar</span>';
+    statusIndicator.classList.remove('active', 'completed');
+    
     mostrarToast('Salida registrada', 'success');
-    setTimeout(() => location.reload(), 800);
+    console.log('4. Estado actualizado');
   } catch (error) {
-    const errData = error.response?.data || {};
-    mostrarToast(errData.error || 'Error al marcar salida', 'error');
+    console.error('5. Error capturado:', error);
+    console.error('   Status:', error.response?.status);
+    console.error('   Data:', error.response?.data);
+    mostrarToast(error.response?.data?.error || 'Error al marcar salida', 'error');
   }
-};
+}
+
+async function cargarEstado() {
+  const token = obtenerToken();
+  if (!token) return;
+
+  try {
+    const res = await axios.get('/api/asistencias/estado-actual', {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    
+    const data = res.data;
+    const btnEntrada = document.getElementById('btnEntrada');
+    const btnSalida = document.getElementById('btnSalida');
+    const entradaTime = document.getElementById('entradaTime');
+    const salidaTime = document.getElementById('salidaTime');
+    const totalTime = document.getElementById('totalTime');
+    const statusIndicator = document.getElementById('statusIndicator');
+
+    if (!data.tieneEntradaAbierta) {
+      btnEntrada.disabled = false;
+      btnSalida.disabled = true;
+      entradaTime.textContent = '--:--';
+      salidaTime.textContent = '--:--';
+      totalTime.textContent = '--:--:--';
+      statusIndicator.innerHTML = '<div class="status-dot"></div><span>Sin registrar</span>';
+      return;
+    }
+
+    if (data.horaentrada) {
+      entradaTime.textContent = data.horaentrada.substring(0, 5);
+    }
+
+    if (data.horasalida) {
+      salidaTime.textContent = data.horasalida.substring(0, 5);
+      totalTime.textContent = data.horatotal || '--:--:--';
+      btnEntrada.disabled = true;
+      btnSalida.disabled = true;
+      statusIndicator.innerHTML = '<div class="status-dot completed"></div><span>Jornada completada</span>';
+      statusIndicator.classList.add('completed');
+    } else {
+      btnEntrada.disabled = true;
+      btnSalida.disabled = false;
+      statusIndicator.innerHTML = '<div class="status-dot active"></div><span>En jornada</span>';
+      statusIndicator.classList.add('active');
+    }
+  } catch (err) {
+    console.error('Error:', err);
+  }
+}
