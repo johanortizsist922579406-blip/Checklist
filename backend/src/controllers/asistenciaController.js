@@ -9,8 +9,8 @@ exports.getAllAsistencias = async (req, res) => {
         id,
         usuarioid,
         fecha,
-        TIME(horaentrada) AS horaentrada,
-        TIME(horasalida) AS horasalida,
+        TIME(CONVERT_TZ(horaentrada, '+00:00', '-05:00')) AS horaentrada,
+        TIME(CONVERT_TZ(horasalida, '+00:00', '-05:00')) AS horasalida,
         estado,
         horatotal
        FROM asistencias
