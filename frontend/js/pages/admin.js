@@ -39,7 +39,9 @@ async function cargarHoras() {
         <tr>
           <td>${row.nombre}</td>
           <td>${row.fecha}</td>
-          <td>${row.horas}</td>
+          <td>${row.horaentrada || '--:--'}</td>
+          <td>${row.horasalida || '--:--'}</td>
+          <td>${row.horatotal || '--:--'}</td>
         </tr>
       `;
     });

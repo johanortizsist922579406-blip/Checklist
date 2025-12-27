@@ -7,8 +7,10 @@ exports.getHoras = async (req, res) => {
     let sql = `
       SELECT 
         u.nombre,
-        a.fecha,
-        a.horatotal AS horas
+        DATE(CONVERT_TZ(a.fecha, '+00:00', '-05:00')) AS fecha,
+        TIME(CONVERT_TZ(a.horaentrada, '+00:00', '-05:00')) AS horaentrada,
+        TIME(CONVERT_TZ(a.horasalida, '+00:00', '-05:00')) AS horasalida,
+        a.horatotal
       FROM asistencias a
       JOIN usuarios u ON a.usuarioid = u.id
       WHERE 1=1
@@ -16,11 +18,11 @@ exports.getHoras = async (req, res) => {
     const params = [];
 
     if (fechaDesde) {
-      sql += ' AND a.fecha >= ?';
+      sql += ' AND DATE(CONVERT_TZ(a.fecha, \'+00:00\', \'-05:00\')) >= ?';
       params.push(fechaDesde);
     }
     if (fechaHasta) {
-      sql += ' AND a.fecha <= ?';
+      sql += ' AND DATE(CONVERT_TZ(a.fecha, \'+00:00\', \'-05:00\')) <= ?';
       params.push(fechaHasta);
     }
     if (nombre) {
