@@ -28,15 +28,12 @@ exports.getAllAsistencias = async (req, res) => {
 
 exports.marcarEntrada = async (req, res) => {
   try {
-    console.log('--- marcarEntrada ---');
     const usuarioid = req.user.id;
-
-    const fechaPeruana = 'CONVERT_TZ(CURDATE(), \'+00:00\', \'-05:00\')';
 
     let asistenciaId;
     const [existentes] = await pool.query(
       `SELECT id FROM asistencias
-       WHERE usuarioid = ? AND DATE(CONVERT_TZ(fecha, '+00:00', '-05:00')) = CURDATE()`,
+       WHERE usuarioid = ? AND fecha = CURDATE()`,
       [usuarioid]
     );
 
@@ -84,7 +81,7 @@ exports.marcarSalida = async (req, res) => {
 
     const [asisRows] = await pool.query(
       `SELECT id FROM asistencias
-       WHERE usuarioid = ? AND DATE(CONVERT_TZ(fecha, '+00:00', '-05:00')) = CURDATE()`,
+       WHERE usuarioid = ? AND fecha = CURDATE()`,
       [usuarioid]
     );
 
