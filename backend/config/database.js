@@ -1,11 +1,11 @@
 require('dotenv').config();
 const mysql = require('mysql2/promise');
 
-const host = process.env.DB_HOST || 'localhost';
-const user = process.env.DB_USER || 'root';
-const password = process.env.DB_PASSWORD || '';
-const database = process.env.DB_NAME || 'sanilab_checklist';
-const port = Number(process.env.DB_PORT) || 3306;
+const host = process.env.MYSQL_HOST || process.env.DB_HOST || 'localhost';
+const user = process.env.MYSQL_USER || process.env.DB_USER || 'root';
+const password = process.env.MYSQL_PASSWORD || process.env.DB_PASSWORD || '';
+const database = process.env.MYSQL_DATABASE || process.env.DB_NAME || 'railway';
+const port = Number(process.env.MYSQL_PORT || process.env.DB_PORT) || 3306;
 
 console.log('🔧 Conectando con variables...');
 console.log('  Host:', host);
