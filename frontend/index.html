@@ -2,29 +2,70 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <title>Login | Sanilab</title>
-  <link rel="stylesheet" href="./assets/css/main.css">
-  <link rel="icon" type="image/png" href="../../assets/images/favicon-128x128.png" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sanilab | Login</title>
+  <link rel="stylesheet" href="assets/css/auth.css" />
+  <link rel="icon" type="image/png" href="assets/images/favicon-128x128.png" />
 </head>
 <body>
-  <div class="login-bg"></div>
-  <section class="login-container">
-    <img src="./assets/images/Sanilab-logo.png" alt="Sanilab Logo" class="login-logo">
-    <form id="loginForm" autocomplete="off">
-      <label for="correo">Correo electrónico</label>
-      <input type="email" id="correo" name="correo" placeholder="Ingrese su correo" required />
+  <div class="background"></div>
 
-      <label for="password">Contraseña</label>
-      <input type="password" id="password" name="password" placeholder="Ingrese su contraseña" required />
+  <main class="auth-container">
+    <div class="auth-card">
+      <img src="assets/images/Sanilab-logo.png" alt="Sanilab Logo" class="auth-logo" />
 
-      <button type="submit">Ingresar</button>
-      <div class="login-footer">
-        ¿No tienes una cuenta? <a href="./pages/auth/registro.html">Regístrate</a>
-        <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-        <script src="../../js/pages/login.js"></script>
+      <h1 class="auth-title"><strong>Iniciar sesión</strong></h1>
 
+      <p class="auth-description">
+        Plataforma de innovación inclusiva que impulsa soluciones sostenibles
+        con impacto social.
+      </p>
+
+      <form id="loginForm" autocomplete="off">
+        <label for="correo"><strong>Correo electrónico</strong></label>
+        <input
+          type="email"
+          id="correo"
+          name="correo"
+          placeholder="ejemplo@correo.com"
+          required
+        />
+
+        <label for="password"><strong>Contraseña</strong></label>
+        <div class="password-wrapper">
+          <input
+            type="password"
+            id="password"
+            name="password"
+            placeholder="••••••••"
+            required
+          />
+          <button
+            type="button"
+            class="toggle-password"
+            onclick="togglePassword('password', this)"
+            aria-label="Mostrar contraseña"
+          >
+            👁
+          </button>
+        </div>
+
+        <button type="submit" id="btnLogin">Ingresar</button>
+      </form>
+
+      <div class="links">
+        <a href="pages/auth/cambiar-password.html">¿Olvidaste tu contraseña?</a>
+        <p>¿No tienes cuenta? <a href="pages/auth/registro.html">Regístrate</a></p>
       </div>
-    </form>
-  </section>
+
+      <small class="security">
+        Tus datos están protegidos y no se comparten.
+      </small>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/pages/login.js"></script>
 </body>
 </html>

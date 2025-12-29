@@ -50,3 +50,62 @@ exports.login = async (req, res) => {
     return res.status(500).json({ error: err.message });
   }
 };
+
+exports.registro = async (req, res) => {
+  try {
+    const { nombre, apellido, correo, password, areaid, genero } = req.body;
+
+    if (!nombre || !apellido || !correo || !password || !areaid || !genero) {
+      return res.status(400).json({ error: 'Todos los campos son obligatorios' });
+    }
+
+    const [existente] = await pool.query(
+      'SELECT id FROM usuarios WHERE correo = ?',
+      [correo]
+    );
+
+    if (existente.length) {
+      return res.status(400).json({ error: 'El correo ya está registrado' });
+    }
+
+    const [result] = await pool.query(
+      `INSERT INTO usuarios (correo, passwordhash, nombre, apellido, areaid, genero, activo, rol)
+       VALUES (?, ?, ?, ?, ?, ?, 'SI', 'USER')`,
+      [correo, password, nombre, apellido, areaid, genero]
+    );
+
+    res.json({ ok: true, message: 'Usuario registrado exitosamente', usuarioId: result.insertId });
+  } catch (err) {
+    console.error('Error registro:', err);
+    res.status(500).json({ error: err.message });
+  }
+};
+
+exports.cambiarPassword = async (req, res) => {
+  try {
+    const { correo, nuevaPassword } = req.body;
+
+    if (!correo || !nuevaPassword) {
+      return res.status(400).json({ error: 'Correo y nueva contraseña son requeridos' });
+    }
+
+    const [usuarios] = await pool.query(
+      'SELECT id FROM usuarios WHERE correo = ?',
+      [correo]
+    );
+
+    if (!usuarios.length) {
+      return res.status(404).json({ error: 'Usuario no encontrado' });
+    }
+
+    await pool.query(
+      'UPDATE usuarios SET passwordhash = ? WHERE correo = ?',
+      [nuevaPassword, correo]
+    );
+
+    res.json({ ok: true, message: 'Contraseña actualizada exitosamente' });
+  } catch (err) {
+    console.error('Error cambiarPassword:', err);
+    res.status(500).json({ error: err.message });
+  }
+};
