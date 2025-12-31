@@ -8,8 +8,8 @@ exports.getHoras = async (req, res) => {
       SELECT 
         u.nombre,
         DATE(a.fecha) AS fecha,
-        TIME(a.horaentrada) AS horaentrada,
-        TIME(a.horasalida) AS horasalida,
+        TIME(CONVERT_TZ(a.horaentrada, '+00:00', '-05:00')) AS horaentrada,
+        TIME(CONVERT_TZ(a.horasalida, '+00:00', '-05:00')) AS horasalida,
         a.horatotal
       FROM asistencias a
       JOIN usuarios u ON a.usuarioid = u.id
