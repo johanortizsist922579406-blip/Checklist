@@ -64,8 +64,116 @@
     </div>
   </main>
 
+  <button class="help-button" onclick="toggleHelpModal()" aria-label="Ayuda">
+    <span class="help-icon">?</span>
+  </button>
+
+  <div id="helpModal" class="help-modal-overlay">
+    <div class="help-modal-content">
+      <button class="help-close" onclick="closeHelpModal()" aria-label="Cerrar">×</button>
+      
+      <div class="help-header">
+        <div class="help-icon-large">📋</div>
+        <h2>Guía del Sistema Checklist</h2>
+      </div>
+
+      <div class="help-body">
+        <div class="help-section">
+          <h3>🎯 1. Objetivo</h3>
+          <p>Establecer los lineamientos para el correcto uso del sistema de Checklist de Asistencia y Autoevaluación, con el fin de registrar la jornada laboral, evaluar el desempeño diario y fomentar la mejora continua de los colaboradores de Sanilab.</p>
+        </div>
+
+        <div class="help-section">
+          <h3>👤 2. Registro y acceso al sistema</h3>
+          <p>Para el registro inicial, el colaborador deberá completar obligatoriamente la siguiente información:</p>
+          <ul>
+            <li>Nombre y apellido</li>
+            <li>Correo electrónico corporativo Sanilab</li>
+            <li>Contraseña: primer nombre + número de celular</li>
+            <li>Área correspondiente</li>
+            <li>Género</li>
+          </ul>
+          <p>Una vez registrado, el acceso al sistema se realizará utilizando el correo electrónico y la contraseña corporativa.</p>
+        </div>
+
+        <div class="help-section">
+          <h3>⏰ 3. Registro de asistencia</h3>
+          <p>El colaborador deberá registrar su asistencia de la siguiente manera:</p>
+          <ul>
+            <li>Seleccionar <strong>"Marcar Entrada"</strong> al inicio de su jornada laboral</li>
+            <li>Seleccionar <strong>"Marcar Salida"</strong> al finalizar su turno</li>
+            <li>El sistema permite registrar múltiples entradas y salidas en un mismo día en caso de realizar doble turno</li>
+          </ul>
+        </div>
+
+        <div class="help-section">
+          <h3>📝 4. Autoevaluación diaria</h3>
+          <ul>
+            <li>La autoevaluación deberá completarse al finalizar la jornada laboral y antes de retirarse</li>
+            <li>El colaborador deberá responder todas las preguntas utilizando los controles deslizantes (sliders)</li>
+            <li>El desempeño se calificará en una escala del 1 al 5</li>
+            <li>Al enviar la autoevaluación, el sistema mostrará el puntaje obtenido</li>
+          </ul>
+          <p class="warning">⚠️ La autoevaluación se realiza una (1) vez por día.</p>
+        </div>
+
+        <div class="help-section">
+          <h3>🏆 5. Puntaje y ranking quincenal</h3>
+          <ul>
+            <li>Cada autoevaluación genera un puntaje acumulable</li>
+            <li>El puntaje se consolida de forma quincenal</li>
+            <li>El ranking se actualiza al cierre de cada quincena</li>
+            <li>Los tres (3) colaboradores con mayor puntaje accederán a una ruleta de incentivos 🎉</li>
+            <li>El desempeño sostenido permitirá mejorar la posición en el ranking</li>
+          </ul>
+        </div>
+
+        <div class="help-section">
+          <h3>✅ 6. Lineamientos y recomendaciones</h3>
+          <ul>
+            <li>El registro de asistencia deberá realizarse de forma puntual y veraz</li>
+            <li>La autoevaluación deberá completarse con honestidad y responsabilidad</li>
+            <li>El uso indebido del sistema podrá ser sujeto a revisión interna</li>
+            <li>El cumplimiento de este procedimiento forma parte de las buenas prácticas laborales de Sanilab</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/pages/login.js"></script>
+  
+  <script>
+    function toggleHelpModal() {
+      const modal = document.getElementById('helpModal');
+      if (modal.style.display === 'flex') {
+        modal.classList.add('help-fade-out');
+        setTimeout(() => {
+          modal.style.display = 'none';
+          modal.classList.remove('help-fade-out');
+        }, 300);
+      } else {
+        modal.style.display = 'flex';
+        modal.classList.add('help-fade-in');
+      }
+    }
+
+    function closeHelpModal() {
+      const modal = document.getElementById('helpModal');
+      modal.classList.add('help-fade-out');
+      setTimeout(() => {
+        modal.style.display = 'none';
+        modal.classList.remove('help-fade-out');
+      }, 300);
+    }
+
+    document.getElementById('helpModal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeHelpModal();
+      }
+    });
+  </script>
 </body>
 </html>
