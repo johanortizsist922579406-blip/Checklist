@@ -1,7 +1,6 @@
 const pool = require('../../config/database');
 const { obtenerQuincenaActual } = require('../utils/quincenaCalculator');
 
-// GET /api/rankings
 exports.getAllRankings = async (req, res) => {
   try {
     let sql = `
@@ -23,7 +22,7 @@ exports.getAllRankings = async (req, res) => {
       let quincena = req.query.quincena;
 
       if (quincena === 'actual') {
-        quincena = obtenerQuincenaActual();
+        quincena = '1ra';
       }
 
       sql += ' WHERE r.quincena = ?';
@@ -39,7 +38,6 @@ exports.getAllRankings = async (req, res) => {
   }
 };
 
-// GET /api/rankings/:id
 exports.getRankingById = async (req, res) => {
   try {
     const [rows] = await pool.query(
@@ -64,7 +62,6 @@ exports.getRankingById = async (req, res) => {
   }
 };
 
-// POST /api/rankings/actualizar
 exports.actualizarRankingUsuario = async (req, res) => {
   try {
     const { usuarioid, quincena, puntajetotal, posicion = 0, tieneruleta = 'NO' } = req.body;
@@ -102,21 +99,17 @@ exports.actualizarRankingUsuario = async (req, res) => {
   }
 };
 
-// POST /api/rankings/recalcular
 exports.recalcularRanking = async (req, res) => {
   try {
     let quincena = req.body.quincena || req.query.quincena;
 
-    // Si no se especifica o viene "actual", usamos la quincena calculada
     if (!quincena || quincena === 'actual') {
-      quincena = obtenerQuincenaActual();
+      quincena = '1ra';
     }
 
-    // Limpiar ranking previo de esa quincena
     await pool.query('DELETE FROM rankingquincenal WHERE quincena = ?', [quincena]);
     await pool.query('SET @pos := 0');
 
-    // Insertar ranking recalculado desde autoevaluaciones
     await pool.query(
       `
       INSERT INTO rankingquincenal (usuarioid, quincena, puntajetotal, posicion, tieneruleta, fechacalculo)

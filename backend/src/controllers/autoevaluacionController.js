@@ -1,5 +1,4 @@
-56
-  const pool = require('../db');
+const pool = require('../../config/database');
 const axios = require('axios');
 
 exports.getAllAutoevaluaciones = async (req, res) => {
@@ -17,7 +16,6 @@ exports.getAllAutoevaluaciones = async (req, res) => {
   }
 };
 
-
 exports.getAutoevaluacionById = async (req, res) => {
   try {
     const [rows] = await pool.query('SELECT * FROM autoevaluaciones WHERE id = ?', [req.params.id]);
@@ -28,17 +26,27 @@ exports.getAutoevaluacionById = async (req, res) => {
   }
 };
 
-
 exports.crearAutoevaluacion = async (req, res) => {
   try {
+    console.log('📝 Datos recibidos en crearAutoevaluacion:', JSON.stringify(req.body, null, 2));
+    
     const { usuarioid, puntajetotal, quincena, mensajemotivacional, respuestas } = req.body;
 
     if (!quincena) {
+      console.log('❌ Falta quincena');
       return res.status(400).json({ error: "El campo 'quincena' es obligatorio." });
     }
 
     const fechaEvaluacion = new Date();
     const fechaFormateada = fechaEvaluacion.toISOString().slice(0, 19).replace('T', ' ');
+
+    console.log('💾 Insertando autoevaluación:', {
+      usuarioid,
+      fechaFormateada,
+      puntajetotal,
+      quincena,
+      mensajemotivacional
+    });
 
     const [result] = await pool.query(
       'INSERT INTO autoevaluaciones (usuarioid, fechaevaluacion, puntajetotal, quincena, mensajemotivacional, completada) VALUES (?, ?, ?, ?, ?, ?)',
@@ -46,7 +54,10 @@ exports.crearAutoevaluacion = async (req, res) => {
     );
 
     const autoevaluacionid = result.insertId;
+    console.log('✅ Autoevaluación guardada con ID:', autoevaluacionid);
 
+    console.log('💾 Guardando', respuestas.length, 'respuestas...');
+    
     for (const r of respuestas) {
       await pool.query(
         'INSERT INTO respuestasautoevaluacion (autoevaluacionid, preguntaid, respuesta, puntaje) VALUES (?, ?, ?, ?)',
@@ -54,6 +65,7 @@ exports.crearAutoevaluacion = async (req, res) => {
       );
     }
 
+    console.log('✅ Todas las respuestas guardadas');
 
     res.json({
       message: 'Autoevaluación guardada correctamente',

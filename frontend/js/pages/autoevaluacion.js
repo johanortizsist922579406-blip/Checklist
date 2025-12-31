@@ -1,4 +1,4 @@
-const API_BASE_URL = 'https://checklist-production-a2fe.up.railway.app';
+const API_BASE_URL = window.location.origin;
 let preguntasGlobales = [];
 let respuestas = {};
 window.onload = async function() {
