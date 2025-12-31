@@ -40,11 +40,11 @@ exports.marcarEntrada = async (req, res) => {
     if (existentes.length) {
       asistenciaId = existentes[0].id;
     } else {
-      const [result] = await pool.query(
-        `INSERT INTO asistencias (usuarioid, fecha, horaentrada, estado)
-         VALUES (?, CURDATE(), NOW(), 'En jornada')`,
-        [usuarioid]
-      );
+    const [result] = await pool.query(
+      `INSERT INTO asistencias (usuarioid, fecha, horaentrada, estado)
+      VALUES (?, CURDATE(), NOW(), 'En jornada')`,
+      [usuarioid]
+    );
       asistenciaId = result.insertId;
     }
 
