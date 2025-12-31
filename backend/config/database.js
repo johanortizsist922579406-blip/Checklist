@@ -13,18 +13,23 @@ console.log('  Usuario:', user);
 console.log('  Puerto:', port);
 console.log('  Base:', database);
 
-const pool = mysql.createPool({
+const poolConfig = {
   host,
   user,
   password,
   database,
   port,
-  timezone: '-05:00',
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
   multipleStatements: true
-});
+};
+
+if (!process.env.MYSQL_HOST) {
+  poolConfig.timezone = '-05:00';
+}
+
+const pool = mysql.createPool(poolConfig);
 
 pool.getConnection()
   .then(conn => {
