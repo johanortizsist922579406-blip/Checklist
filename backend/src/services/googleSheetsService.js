@@ -1,3 +1,5 @@
+// googleSheetsService.js - VERSIÓN CORREGIDA PARA PRODUCCIÓN
+
 const { google } = require('googleapis');
 const path = require('path');
 
@@ -5,14 +7,38 @@ const SPREADSHEET_ID = process.env.GOOGLE_SHEETS_ID || '1Q4-JZDZoI_V4oESvCFqqi1W
 
 class GoogleSheetsService {
   constructor() {
-    const keyFile = path.resolve(__dirname, '../google-credentials.json');
-    this.auth = new google.auth.GoogleAuth({
-      keyFile,
-      scopes: [
-        'https://www.googleapis.com/auth/spreadsheets',
-        'https://www.googleapis.com/auth/drive'
-      ]
-    });
+    // ✅ CAMBIO: Soporte para credenciales en variable de entorno (Producción) o archivo (Local)
+    let authConfig;
+
+    if (process.env.GOOGLE_CREDENTIALS_JSON) {
+      // En PRODUCCIÓN: Lee desde variable de entorno
+      try {
+        authConfig = JSON.parse(process.env.GOOGLE_CREDENTIALS_JSON);
+        this.auth = new google.auth.GoogleAuth({
+          credentials: authConfig,
+          scopes: [
+            'https://www.googleapis.com/auth/spreadsheets',
+            'https://www.googleapis.com/auth/drive'
+          ]
+        });
+        console.log('📌 Usando credenciales desde variable de entorno');
+      } catch (error) {
+        console.error('❌ Error al parsear GOOGLE_CREDENTIALS_JSON:', error.message);
+        throw error;
+      }
+    } else {
+      // En LOCAL: Lee desde archivo
+      const keyFile = path.resolve(__dirname, '../google-credentials.json');
+      this.auth = new google.auth.GoogleAuth({
+        keyFile,
+        scopes: [
+          'https://www.googleapis.com/auth/spreadsheets',
+          'https://www.googleapis.com/auth/drive'
+        ]
+      });
+      console.log('📌 Usando credenciales desde archivo local');
+    }
+
     this.sheets = null;
   }
 
