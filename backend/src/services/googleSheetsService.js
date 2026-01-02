@@ -3,11 +3,17 @@
 const { google } = require('googleapis');
 const path = require('path');
 
-const SPREADSHEET_ID = process.env.GOOGLE_SHEETS_ID || '1Q4-JZDZoI_V4oESvCFqqi1WP0V49qzDNU_5QkZbB7hs';
+// ✅ CAMBIO CRÍTICO: Verificar que GOOGLE_SHEETS_ID exista en Railway
+const SPREADSHEET_ID = (() => {
+  if (!process.env.GOOGLE_SHEETS_ID) {
+    throw new Error('❌ CRÍTICO: GOOGLE_SHEETS_ID no está definido en variables de entorno. Verifica Railway.');
+  }
+  console.log(`📋 Usando GOOGLE_SHEETS_ID: ${process.env.GOOGLE_SHEETS_ID.substring(0, 20)}...`);
+  return process.env.GOOGLE_SHEETS_ID;
+})();
 
 class GoogleSheetsService {
   constructor() {
-    // ✅ CAMBIO: Soporte para credenciales en variable de entorno (Producción) o archivo (Local)
     let authConfig;
 
     if (process.env.GOOGLE_CREDENTIALS_JSON) {
@@ -21,7 +27,7 @@ class GoogleSheetsService {
             'https://www.googleapis.com/auth/drive'
           ]
         });
-        console.log('📌 Usando credenciales desde variable de entorno');
+        console.log('📌 Usando credenciales desde variable de entorno (PRODUCCIÓN)');
       } catch (error) {
         console.error('❌ Error al parsear GOOGLE_CREDENTIALS_JSON:', error.message);
         throw error;
@@ -36,7 +42,7 @@ class GoogleSheetsService {
           'https://www.googleapis.com/auth/drive'
         ]
       });
-      console.log('📌 Usando credenciales desde archivo local');
+      console.log('📌 Usando credenciales desde archivo local (DESARROLLO)');
     }
 
     this.sheets = null;
