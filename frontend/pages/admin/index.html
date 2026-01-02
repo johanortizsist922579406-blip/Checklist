@@ -5,6 +5,7 @@
   <title>Panel Admin</title>
   <link rel="stylesheet" href="../../assets/css/admin.css">
   <link rel="icon" type="image/png" href="../../assets/images/favicon-128x128.png" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 </head>
 <body>
   <div class="container">
@@ -17,6 +18,7 @@
       <input type="date" id="fechaHasta">
       <button id="btnFiltrarHoras">Filtrar horas</button>
       <button id="btnFiltrarPuntajes">Filtrar puntajes</button>
+      <button id="btnExportarSheets" class="btn-export-sheets">📊 Exportar a Google Sheets</button>
     </div>
 
     <h2>Horas contabilizadas</h2>
@@ -47,6 +49,7 @@
     </table>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   <script src="../../js/pages/admin.js"></script>
 </body>

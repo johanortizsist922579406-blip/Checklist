@@ -6,12 +6,18 @@ document.addEventListener('DOMContentLoaded', function() {
     return;
   }
 
-  document.getElementById('btnFiltrarHoras').onclick = cargarHoras;
-  document.getElementById('btnFiltrarPuntajes').onclick = cargarPuntajes;
+  const btnFiltrarHoras = document.getElementById('btnFiltrarHoras');
+  const btnFiltrarPuntajes = document.getElementById('btnFiltrarPuntajes');
+  const btnExportarSheets = document.getElementById('btnExportarSheets'); 
+
+  if (btnFiltrarHoras) btnFiltrarHoras.onclick = cargarHoras;
+  if (btnFiltrarPuntajes) btnFiltrarPuntajes.onclick = cargarPuntajes;
+  if (btnExportarSheets) btnExportarSheets.onclick = exportarAExcel; 
 
   cargarHoras();
   cargarPuntajes();
 });
+
 
 async function cargarHoras() {
   const token = localStorage.getItem('token');
@@ -95,5 +101,56 @@ async function cargarPuntajes() {
   } catch (error) {
     console.error('Error cargarPuntajes:', error);
     alert('Error cargando puntajes: ' + error.message);
+  }
+}
+
+async function exportarAExcel() {
+  try {
+    Swal.fire({
+      title: 'Exportando...',
+      text: 'Creando tu hoja de Google Sheets con las horas',
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
+
+    const userId = localStorage.getItem('userId') || 1;
+    const userEmail = localStorage.getItem('email');
+
+    // ✅ CAMBIO: Usar el nuevo endpoint /export-horas-sheets
+    const response = await axios.post('/api/autoevaluaciones/export-horas-sheets', {
+      userId: userId,
+      email: userEmail
+    });
+
+    const data = response.data;
+
+    if (data.success) {
+      const sheetsUrl = data.spreadsheetUrl || `https://docs.google.com/spreadsheets/d/${data.spreadsheetId}/edit`;
+      
+      Swal.fire({
+        icon: 'success',
+        title: '¡Exportación de Horas Exitosa!',
+        html: `
+          <p>Tu hoja de Google Sheets ha sido creada con todas tus horas contabilizadas</p>
+          <a href="${sheetsUrl}" target="_blank" class="btn btn-primary mt-2" style="display: inline-block; padding: 10px 20px; background: #4285F4; color: white; text-decoration: none; border-radius: 5px; margin-top: 15px;">
+            🔗 Abrir Google Sheets
+          </a>
+        `,
+        showConfirmButton: true,
+        confirmButtonText: 'Cerrar'
+      });
+    } else {
+      throw new Error(data.message);
+    }
+
+  } catch (error) {
+    console.error('Error:', error);
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: 'No se pudo exportar a Google Sheets: ' + error.message
+    });
   }
 }
