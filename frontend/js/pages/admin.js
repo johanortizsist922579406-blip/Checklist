@@ -1,3 +1,5 @@
+// js/pages/admin.js
+
 document.addEventListener('DOMContentLoaded', function() {
   const token = localStorage.getItem('token');
   if (!token) {
@@ -8,16 +10,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
   const btnFiltrarHoras = document.getElementById('btnFiltrarHoras');
   const btnFiltrarPuntajes = document.getElementById('btnFiltrarPuntajes');
-  const btnExportarSheets = document.getElementById('btnExportarSheets'); 
+  const btnExportarSheets = document.getElementById('btnExportarSheets');
 
   if (btnFiltrarHoras) btnFiltrarHoras.onclick = cargarHoras;
   if (btnFiltrarPuntajes) btnFiltrarPuntajes.onclick = cargarPuntajes;
-  if (btnExportarSheets) btnExportarSheets.onclick = exportarAExcel; 
+  if (btnExportarSheets) btnExportarSheets.onclick = exportarAGoogleSheets; // ✅ Cambié el nombre
 
   cargarHoras();
   cargarPuntajes();
 });
-
 
 async function cargarHoras() {
   const token = localStorage.getItem('token');
@@ -104,36 +105,35 @@ async function cargarPuntajes() {
   }
 }
 
-async function exportarAExcel() {
+// ✅ NUEVA FUNCIÓN: Exportar a Google Sheets
+async function exportarAGoogleSheets() {
   try {
+    const token = localStorage.getItem('token');
+
     Swal.fire({
       title: 'Exportando...',
-      text: 'Creando tu hoja de Google Sheets con las horas',
+      text: 'Enviando TODOS los datos de horas a Google Sheets',
       allowOutsideClick: false,
       didOpen: () => {
         Swal.showLoading();
       }
     });
 
-    const userId = localStorage.getItem('userId') || 1;
-    const userEmail = localStorage.getItem('email');
-
-    // ✅ CAMBIO: Usar el nuevo endpoint /export-horas-sheets
-    const response = await axios.post('/api/autoevaluaciones/export-horas-sheets', {
-      userId: userId,
-      email: userEmail
+    // ✅ CAMBIO: Llamar al endpoint correcto
+    const response = await axios.post('/api/admin/export-horas-sheets', {}, {
+      headers: { Authorization: `Bearer ${token}` }
     });
 
     const data = response.data;
 
     if (data.success) {
-      const sheetsUrl = data.spreadsheetUrl || `https://docs.google.com/spreadsheets/d/${data.spreadsheetId}/edit`;
+      const sheetsUrl = data.spreadsheetUrl;
       
       Swal.fire({
         icon: 'success',
-        title: '¡Exportación de Horas Exitosa!',
+        title: '¡Exportación Exitosa!',
         html: `
-          <p>Tu hoja de Google Sheets ha sido creada con todas tus horas contabilizadas</p>
+          <p>${data.message}</p>
           <a href="${sheetsUrl}" target="_blank" class="btn btn-primary mt-2" style="display: inline-block; padding: 10px 20px; background: #4285F4; color: white; text-decoration: none; border-radius: 5px; margin-top: 15px;">
             🔗 Abrir Google Sheets
           </a>
@@ -142,7 +142,7 @@ async function exportarAExcel() {
         confirmButtonText: 'Cerrar'
       });
     } else {
-      throw new Error(data.message);
+      throw new Error(data.error);
     }
 
   } catch (error) {
@@ -150,7 +150,7 @@ async function exportarAExcel() {
     Swal.fire({
       icon: 'error',
       title: 'Error',
-      text: 'No se pudo exportar a Google Sheets: ' + error.message
+      text: 'No se pudo exportar a Google Sheets: ' + (error.response?.data?.error || error.message)
     });
   }
 }
