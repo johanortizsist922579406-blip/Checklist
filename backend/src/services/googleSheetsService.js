@@ -1,14 +1,52 @@
-// googleSheetsService.js - VERSIÓN CORREGIDA PARA PRODUCCIÓN
+// googleSheetsService.js - Versión tolerante a falta de googleapis
 
-const { google } = require('googleapis');
+let google;
+try {
+  google = require('googleapis').google;
+} catch (err) {
+  console.error('googleapis no disponible en este entorno:', err.message);
+}
+
 const path = require('path');
 
-// ✅ CAMBIO CRÍTICO: Verificar que GOOGLE_SHEETS_ID exista en Railway
+// Si googleapis no está disponible (por ejemplo, en Railway si no se instaló)
+// exportamos funciones dummy para que el servidor no se caiga al arrancar.
+if (!google) {
+  const SPREADSHEET_ID = process.env.GOOGLE_SHEETS_ID || 'NO_SPREADSHEET';
+
+  module.exports = {
+    async exportAutoevaluaciones() {
+      throw new Error(
+        `googleapis no está disponible en el servidor. Revisar instalación del paquete y entorno. SpreadsheetId=${SPREADSHEET_ID}`
+      );
+    },
+    async exportHoras() {
+      throw new Error(
+        `googleapis no está disponible en el servidor. Revisar instalación del paquete y entorno. SpreadsheetId=${SPREADSHEET_ID}`
+      );
+    },
+    async appendAutoevaluaciones() {
+      throw new Error(
+        `googleapis no está disponible en el servidor. Revisar instalación del paquete y entorno. SpreadsheetId=${SPREADSHEET_ID}`
+      );
+    }
+  };
+
+  return;
+}
+
+// ✅ Si llega aquí es porque googleapis sí se pudo cargar
+
+// ✅ Verificar que GOOGLE_SHEETS_ID exista en Railway
 const SPREADSHEET_ID = (() => {
   if (!process.env.GOOGLE_SHEETS_ID) {
-    throw new Error('❌ CRÍTICO: GOOGLE_SHEETS_ID no está definido en variables de entorno. Verifica Railway.');
+    throw new Error(
+      '❌ CRÍTICO: GOOGLE_SHEETS_ID no está definido en variables de entorno. Verifica Railway.'
+    );
   }
-  console.log(`📋 Usando GOOGLE_SHEETS_ID: ${process.env.GOOGLE_SHEETS_ID.substring(0, 20)}...`);
+  console.log(
+    `📋 Usando GOOGLE_SHEETS_ID: ${process.env.GOOGLE_SHEETS_ID.substring(0, 20)}...`
+  );
   return process.env.GOOGLE_SHEETS_ID;
 })();
 
@@ -17,7 +55,7 @@ class GoogleSheetsService {
     let authConfig;
 
     if (process.env.GOOGLE_CREDENTIALS_JSON) {
-      // En PRODUCCIÓN: Lee desde variable de entorno
+      // PRODUCCIÓN: desde variable de entorno
       try {
         authConfig = JSON.parse(process.env.GOOGLE_CREDENTIALS_JSON);
         this.auth = new google.auth.GoogleAuth({
@@ -33,7 +71,7 @@ class GoogleSheetsService {
         throw error;
       }
     } else {
-      // En LOCAL: Lee desde archivo
+      // DESARROLLO: desde archivo local
       const keyFile = path.resolve(__dirname, '../google-credentials.json');
       this.auth = new google.auth.GoogleAuth({
         keyFile,
@@ -63,7 +101,7 @@ class GoogleSheetsService {
     try {
       console.log('📊 Iniciando exportación de autoevaluaciones...');
       console.log(`📈 Total de registros: ${data.length}`);
-      
+
       if (!this.sheets) {
         await this.initialize();
       }
@@ -122,10 +160,11 @@ class GoogleSheetsService {
         updatedCells: response.data.updatedCells,
         spreadsheetId: SPREADSHEET_ID
       };
-
     } catch (error) {
       console.error('❌ Error en exportación:', error.message);
-      throw new Error(`Error al exportar autoevaluaciones a Google Sheets: ${error.message}`);
+      throw new Error(
+        `Error al exportar autoevaluaciones a Google Sheets: ${error.message}`
+      );
     }
   }
 
@@ -133,7 +172,7 @@ class GoogleSheetsService {
     try {
       console.log('📊 Iniciando exportación de HORAS a Google Sheets...');
       console.log(`📈 Total de registros: ${data.length}`);
-      
+
       if (!this.sheets) {
         await this.initialize();
       }
@@ -196,7 +235,6 @@ class GoogleSheetsService {
         updatedCells: response.data.updatedCells,
         spreadsheetId: SPREADSHEET_ID
       };
-
     } catch (error) {
       console.error('❌ Error en exportación de horas:', error.message);
       throw new Error(`Error al exportar horas a Google Sheets: ${error.message}`);
@@ -264,15 +302,15 @@ class GoogleSheetsService {
   async appendAutoevaluaciones(data) {
     try {
       console.log('📊 Iniciando anexión de datos...');
-      
+
       if (!this.sheets) {
         await this.initialize();
       }
 
       const values = [];
-      
+
       if (Array.isArray(data) && data.length > 0) {
-        data.forEach(item => {
+        data.forEach((item) => {
           values.push([
             `${item.nombre} ${item.apellido}` || '',
             item.areaid || '',
@@ -300,7 +338,6 @@ class GoogleSheetsService {
         updatedRows: response.data.updates.updatedRows,
         spreadsheetId: SPREADSHEET_ID
       };
-
     } catch (error) {
       console.error('❌ Error al anexar datos:', error.message);
       throw new Error(`Error al anexar datos: ${error.message}`);
