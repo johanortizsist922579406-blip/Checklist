@@ -350,25 +350,23 @@ app.use((err, req, res, next) => {
 });
 
 // ===== INICIAR SERVIDOR =====
-// ===== INICIAR SERVIDOR =====
 const PORT = process.env.PORT || 3000;
 
-async function startServer() {
-  try {
-    await initializeDatabase();
-    
-    app.listen(PORT, () => {
-      console.log(`✅ Server running on port ${PORT}`);
-      console.log(`📁 Frontend: ${frontendPath}`);
-      console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
-    });
-  } catch (error) {
-    console.error('❌ Start error:', error.message);
-    process.exit(1);
-  }
-}
+// Iniciar servidor primero
+app.listen(PORT, () => {
+  console.log(`✅ Server running on port ${PORT}`);
+  console.log(`📁 Frontend: ${frontendPath}`);
+  console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
+});
 
-startServer();
+// Conectar a DB en background (no bloquea el servidor)
+if (process.env.NODE_ENV === 'production') {
+  initializeDatabase()
+    .then(() => console.log('✅ Database initialized'))
+    .catch(err => console.error('❌ Database error:', err.message));
+} else {
+  console.log('⏭️ Development mode - skipping DB initialization');
+}
 
 // ===== MANEJO DE CIERRE GRACEFUL =====
 process.on('SIGTERM', () => {
@@ -390,3 +388,4 @@ process.on('SIGINT', () => {
     });
   }
 });
+
