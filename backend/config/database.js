@@ -1,37 +1,21 @@
 require('dotenv').config();
-const mysql = require('mysql2/promise');
+const { Pool } = require('pg');
 
-const host = process.env.MYSQL_HOST || process.env.DB_HOST || 'localhost';
-const user = process.env.MYSQL_USER || process.env.DB_USER || 'root';
-const password = process.env.MYSQL_PASSWORD || process.env.DB_PASSWORD || '';
-const database = process.env.MYSQL_DATABASE || process.env.DB_NAME || 'railway';
-const port = Number(process.env.MYSQL_PORT || process.env.DB_PORT) || 3306;
-
-console.log('🔧 Conectando con variables...');
-console.log('  Host:', host);
-console.log('  Usuario:', user);
-console.log('  Puerto:', port);
-console.log('  Base:', database);
-
-const pool = mysql.createPool({
-  host,
-  user,
-  password,
-  database,
-  port,
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0,
-  multipleStatements: true
+const pool = new Pool({
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  host: process.env.DB_HOST,
+  port: parseInt(process.env.DB_PORT),
+  database: process.env.DB_NAME,
+  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
 });
 
-pool.getConnection()
-  .then(conn => {
-    console.log('✅ DATABASE CONNECTION SUCCESS!');
-    conn.release();
-  })
-  .catch(err => {
-    console.error('❌ DATABASE CONNECTION FAILED:', err.message);
-  });
+pool.getConnection = async () => {
+  return pool.connect();
+};
+
+pool.on('error', (err) => {
+  console.error('Unexpected error on idle client', err);
+});
 
 module.exports = pool;
