@@ -18,9 +18,7 @@ console.log('Frontend path:', frontendPath);
 console.log('Frontend exists:', fs.existsSync(frontendPath));
 console.log('Index.html exists:', fs.existsSync(path.join(frontendPath, 'index.html')));
 
-// ===== POOL POSTGRESQL =====
-let pool;
-
+// ===== INICIALIZAR DATABASE =====
 async function initializeDatabase() {
   try {
     console.log('🔄 Inicializando PostgreSQL...');
@@ -33,7 +31,6 @@ async function initializeDatabase() {
     const client = await pool.connect();
     console.log('✅ PostgreSQL conectado');
     
-    // Ejecutar migraciones SOLO en producción
     if (process.env.NODE_ENV === 'production') {
       console.log('🚀 Ejecutando migraciones...');
       await runMigrationsWithRestore(client);
@@ -41,8 +38,10 @@ async function initializeDatabase() {
     
     client.release();
   } catch (err) {
-    console.error('❌ Error DB:', err.message);
-    process.exit(1);
+    console.error('❌ Error DB:', err); // Cambiar aquí para ver el error completo
+    console.error('❌ Error message:', err.message);
+    console.error('❌ Error code:', err.code);
+    // No hacer exit() aquí para que el servidor siga corriendo
   }
 }
 
