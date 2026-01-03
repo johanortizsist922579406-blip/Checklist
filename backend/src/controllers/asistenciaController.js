@@ -1,16 +1,18 @@
 const pool = require('../../config/database');
+const { executeQuery } = require('../utils/dbHelper');
 
 exports.getAllAsistencias = async (req, res) => {
   try {
     const usuarioid = req.user.id;
 
-    const [rows] = await pool.query(
+    const [rows] = await executeQuery(
+      pool,
       `SELECT 
         id,
         usuarioid,
         DATE(fecha) AS fecha,
-        TIME(horaentrada) AS horaentrada,
-        TIME(horasalida) AS horasalida,
+        horaentrada::time AS horaentrada,
+        horasalida::time AS horasalida,
         estado,
         horatotal
        FROM asistencias
@@ -31,24 +33,27 @@ exports.marcarEntrada = async (req, res) => {
     const usuarioid = req.user.id;
 
     let asistenciaId;
-    const [existentes] = await pool.query(
+    const [existentes] = await executeQuery(
+      pool,
       `SELECT id FROM asistencias
-       WHERE usuarioid = ? AND fecha = CURDATE()`,
+       WHERE usuarioid = ? AND DATE(fecha) = CURRENT_DATE`,
       [usuarioid]
     );
 
     if (existentes.length) {
       asistenciaId = existentes[0].id;
     } else {
-      const [result] = await pool.query(
+      const [result] = await executeQuery(
+        pool,
         `INSERT INTO asistencias (usuarioid, fecha, horaentrada, estado)
-         VALUES (?, CURDATE(), NOW(), 'En jornada')`,
-        [usuarioid]
+         VALUES (?, CURRENT_DATE, NOW(), ?)`,
+        [usuarioid, 'En jornada']
       );
-      asistenciaId = result.insertId;
+      asistenciaId = result.insertId || result[0]?.id;
     }
 
-    const [tramosAbiertos] = await pool.query(
+    const [tramosAbiertos] = await executeQuery(
+      pool,
       `SELECT id FROM asistencia_tramos
        WHERE asistenciaid = ? AND horasalida IS NULL`,
       [asistenciaId]
@@ -58,16 +63,19 @@ exports.marcarEntrada = async (req, res) => {
       return res.status(400).json({ error: 'Ya tienes un tramo de asistencia en curso' });
     }
 
-    const [nuevoTramo] = await pool.query(
+    const [nuevoTramo] = await executeQuery(
+      pool,
       `INSERT INTO asistencia_tramos (asistenciaid, horaentrada)
        VALUES (?, NOW())`,
       [asistenciaId]
     );
 
+    const tramoId = nuevoTramo.insertId || nuevoTramo[0]?.id;
+
     return res.json({
       message: 'Entrada registrada',
       asistenciaId,
-      tramoId: nuevoTramo.insertId
+      tramoId
     });
   } catch (err) {
     console.error('Error en marcarEntrada:', err);
@@ -79,9 +87,10 @@ exports.marcarSalida = async (req, res) => {
   try {
     const usuarioid = req.user.id;
 
-    const [asisRows] = await pool.query(
+    const [asisRows] = await executeQuery(
+      pool,
       `SELECT id FROM asistencias
-       WHERE usuarioid = ? AND fecha = CURDATE()`,
+       WHERE usuarioid = ? AND DATE(fecha) = CURRENT_DATE`,
       [usuarioid]
     );
 
@@ -91,7 +100,8 @@ exports.marcarSalida = async (req, res) => {
 
     const asistenciaId = asisRows[0].id;
 
-    const [tramosAbiertos] = await pool.query(
+    const [tramosAbiertos] = await executeQuery(
+      pool,
       `SELECT id FROM asistencia_tramos
        WHERE asistenciaid = ? AND horasalida IS NULL`,
       [asistenciaId]
@@ -103,35 +113,39 @@ exports.marcarSalida = async (req, res) => {
 
     const tramoId = tramosAbiertos[0].id;
 
-    await pool.query(
+    await executeQuery(
+      pool,
       `UPDATE asistencia_tramos
        SET horasalida = NOW()
        WHERE id = ?`,
       [tramoId]
     );
 
-    await pool.query(
+    await executeQuery(
+      pool,
       `UPDATE asistencias
        SET horasalida = NOW()
        WHERE id = ?`,
       [asistenciaId]
     );
 
-    const [sumRows] = await pool.query(
-      `SELECT SUM(TIMESTAMPDIFF(SECOND, horaentrada, horasalida)) AS segundos_totales
+    const [sumRows] = await executeQuery(
+      pool,
+      `SELECT SUM(EXTRACT(EPOCH FROM (horasalida - horaentrada))) AS segundos_totales
        FROM asistencia_tramos
        WHERE asistenciaid = ? AND horasalida IS NOT NULL`,
       [asistenciaId]
     );
 
-    const segundosTotales = sumRows[0].segundos_totales || 0;
+    const segundosTotales = sumRows[0]?.segundos_totales || 0;
 
-    await pool.query(
+    await executeQuery(
+      pool,
       `UPDATE asistencias
-       SET horatotal = SEC_TO_TIME(?),
-           estado = 'Presente'
+       SET horatotal = (INTERVAL '1 second' * ?),
+           estado = ?
        WHERE id = ?`,
-      [segundosTotales, asistenciaId]
+      [segundosTotales, 'Presente', asistenciaId]
     );
 
     res.json({

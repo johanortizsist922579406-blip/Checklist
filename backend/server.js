@@ -270,12 +270,29 @@ process.on('SIGTERM', () => {
   }
 });
 
-process.on('SIGINT', () => {
-  console.log('SIGINT - Cerrando conexión...');
-  if (pool) {
+process.on('SIGTERM', () => {
+  console.log('SIGTERM - Cerrando conexión...');
+  const pool = require('./config/database');
+  if (pool && pool.end) {
     pool.end(() => {
       console.log('Pool cerrado');
       process.exit(0);
     });
+  } else {
+    process.exit(0);
   }
 });
+
+process.on('SIGINT', () => {
+  console.log('SIGINT - Cerrando conexión...');
+  const pool = require('./config/database');
+  if (pool && pool.end) {
+    pool.end(() => {
+      console.log('Pool cerrado');
+      process.exit(0);
+    });
+  } else {
+    process.exit(0);
+  }
+});
+

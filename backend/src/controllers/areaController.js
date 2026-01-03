@@ -1,11 +1,14 @@
 const pool = require('../../config/database');
+const { executeQuery, boolValue } = require('../utils/dbHelper');
 
 exports.getAllAreas = async (req, res) => {
   try {
     console.log('GET /api/areas llamado');
 
-    const [rows] = await pool.query(
-      'SELECT * FROM areas WHERE activo = 1 ORDER BY id'
+    const [rows] = await executeQuery(
+      pool,
+      `SELECT * FROM areas WHERE activo = ? ORDER BY id`,
+      [boolValue(true)]
     );
 
     return res.json(rows);
@@ -20,7 +23,8 @@ exports.getAllAreas = async (req, res) => {
 
 exports.getAreaById = async (req, res) => {
   try {
-    const [rows] = await pool.query(
+    const [rows] = await executeQuery(
+      pool,
       'SELECT * FROM areas WHERE id = ?',
       [req.params.id]
     );
@@ -38,17 +42,18 @@ exports.getAreaById = async (req, res) => {
 
 exports.createArea = async (req, res) => {
   try {
-    const { nombre } = req.body;
+    const { nombre } = req.body();
 
-    const [result] = await pool.query(
-      'INSERT INTO areas (nombre, activo) VALUES (?, 1)',
-      [nombre]
+    const [result] = await executeQuery(
+      pool,
+      'INSERT INTO areas (nombre, activo) VALUES (?, ?)',
+      [nombre, boolValue(true)]
     );
 
     return res.json({
-      id: result.insertId,
+      id: result.insertId || result[0].id,
       nombre,
-      activo: 1
+      activo: boolValue(true)
     });
   } catch (err) {
     console.error('ERROR POST /api/areas =>', err);

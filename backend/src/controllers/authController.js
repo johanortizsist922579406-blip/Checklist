@@ -1,5 +1,6 @@
 const pool = require('../../config/database');
 const jwt = require('jsonwebtoken');
+const { executeQuery } = require('../utils/dbHelper');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'Sanilab2025';
 
@@ -11,7 +12,8 @@ exports.login = async (req, res) => {
       return res.status(400).json({ error: 'Correo y contraseña son obligatorios' });
     }
 
-    const [rows] = await pool.query(
+    const [rows] = await executeQuery(
+      pool,
       'SELECT * FROM usuarios WHERE correo = ?',
       [correo]
     );
@@ -47,6 +49,7 @@ exports.login = async (req, res) => {
       }
     });
   } catch (err) {
+    console.error('Error login:', err);
     return res.status(500).json({ error: err.message });
   }
 };
@@ -59,7 +62,8 @@ exports.registro = async (req, res) => {
       return res.status(400).json({ error: 'Todos los campos son obligatorios' });
     }
 
-    const [existente] = await pool.query(
+    const [existente] = await executeQuery(
+      pool,
       'SELECT id FROM usuarios WHERE correo = ?',
       [correo]
     );
@@ -68,13 +72,20 @@ exports.registro = async (req, res) => {
       return res.status(400).json({ error: 'El correo ya está registrado' });
     }
 
-    const [result] = await pool.query(
+    const [result] = await executeQuery(
+      pool,
       `INSERT INTO usuarios (correo, passwordhash, nombre, apellido, areaid, genero, activo, rol)
-       VALUES (?, ?, ?, ?, ?, ?, 'SI', 'USER')`,
-      [correo, password, nombre, apellido, areaid, genero]
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      [correo, password, nombre, apellido, areaid, genero, 'SI', 'USER']
     );
 
-    res.json({ ok: true, message: 'Usuario registrado exitosamente', usuarioId: result.insertId });
+    const insertId = result.insertId || result[0]?.id;
+
+    res.json({ 
+      ok: true, 
+      message: 'Usuario registrado exitosamente', 
+      usuarioId: insertId 
+    });
   } catch (err) {
     console.error('Error registro:', err);
     res.status(500).json({ error: err.message });
@@ -89,7 +100,8 @@ exports.cambiarPassword = async (req, res) => {
       return res.status(400).json({ error: 'Correo y nueva contraseña son requeridos' });
     }
 
-    const [usuarios] = await pool.query(
+    const [usuarios] = await executeQuery(
+      pool,
       'SELECT id FROM usuarios WHERE correo = ?',
       [correo]
     );
@@ -98,7 +110,8 @@ exports.cambiarPassword = async (req, res) => {
       return res.status(404).json({ error: 'Usuario no encontrado' });
     }
 
-    await pool.query(
+    await executeQuery(
+      pool,
       'UPDATE usuarios SET passwordhash = ? WHERE correo = ?',
       [nuevaPassword, correo]
     );

@@ -1,9 +1,7 @@
-// controllers/adminController.js
-
 const pool = require('../../config/database');
 const googleSheetsService = require('../services/googleSheetsService');
+const { executeQuery } = require('../utils/dbHelper');
 
-// ✅ EXISTENTE: Obtener horas (para filtrar en el panel)
 exports.getHoras = async (req, res) => {
   try {
     const { fechaDesde, fechaHasta, nombre } = req.query;
@@ -12,8 +10,8 @@ exports.getHoras = async (req, res) => {
       SELECT 
         u.nombre,
         DATE(a.fecha) AS fecha,
-        TIME(CONVERT_TZ(a.horaentrada, '+00:00', '-05:00')) AS horaentrada,
-        TIME(CONVERT_TZ(a.horasalida, '+00:00', '-05:00')) AS horasalida,
+        a.horaentrada::time AS horaentrada,
+        a.horasalida::time AS horasalida,
         a.horatotal
       FROM asistencias a
       JOIN usuarios u ON a.usuarioid = u.id
@@ -36,7 +34,7 @@ exports.getHoras = async (req, res) => {
 
     sql += ' ORDER BY a.fecha DESC, u.nombre ASC';
 
-    const [rows] = await pool.query(sql, params);
+    const [rows] = await executeQuery(pool, sql, params);
     res.json(rows);
   } catch (err) {
     console.error('Error getHoras =>', err.message);
@@ -44,7 +42,6 @@ exports.getHoras = async (req, res) => {
   }
 };
 
-// ✅ EXISTENTE: Obtener puntajes
 exports.getPuntajes = async (req, res) => {
   try {
     const { nombre } = req.query;
@@ -64,14 +61,13 @@ exports.getPuntajes = async (req, res) => {
 
     sql += ' ORDER BY r.puntajetotal DESC';
 
-    const [rows] = await pool.query(sql, params);
+    const [rows] = await executeQuery(pool, sql, params);
     res.json(rows);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
 
-// ✅ NUEVO: Exportar TODOS los datos de horas a Google Sheets
 exports.exportHorasSheets = async (req, res) => {
   try {
     console.log('📊 Iniciando exportación de horas a Google Sheets...');
@@ -81,19 +77,18 @@ exports.exportHorasSheets = async (req, res) => {
         u.nombre,
         u.apellido,
         DATE(a.fecha) AS fecha,
-        TIME(CONVERT_TZ(a.horaentrada, '+00:00', '-05:00')) AS horaentrada,
-        TIME(CONVERT_TZ(a.horasalida, '+00:00', '-05:00')) AS horasalida,
+        a.horaentrada::time AS horaentrada,
+        a.horasalida::time AS horasalida,
         a.horatotal
       FROM asistencias a
       JOIN usuarios u ON a.usuarioid = u.id
       ORDER BY a.fecha DESC, u.nombre ASC
     `;
 
-    const [rows] = await pool.query(sql);
+    const [rows] = await executeQuery(pool, sql);
 
     console.log(`✅ Obtenidos ${rows.length} registros de todos los usuarios`);
 
-    // Enviar a Google Sheets
     const result = await googleSheetsService.exportHoras(rows);
 
     res.json({
@@ -113,18 +108,18 @@ exports.exportHorasSheets = async (req, res) => {
   }
 };
 
-// ✅ EXISTENTE: Obtener solo las asistencias del usuario actual (para su propia página)
 exports.getAllAsistencias = async (req, res) => {
   try {
     const usuarioid = req.user.id;
 
-    const [rows] = await pool.query(
+    const [rows] = await executeQuery(
+      pool,
       `SELECT 
         id,
         usuarioid,
         DATE(fecha) AS fecha,
-        TIME(horaentrada) AS horaentrada,
-        TIME(horasalida) AS horasalida,
+        horaentrada::time AS horaentrada,
+        horasalida::time AS horasalida,
         estado,
         horatotal
        FROM asistencias
