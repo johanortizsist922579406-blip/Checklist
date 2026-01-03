@@ -20,28 +20,55 @@ console.log('Index.html exists:', fs.existsSync(path.join(frontendPath, 'index.h
 
 // ===== INICIALIZAR DATABASE =====
 async function initializeDatabase() {
+  const isPostgres = process.env.NODE_ENV === 'production';
+  
   try {
-    console.log('🔄 Inicializando PostgreSQL...');
-    
-    pool = new Pool({
-      connectionString: process.env.DATABASE_URL,
-      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
-    });
+    if (isPostgres) {
+      console.log('🔄 Inicializando PostgreSQL...');
+      
+      // Crear tablas con sintaxis PostgreSQL
+      await pool.query(`
+        CREATE TABLE IF NOT EXISTS areas (
+          id SERIAL PRIMARY KEY,
+          nombre VARCHAR(100) NOT NULL UNIQUE,
+          descripcion TEXT,
+          activo BOOLEAN DEFAULT true,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+      `);
 
-    const client = await pool.connect();
-    console.log('✅ PostgreSQL conectado');
-    
-    if (process.env.NODE_ENV === 'production') {
-      console.log('🚀 Ejecutando migraciones...');
-      await runMigrationsWithRestore(client);
+      await pool.query(`
+        CREATE TABLE IF NOT EXISTS usuarios (
+          id SERIAL PRIMARY KEY,
+          nombre VARCHAR(100) NOT NULL,
+          email VARCHAR(100) NOT NULL UNIQUE,
+          password VARCHAR(255) NOT NULL,
+          area_id INTEGER REFERENCES areas(id),
+          rol VARCHAR(50) DEFAULT 'usuario',
+          activo BOOLEAN DEFAULT true,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+      `);
+
+      // Insertar áreas de ejemplo
+      await pool.query(`
+        INSERT INTO areas (nombre, descripcion) 
+        VALUES 
+          ('Administración', 'Área administrativa'),
+          ('Producción', 'Área de producción'),
+          ('Calidad', 'Control de calidad')
+        ON CONFLICT (nombre) DO NOTHING
+      `);
+
+      console.log('✅ Database initialized');
+    } else {
+      console.log('🔄 Inicializando MySQL...');
+      // Código MySQL existente...
     }
-    
-    client.release();
-  } catch (err) {
-    console.error('❌ Error DB:', err); // Cambiar aquí para ver el error completo
-    console.error('❌ Error message:', err.message);
-    console.error('❌ Error code:', err.code);
-    // No hacer exit() aquí para que el servidor siga corriendo
+  } catch (error) {
+    console.log('❌ Error DB:', error);
+    console.log('❌ Error message:', error.message);
+    console.log('❌ Error code:', error.code);
   }
 }
 
