@@ -1,4 +1,4 @@
-const pool = require('./database');
+const pool = require('./config/database');
 require('dotenv').config();
 
 const express = require('express');
