@@ -35,6 +35,11 @@ function decodificarToken(token) {
   }
 }
 
+function formatearHoraTotal(raw) {
+  if (!raw) return '--:--:--';
+  return raw.split('.')[0];
+}
+
 setTimeout(function() {
   const btnEntrada = document.getElementById('btnEntrada');
   const btnSalida = document.getElementById('btnSalida');
@@ -67,7 +72,6 @@ async function marcarEntrada() {
     const statusIndicator = document.getElementById('statusIndicator');
     const entradaTime = document.getElementById('entradaTime');
     
-    // Obtener la hora actual en formato HH:MM
     const now = new Date();
     const horas = String(now.getHours()).padStart(2, '0');
     const minutos = String(now.getMinutes()).padStart(2, '0');
@@ -108,13 +112,11 @@ async function marcarSalida() {
     const salidaTime = document.getElementById('salidaTime');
     const totalTime = document.getElementById('totalTime');
     
-    // Obtener la hora actual en formato HH:MM
     const now = new Date();
     const horas = String(now.getHours()).padStart(2, '0');
     const minutos = String(now.getMinutes()).padStart(2, '0');
     salidaTime.textContent = `${horas}:${minutos}`;
     
-    // Calcular tiempo total en horas
     if (res.data.segundosTotales) {
       const horas_total = Math.floor(res.data.segundosTotales / 3600);
       const minutos_total = Math.floor((res.data.segundosTotales % 3600) / 60);
@@ -161,6 +163,7 @@ async function cargarEstado() {
       salidaTime.textContent = '--:--';
       totalTime.textContent = '--:--:--';
       statusIndicator.innerHTML = '<div class="status-dot"></div><span>Sin registrar</span>';
+      statusIndicator.classList.remove('active', 'completed');
       return;
     }
 
@@ -170,7 +173,7 @@ async function cargarEstado() {
 
     if (data.horasalida) {
       salidaTime.textContent = data.horasalida.substring(0, 5);
-      totalTime.textContent = data.horatotal || '--:--:--';
+      totalTime.textContent = formatearHoraTotal(data.horatotal);
       btnEntrada.disabled = true;
       btnSalida.disabled = true;
       statusIndicator.innerHTML = '<div class="status-dot completed"></div><span>Jornada completada</span>';
@@ -180,6 +183,7 @@ async function cargarEstado() {
       btnSalida.disabled = false;
       statusIndicator.innerHTML = '<div class="status-dot active"></div><span>En jornada</span>';
       statusIndicator.classList.add('active');
+      statusIndicator.classList.remove('completed');
     }
   } catch (err) {
     console.error('Error:', err);
