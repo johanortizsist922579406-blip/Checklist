@@ -1,69 +1,24 @@
 const express = require('express');
 const router = express.Router();
 
-const asistenciaController = require('../controllers/asistenciaController');
-const { verifyToken } = require('../middlewares/authMiddleware');
-const pool = require('../../config/database');
+const asistenciaRoutes = require('./asistenciaRoutes');
+const areaRoutes = require('./areaRoutes');
+const usuarioRoutes = require('./usuarios');
+const preguntaRoutes = require('./preguntas');
+const autoevaluacionRoutes = require('./autoevaluacionRoutes');
+const respuestaAutoevaluacionRoutes = require('./respuestaAutoevaluacionRoutes');
+const rankingRoutes = require('./rankingRoutes');
+const authRoutes = require('./authRoutes');
+const adminRoutes = require('./adminRoutes');
 
-router.get('/', asistenciaController.getAllAsistencias);
-router.post('/entrada', asistenciaController.marcarEntrada);
-router.post('/salida', asistenciaController.marcarSalida);
-router.get('/estado-actual', async (req, res) => {
-  try {
-    const usuarioId = req.user.id;
-
-    const { rows: asisRows } = await pool.query(
-      `SELECT id, fecha, horaentrada, horasalida
-       FROM asistencias
-       WHERE usuarioid = $1
-         AND fecha = CURRENT_DATE
-       ORDER BY id DESC
-       LIMIT 1`,
-      [usuarioId]
-    );
-
-    if (!asisRows.length) {
-      return res.json({ tieneEntradaAbierta: false });
-    }
-
-    const asistencia = asisRows[0];
-
-    const { rows: tramoRows } = await pool.query(
-      `SELECT id,
-              horaentrada,
-              horasalida
-       FROM asistencia_tramos
-       WHERE asistenciaid = $1
-       ORDER BY id DESC
-       LIMIT 1`,
-       [asistencia.id]
-    );
-
-    const tramo = tramoRows[0] || null;
-
-    if (!tramo || tramo.horasalida) {
-      return res.json({
-        tieneEntradaAbierta: false,
-        asistenciaId: asistencia.id,
-        fecha: asistencia.fecha,
-        horaentrada: null,
-        horasalida: null,
-        horatotal: null
-      });
-    }
-
-    return res.json({
-      tieneEntradaAbierta: true,
-      asistenciaId: asistencia.id,
-      fecha: asistencia.fecha,
-      horaentrada: tramo.horaentrada,
-      horasalida: null,
-      horatotal: null
-    });
-  } catch (err) {
-    console.error('Error en /asistencias/estado-actual =>', err.message);
-    return res.status(500).json({ error: 'Error al obtener estado de asistencia' });
-  }
-});
+router.use('/auth', authRoutes);
+router.use('/asistencias', asistenciaRoutes);
+router.use('/areas', areaRoutes);
+router.use('/usuarios', usuarioRoutes);
+router.use('/preguntas', preguntaRoutes);
+router.use('/autoevaluaciones', autoevaluacionRoutes);
+router.use('/respuestas-autoevaluacion', respuestaAutoevaluacionRoutes);
+router.use('/rankings', rankingRoutes);
+router.use('/admin', adminRoutes);
 
 module.exports = router;
