@@ -172,19 +172,14 @@ async function cargarEstado() {
     }
 
     if (data.horasalida) {
-      salidaTime.textContent = data.horasalida.substring(0, 5);
-      totalTime.textContent = formatearHoraTotal(data.horatotal);
-      btnEntrada.disabled = true;
-      btnSalida.disabled = true;
-      statusIndicator.innerHTML = '<div class="status-dot completed"></div><span>Jornada completada</span>';
-      statusIndicator.classList.add('completed');
-    } else {
-      btnEntrada.disabled = true;
-      btnSalida.disabled = false;
-      statusIndicator.innerHTML = '<div class="status-dot active"></div><span>En jornada</span>';
-      statusIndicator.classList.add('active');
-      statusIndicator.classList.remove('completed');
-    }
+    salidaTime.textContent = data.horasalida.substring(0, 5);
+    totalTime.textContent = data.horatotal || '--:--:--';
+    btnEntrada.disabled = true;
+    btnSalida.disabled = true;
+    statusIndicator.innerHTML = '<div class="status-dot completed"></div><span>Jornada completada</span>';
+    statusIndicator.classList.add('completed');
+  }
+
   } catch (err) {
     console.error('Error:', err);
   }

@@ -15,12 +15,17 @@ router.get('/estado-actual', async (req, res) => {
     const usuarioId = req.user.id;
 
     const { rows: asisRows } = await pool.query(
-      `SELECT id, fecha, horaentrada, horasalida
-       FROM asistencias
-       WHERE usuarioid = $1
-         AND fecha = CURRENT_DATE
-       ORDER BY id DESC
-       LIMIT 1`,
+      `SELECT
+      id,
+      fecha,
+      horaentrada,
+      horasalida,
+      to_char(horatotal, 'HH24:MI:SS') AS horatotal
+      FROM asistencias
+      WHERE usuarioid = $1
+      AND fecha = CURRENT_DATE
+      ORDER BY id DESC
+      LIMIT 1`,
       [usuarioId]
     );
 
