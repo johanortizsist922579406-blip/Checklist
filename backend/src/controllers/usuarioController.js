@@ -50,11 +50,14 @@ exports.createUsuario = async (req, res) => {
       return res.status(409).json({ error: 'El correo ya está registrado' });
     }
 
+    const activoRaw = activo ?? 'SI';     
+    const activoBool = activoRaw === 'SI';  
+
     const [result] = await executeQuery(
-      pool,
-      `INSERT INTO usuarios (correo, passwordhash, nombre, apellido, areaid, activo, genero, rol)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-      [correo, password, nombre, apellido, areaid, activo ?? 'SI', genero, 'USER']
+    pool,
+    `INSERT INTO usuarios (correo, passwordhash, nombre, apellido, areaid, activo, genero, rol)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+    [correo, password, nombre, apellido, areaid, activoBool, genero, 'USER']
     );
 
     const insertId = result.insertId || result[0]?.id;
