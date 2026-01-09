@@ -172,13 +172,13 @@ async function cargarEstado() {
     }
 
     if (data.horasalida) {
-    salidaTime.textContent = data.horasalida.substring(0, 5);
-    totalTime.textContent = data.horatotal || '--:--:--';
-    btnEntrada.disabled = true;
-    btnSalida.disabled = true;
-    statusIndicator.innerHTML = '<div class="status-dot completed"></div><span>Jornada completada</span>';
+      salidaTime.textContent = data.horasalida.substring(0, 5);
+      totalTime.textContent = data.horatotal || '--:--:--';
+      btnEntrada.disabled = true;
+      btnSalida.disabled = true;
+      statusIndicator.innerHTML = '<div class="status-dot completed"></div><span>Jornada completada</span>';
     statusIndicator.classList.add('completed');
-  }
+    }
 
   } catch (err) {
     console.error('Error:', err);
