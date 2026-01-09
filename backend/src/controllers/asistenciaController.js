@@ -43,13 +43,13 @@ exports.marcarEntrada = async (req, res) => {
     if (existentes.length) {
       asistenciaId = existentes[0].id;
     } else {
-      const [result] = await executeQuery(
-        pool,
-        `INSERT INTO asistencias (usuarioid, fecha, horaentrada, estado)
-         VALUES (?, CURRENT_DATE, NOW(), ?)`,
-        [usuarioid, 'En jornada']
-      );
-      asistenciaId = result.insertId || result[0]?.id;
+    const [result] = await executeQuery(pool,
+    `INSERT INTO asistencias (usuarioid, fecha, horaentrada, estado)
+    VALUES (?, CURRENT_DATE, NOW(), ?)
+    RETURNING id`,
+    [usuarioid, 'En jornada']
+    );
+      asistenciaId = result[0].id;
     }
 
     const [tramosAbiertos] = await executeQuery(
@@ -64,13 +64,14 @@ exports.marcarEntrada = async (req, res) => {
     }
 
     const [nuevoTramo] = await executeQuery(
-      pool,
-      `INSERT INTO asistencia_tramos (asistenciaid, horaentrada)
-       VALUES (?, NOW())`,
-      [asistenciaId]
+    pool,
+    `INSERT INTO asistencia_tramos (asistenciaid, horaentrada)
+    VALUES (?, NOW())
+    RETURNING id`,
+    [asistenciaId]
     );
 
-    const tramoId = nuevoTramo.insertId || nuevoTramo[0]?.id;
+    const tramoId = nuevoTramo[0].id;
 
     return res.json({
       message: 'Entrada registrada',
