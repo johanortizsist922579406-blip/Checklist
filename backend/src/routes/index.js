@@ -11,6 +11,17 @@ const rankingRoutes = require('./rankingRoutes');
 const authRoutes = require('./authRoutes');
 const adminRoutes = require('./adminRoutes');
 
+console.log('authRoutes      =>', typeof authRoutes);
+console.log('asistenciaRoutes =>', typeof asistenciaRoutes);
+console.log('areaRoutes       =>', typeof areaRoutes);
+console.log('usuarioRoutes    =>', typeof usuarioRoutes);
+console.log('preguntaRoutes   =>', typeof preguntaRoutes);
+console.log('autoevalRoutes   =>', typeof autoevaluacionRoutes);
+console.log('respAutoevalRoutes =>', typeof respuestaAutoevaluacionRoutes);
+console.log('rankingRoutes    =>', typeof rankingRoutes);
+console.log('adminRoutes      =>', typeof adminRoutes);
+
+
 router.use('/auth', authRoutes);
 router.use('/asistencias', asistenciaRoutes);
 router.use('/areas', areaRoutes);

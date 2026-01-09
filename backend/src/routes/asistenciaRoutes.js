@@ -67,3 +67,5 @@ router.get('/estado-actual', async (req, res) => {
     return res.status(500).json({ error: 'Error al obtener estado de asistencia' });
   }
 });
+
+module.exports = router;
