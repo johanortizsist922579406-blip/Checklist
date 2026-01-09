@@ -5,8 +5,6 @@ const asistenciaController = require('../controllers/asistenciaController');
 const { verifyToken } = require('../middlewares/authMiddleware');
 const pool = require('../../config/database');
 
-router.use(verifyToken);
-
 router.get('/', asistenciaController.getAllAsistencias);
 router.post('/entrada', asistenciaController.marcarEntrada);
 router.post('/salida', asistenciaController.marcarSalida);
