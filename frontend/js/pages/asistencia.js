@@ -147,7 +147,7 @@ async function cargarEstado() {
     const res = await axios.get('/api/asistencias/estado-actual', {
       headers: { Authorization: `Bearer ${token}` }
     });
-    
+    console.log('estado-actual data:', res.data); 
     const data = res.data;
     const btnEntrada = document.getElementById('btnEntrada');
     const btnSalida = document.getElementById('btnSalida');
