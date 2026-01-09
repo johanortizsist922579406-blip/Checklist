@@ -14,11 +14,11 @@ router.get('/estado-actual', async (req, res) => {
   try {
     const usuarioId = req.user.id;
 
-    const [asisRows] = await pool.query(
-      `SELECT id, fecha, horatotal
+    const { rows: asisRows } = await pool.query(
+      `SELECT id, fecha, horaentrada, horasalida
        FROM asistencias
-       WHERE usuarioid = ?
-         AND fecha = CURDATE()
+       WHERE usuarioid = $1
+         AND fecha = CURRENT_DATE
        ORDER BY id DESC
        LIMIT 1`,
       [usuarioId]
@@ -30,12 +30,12 @@ router.get('/estado-actual', async (req, res) => {
 
     const asistencia = asisRows[0];
 
-    const [tramoRows] = await pool.query(
-      `SELECT id, 
-              TIME(horaentrada) AS horaentrada,
-              TIME(horasalida) AS horasalida
+    const { rows: tramoRows } = await pool.query(
+      `SELECT id,
+              horaentrada,
+              horasalida
        FROM asistencia_tramos
-       WHERE asistenciaid = ?
+       WHERE asistenciaid = $1
        ORDER BY id DESC
        LIMIT 1`,
       [asistencia.id]
@@ -50,7 +50,7 @@ router.get('/estado-actual', async (req, res) => {
         fecha: asistencia.fecha,
         horaentrada: null,
         horasalida: null,
-        horatotal: asistencia.horatotal || null
+        horatotal: null
       });
     }
 
@@ -60,12 +60,10 @@ router.get('/estado-actual', async (req, res) => {
       fecha: asistencia.fecha,
       horaentrada: tramo.horaentrada,
       horasalida: null,
-      horatotal: asistencia.horatotal || null
+      horatotal: null
     });
   } catch (err) {
     console.error('Error en /asistencias/estado-actual =>', err.message);
     return res.status(500).json({ error: 'Error al obtener estado de asistencia' });
   }
 });
-
-module.exports = router;
