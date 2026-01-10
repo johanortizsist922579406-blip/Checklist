@@ -1,5 +1,3 @@
-// js/pages/admin.js
-
 document.addEventListener('DOMContentLoaded', function() {
   const token = localStorage.getItem('token');
   if (!token) {
@@ -14,11 +12,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
   if (btnFiltrarHoras) btnFiltrarHoras.onclick = cargarHoras;
   if (btnFiltrarPuntajes) btnFiltrarPuntajes.onclick = cargarPuntajes;
-  if (btnExportarSheets) btnExportarSheets.onclick = exportarAGoogleSheets; // ✅ Cambié el nombre
+  if (btnExportarSheets) btnExportarSheets.onclick = exportarAGoogleSheets;
 
   cargarHoras();
   cargarPuntajes();
 });
+
+function formatearHoraTotal(valor) {
+  if (!valor) return '--:--:--';
+  const str = valor.toString();
+  return str.split('.')[0]; 
+}
 
 async function cargarHoras() {
   const token = localStorage.getItem('token');
@@ -48,8 +52,8 @@ async function cargarHoras() {
 
     datos.forEach(row => {
       const horaEntrada = row.horaentrada ? row.horaentrada.substring(0, 5) : '--:--';
-      const horaSalida = row.horasalida ? row.horasalida.substring(0, 5) : '--:--';
-      const totalHoras = row.horatotal ? row.horatotal.substring(0, 8) : '--:--:--';
+      const horaSalida  = row.horasalida  ? row.horasalida.substring(0, 5)  : '--:--';
+      const totalHoras  = formatearHoraTotal(row.horatotal);
 
       tbody.innerHTML += `
         <tr>
@@ -105,7 +109,6 @@ async function cargarPuntajes() {
   }
 }
 
-// ✅ NUEVA FUNCIÓN: Exportar a Google Sheets
 async function exportarAGoogleSheets() {
   try {
     const token = localStorage.getItem('token');
@@ -119,7 +122,6 @@ async function exportarAGoogleSheets() {
       }
     });
 
-    // ✅ CAMBIO: Llamar al endpoint correcto
     const response = await axios.post('/api/admin/export-horas-sheets', {}, {
       headers: { Authorization: `Bearer ${token}` }
     });
