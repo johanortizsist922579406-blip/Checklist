@@ -149,7 +149,7 @@ async function cargarEstado() {
     const res = await axios.get('/api/asistencias/estado-actual', {
       headers: { Authorization: `Bearer ${token}` }
     });
-    console.log('estado-actual data:', res.data);
+    console.log('estado-actual data:', res.data); 
     const data = res.data;
 
     const btnEntrada = document.getElementById('btnEntrada');
@@ -170,29 +170,42 @@ async function cargarEstado() {
       return;
     }
 
-    if (!data.tieneEntradaAbierta && data.horaentrada && data.horasalida) {
-      entradaTime.textContent = data.horaentrada.substring(0, 5);
-      salidaTime.textContent = data.horasalida.substring(0, 5);
-      totalTime.textContent = data.horatotal || '--:--:--';
-
-      btnEntrada.disabled = true; 
-      btnSalida.disabled = true;    
-      statusIndicator.innerHTML = '<div class="status-dot completed"></div><span>Jornada completada</span>';
-      statusIndicator.classList.remove('active');
-      statusIndicator.classList.add('completed');
-      return;
-    }
-
-    if (data.tieneEntradaAbierta && data.horaentrada && !data.horasalida) {
-      entradaTime.textContent = data.horaentrada.substring(0, 5);
+    if (data.tieneEntradaAbierta) {
+      if (data.horaentrada) {
+        entradaTime.textContent = data.horaentrada.substring(0, 5);
+      } else {
+        entradaTime.textContent = '--:--';
+      }
       salidaTime.textContent = '--:--';
       totalTime.textContent = '--:--:--';
 
-      btnEntrada.disabled = true;
-      btnSalida.disabled = false;
+      btnEntrada.disabled = true; 
+      btnSalida.disabled = true;    
       statusIndicator.innerHTML = '<div class="status-dot active"></div><span>En jornada</span>';
       statusIndicator.classList.add('active');
       statusIndicator.classList.remove('completed');
+      return;
+    }
+
+    if (!data.tieneEntradaAbierta) {
+      if (data.horaentrada) {
+        entradaTime.textContent = data.horaentrada.substring(0, 5);
+      } else {
+        entradaTime.textContent = '--:--';
+      }
+
+      if (data.horasalida) {
+        salidaTime.textContent = data.horasalida.substring(0, 5);
+      } else {
+        salidaTime.textContent = '--:--';
+      }
+
+      totalTime.textContent = data.horatotal || '--:--:--';
+
+      btnEntrada.disabled = false; 
+      btnSalida.disabled = true;   
+      statusIndicator.innerHTML = '<div class="status-dot"></div><span>Sin registrar</span>';
+      statusIndicator.classList.remove('active', 'completed');
       return;
     }
 
