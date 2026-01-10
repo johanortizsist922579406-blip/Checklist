@@ -42,12 +42,13 @@ exports.marcarEntrada = async (req, res) => {
     if (existentes.length) {
       asistenciaId = existentes[0].id;
     } else {
-    const [result] = await executeQuery(pool,
-    `INSERT INTO asistencias (usuarioid, fecha, horaentrada, estado)
-    VALUES (?, CURRENT_DATE, NOW(), ?)
-    RETURNING id`,
-    [usuarioid, 'En jornada']
-    );
+      const [result] = await executeQuery(
+        pool,
+        `INSERT INTO asistencias (usuarioid, fecha, horaentrada, estado)
+         VALUES (?, CURRENT_DATE, CURRENT_TIME, ?)
+         RETURNING id`,
+        [usuarioid, 'En jornada']
+      );
       asistenciaId = result[0].id;
     }
 
@@ -63,11 +64,11 @@ exports.marcarEntrada = async (req, res) => {
     }
 
     const [nuevoTramo] = await executeQuery(
-    pool,
-    `INSERT INTO asistencia_tramos (asistenciaid, horaentrada)
-    VALUES (?, NOW())
-    RETURNING id`,
-    [asistenciaId]
+      pool,
+      `INSERT INTO asistencia_tramos (asistenciaid, horaentrada)
+       VALUES (?, CURRENT_TIME)
+       RETURNING id`,
+      [asistenciaId]
     );
 
     const tramoId = nuevoTramo[0].id;
@@ -116,16 +117,16 @@ exports.marcarSalida = async (req, res) => {
     await executeQuery(
       pool,
       `UPDATE asistencia_tramos
-       SET horasalida = NOW()
-       WHERE id = ?`,
+      SET horasalida = CURRENT_TIME
+      WHERE id = ?`,
       [tramoId]
     );
 
     await executeQuery(
       pool,
       `UPDATE asistencias
-       SET horasalida = NOW()
-       WHERE id = ?`,
+      SET horasalida = CURRENT_TIME
+      WHERE id = ?`,
       [asistenciaId]
     );
 
