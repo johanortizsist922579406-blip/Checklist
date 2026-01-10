@@ -10,22 +10,23 @@ router.use(verifyToken);
 router.get('/', asistenciaController.getAllAsistencias);
 router.post('/entrada', asistenciaController.marcarEntrada);
 router.post('/salida', asistenciaController.marcarSalida);
+
 router.get('/estado-actual', async (req, res) => {
   try {
     const usuarioId = req.user.id;
 
     const { rows: asisRows } = await pool.query(
       `SELECT
-      id,
-      fecha,
-      horaentrada,
-      horasalida,
-      to_char(horatotal, 'HH24:MI:SS') AS horatotal
-      FROM asistencias
-      WHERE usuarioid = $1
-      AND fecha = CURRENT_DATE
-      ORDER BY id DESC
-      LIMIT 1`,
+         id,
+         fecha,
+         horaentrada,
+         horasalida,
+         to_char(horatotal, 'HH24:MI:SS') AS horatotal
+       FROM asistencias
+       WHERE usuarioid = $1
+         AND fecha = CURRENT_DATE
+       ORDER BY id DESC
+       LIMIT 1`,
       [usuarioId]
     );
 
@@ -36,9 +37,10 @@ router.get('/estado-actual', async (req, res) => {
     const asistencia = asisRows[0];
 
     const { rows: tramoRows } = await pool.query(
-      `SELECT id,
-              horaentrada,
-              horasalida
+      `SELECT
+         id,
+         horaentrada,
+         horasalida
        FROM asistencia_tramos
        WHERE asistenciaid = $1
        ORDER BY id DESC
@@ -53,9 +55,9 @@ router.get('/estado-actual', async (req, res) => {
         tieneEntradaAbierta: false,
         asistenciaId: asistencia.id,
         fecha: asistencia.fecha,
-        horaentrada: null,
-        horasalida: null,
-        horatotal: null
+        horaentrada: asistencia.horaentrada,
+        horasalida: asistencia.horasalida,
+        horatotal: asistencia.horatotal
       });
     }
 
