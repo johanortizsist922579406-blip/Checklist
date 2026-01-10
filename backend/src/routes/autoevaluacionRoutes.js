@@ -10,7 +10,6 @@ router.post('/', autoevaluacionController.crearAutoevaluacion);
 router.get('/', autoevaluacionController.getAllAutoevaluaciones);
 router.get('/:id', autoevaluacionController.getAutoevaluacionById);
 
-// ✅ NUEVA RUTA para exportar HORAS (no autoevaluaciones)
 router.post('/export-horas-sheets', async (req, res) => {
   try {
     const { userId, email } = req.body;
@@ -45,7 +44,6 @@ router.post('/export-horas-sheets', async (req, res) => {
       });
     }
 
-    // Exportar a Google Sheets con formato de horas
     const result = await googleSheetsService.exportHoras(results);
 
     res.json({

@@ -15,6 +15,7 @@ exports.getAllAutoevaluaciones = async (req, res) => {
     const [rows] = await executeQuery(pool, sql, params);
     res.json(rows);
   } catch (err) {
+    console.error('Error getAllAutoevaluaciones:', err);
     res.status(500).json({ error: err.message });
   }
 };
@@ -33,6 +34,7 @@ exports.getAutoevaluacionById = async (req, res) => {
     
     res.json(rows[0]);
   } catch (err) {
+    console.error('Error getAutoevaluacionById:', err);
     res.status(500).json({ error: err.message });
   }
 };
@@ -59,26 +61,38 @@ exports.crearAutoevaluacion = async (req, res) => {
       mensajemotivacional
     });
 
-    const [result] = await executeQuery(
+    const [rows] = await executeQuery(
       pool,
-      'INSERT INTO autoevaluaciones (usuarioid, fechaevaluacion, puntajetotal, quincena, mensajemotivacional, completada) VALUES (?, ?, ?, ?, ?, ?)',
+      `INSERT INTO autoevaluaciones (
+         usuarioid, fechaevaluacion, puntajetotal,
+         quincena, mensajemotivacional, completada,
+         created_at, updated_at
+       )
+       VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW())
+       RETURNING id`,
       [usuarioid, fechaFormateada, puntajetotal, quincena, mensajemotivacional, 'SI']
     );
 
-    const autoevaluacionid = result.insertId || result[0]?.id;
+    const autoevaluacionid = rows[0].id;
     console.log('✅ Autoevaluación guardada con ID:', autoevaluacionid);
 
-    console.log('💾 Guardando', respuestas.length, 'respuestas...');
-    
-    for (const r of respuestas) {
-      await executeQuery(
-        pool,
-        'INSERT INTO respuestasautoevaluacion (autoevaluacionid, preguntaid, respuesta, puntaje) VALUES (?, ?, ?, ?)',
-        [autoevaluacionid, r.preguntaid, r.respuesta, r.puntaje]
-      );
-    }
+    if (!Array.isArray(respuestas) || respuestas.length === 0) {
+      console.warn('⚠ No se enviaron respuestas, solo se creó la autoevaluación');
+    } else {
+      console.log('💾 Guardando', respuestas.length, 'respuestas...');
+      
+      for (const r of respuestas) {
+        await executeQuery(
+          pool,
+          `INSERT INTO respuestasautoevaluacion
+             (autoevaluacionid, preguntaid, respuesta, puntaje, created_at)
+           VALUES (?, ?, ?, ?, NOW())`,
+          [autoevaluacionid, r.preguntaid, r.respuesta, r.puntaje]
+        );
+      }
 
-    console.log('✅ Todas las respuestas guardadas');
+      console.log('✅ Todas las respuestas guardadas');
+    }
 
     res.json({
       message: 'Autoevaluación guardada correctamente',
@@ -87,7 +101,7 @@ exports.crearAutoevaluacion = async (req, res) => {
       mensajemotivacional: mensajemotivacional
     });
   } catch (err) {
-    console.error("❌ ERROR EN BACKEND:", err);
+    console.error('❌ ERROR EN BACKEND:', err);
     res.status(500).json({ error: err.message });
   }
 };
