@@ -75,19 +75,20 @@ exports.actualizarRankingUsuario = async (req, res) => {
     const puntajeAnterior = rows.length ? rows[0].puntajetotal : 0;
     const puntajeAcumulado = puntajeAnterior + puntajetotal;
 
-    // PostgreSQL usa ON CONFLICT en lugar de ON DUPLICATE KEY UPDATE
     const sql = `
-      INSERT INTO rankingquincenal (usuarioid, quincena, puntajetotal, posicion, tieneruleta, fechacalculo)
-      VALUES (?, ?, ?, ?, ?, ?)
-      ON CONFLICT (usuarioid, quincena) 
-      DO UPDATE SET
+        INSERT INTO rankingquincenal (
+        usuarioid, quincena, puntajetotal, posicion, tieneruleta, fechacalculo
+        )
+        VALUES (?, ?, ?, ?, ?, ?)
+        ON CONFLICT (usuarioid, quincena) 
+        DO UPDATE SET
         puntajetotal = EXCLUDED.puntajetotal,
         posicion = EXCLUDED.posicion,
         tieneruleta = EXCLUDED.tieneruleta,
         fechacalculo = EXCLUDED.fechacalculo
     `;
 
-    await executeQuery(pool, sql, [
+      await executeQuery(pool, [
       usuarioid,
       quincena,
       puntajeAcumulado,
@@ -95,6 +96,7 @@ exports.actualizarRankingUsuario = async (req, res) => {
       tieneruleta,
       fechacalculo,
     ]);
+
 
     res.json({ ok: true, message: 'Ranking actualizado sumando puntaje' });
   } catch (err) {
@@ -116,7 +118,6 @@ exports.recalcularRanking = async (req, res) => {
       [quincena]
     );
 
-    // PostgreSQL no necesita SET @pos, usamos ROW_NUMBER() directamente
     await executeQuery(
       pool,
       `INSERT INTO rankingquincenal (usuarioid, quincena, puntajetotal, posicion, tieneruleta, fechacalculo)
