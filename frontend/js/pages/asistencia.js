@@ -180,7 +180,7 @@ async function cargarEstado() {
       totalTime.textContent = '--:--:--';
 
       btnEntrada.disabled = true; 
-      btnSalida.disabled = true;    
+      btnSalida.disabled = false;  
       statusIndicator.innerHTML = '<div class="status-dot active"></div><span>En jornada</span>';
       statusIndicator.classList.add('active');
       statusIndicator.classList.remove('completed');
@@ -202,7 +202,7 @@ async function cargarEstado() {
 
       totalTime.textContent = data.horatotal || '--:--:--';
 
-      btnEntrada.disabled = false; 
+      btnEntrada.disabled = false;  
       btnSalida.disabled = true;   
       statusIndicator.innerHTML = '<div class="status-dot"></div><span>Sin registrar</span>';
       statusIndicator.classList.remove('active', 'completed');
