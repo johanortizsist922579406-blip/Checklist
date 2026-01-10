@@ -21,15 +21,12 @@ document.addEventListener('DOMContentLoaded', function() {
 function formatearHoraTotal(valor) {
   if (!valor) return '--:--:--';
   const str = valor.toString();
-  return str.split('.')[0]; 
+  return str.split('.')[0];
 }
 
 function formatearFechaISO(iso) {
   if (!iso) return '';
-  const d = new Date(iso);
-  const dia = String(d.getDate()).padStart(2, '0');
-  const mes = String(d.getMonth() + 1).padStart(2, '0');
-  const anio = d.getFullYear();
+  const [anio, mes, dia] = iso.split('-');
   return `${dia}/${mes}/${anio}`;
 }
 
