@@ -52,8 +52,14 @@ setTimeout(function() {
 async function marcarEntrada() {
   console.log('1. Botón clickeado');
   try {
-    console.log('2. Enviando petición...');
-    const res = await axios.post('/api/asistencias/entrada', {}, {
+    const now = new Date();
+    const horas = String(now.getHours()).padStart(2, '0');
+    const minutos = String(now.getMinutes()).padStart(2, '0');
+    const segundos = String(now.getSeconds()).padStart(2, '0');
+    const horaLocal = `${horas}:${minutos}:${segundos}`;
+
+    console.log('2. Enviando petición...', horaLocal);
+    const res = await axios.post('/api/asistencias/entrada', { horaLocal }, {
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${obtenerToken()}`
@@ -67,9 +73,6 @@ async function marcarEntrada() {
     const statusIndicator = document.getElementById('statusIndicator');
     const entradaTime = document.getElementById('entradaTime');
     
-    const now = new Date();
-    const horas = String(now.getHours()).padStart(2, '0');
-    const minutos = String(now.getMinutes()).padStart(2, '0');
     entradaTime.textContent = `${horas}:${minutos}`;
     
     btnEntrada.disabled = true;
@@ -91,8 +94,14 @@ async function marcarEntrada() {
 async function marcarSalida() {
   console.log('1. Botón clickeado');
   try {
-    console.log('2. Enviando petición...');
-    const res = await axios.post('/api/asistencias/salida', {}, {
+    const now = new Date();
+    const horas = String(now.getHours()).padStart(2, '0');
+    const minutos = String(now.getMinutes()).padStart(2, '0');
+    const segundos = String(now.getSeconds()).padStart(2, '0');
+    const horaLocal = `${horas}:${minutos}:${segundos}`;
+
+    console.log('2. Enviando petición...', horaLocal);
+    const res = await axios.post('/api/asistencias/salida', { horaLocal }, {
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${obtenerToken()}`
@@ -107,24 +116,20 @@ async function marcarSalida() {
     const salidaTime = document.getElementById('salidaTime');
     const totalTime = document.getElementById('totalTime');
     
-    const now = new Date();
-    const horas = String(now.getHours()).padStart(2, '0');
-    const minutos = String(now.getMinutes()).padStart(2, '0');
     salidaTime.textContent = `${horas}:${minutos}`;
     
     if (res.data.segundosTotales) {
-    const totalSegundos = Math.floor(res.data.segundosTotales);
+      const totalSegundos = Math.floor(res.data.segundosTotales);
 
-    const horas_total = Math.floor(totalSegundos / 3600);
-    const minutos_total = Math.floor((totalSegundos % 3600) / 60);
-    const segundos_total = totalSegundos % 60;
+      const horas_total = Math.floor(totalSegundos / 3600);
+      const minutos_total = Math.floor((totalSegundos % 3600) / 60);
+      const segundos_total = totalSegundos % 60;
 
-    totalTime.textContent =
-    `${String(horas_total).padStart(2, '0')}:` +
-    `${String(minutos_total).padStart(2, '0')}:` +
-    `${String(segundos_total).padStart(2, '0')}`;
+      totalTime.textContent =
+        `${String(horas_total).padStart(2, '0')}:` +
+        `${String(minutos_total).padStart(2, '0')}:` +
+        `${String(segundos_total).padStart(2, '0')}`;
     }
-
     
     btnEntrada.disabled = false;
     btnSalida.disabled = true;
@@ -203,7 +208,7 @@ async function cargarEstado() {
       totalTime.textContent = data.horatotal || '--:--:--';
 
       btnEntrada.disabled = false;  
-      btnSalida.disabled = true;   
+      btnSalida.disabled = true;    
       statusIndicator.innerHTML = '<div class="status-dot"></div><span>Sin registrar</span>';
       statusIndicator.classList.remove('active', 'completed');
       return;
