@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const pool = require('../../config/database');
+const { executeQuery } = require('../utils/dbHelper');
 
 router.get('/', async (req, res) => {
   const areaid = req.query.areaid;
@@ -9,9 +10,8 @@ router.get('/', async (req, res) => {
   }
 
   try {
-    console.log('Pool:', pool);
-    console.log('Areaid:', areaid);
-    const [rows] = await pool.query(
+    const [rows] = await executeQuery(
+      pool,
       'SELECT * FROM preguntas WHERE areaid = ? AND activa = 1 ORDER BY orden',
       [areaid]
     );
