@@ -137,22 +137,24 @@ exports.marcarSalida = async (req, res) => {
     [asistenciaId]
     );
 
-    const segundosTotales = sumRows[0]?.segundos_totales || 0;
+    const segundosTotalesRaw = sumRows[0]?.segundos_totales || 0;
+    const segundosTotales = Math.floor(segundosTotalesRaw);
 
     await executeQuery(
     pool,
     `UPDATE asistencias
-     SET horatotal = (INTERVAL '1 second' * ?),
-         estado    = ?
+    SET horatotal = (INTERVAL '1 second' * ?),
+       estado    = ?
     WHERE id = ?`,
     [segundosTotales, 'Presente', asistenciaId]
-    );
+  );
 
     res.json({
     message: 'Salida registrada',
     asistenciaId,
     segundosTotales
-    });
+  });
+
 
   } catch (err) {
     console.error('Error en marcarSalida:', err);

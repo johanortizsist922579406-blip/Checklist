@@ -113,11 +113,18 @@ async function marcarSalida() {
     salidaTime.textContent = `${horas}:${minutos}`;
     
     if (res.data.segundosTotales) {
-      const horas_total = Math.floor(res.data.segundosTotales / 3600);
-      const minutos_total = Math.floor((res.data.segundosTotales % 3600) / 60);
-      const segundos_total = res.data.segundosTotales % 60;
-      totalTime.textContent = `${String(horas_total).padStart(2, '0')}:${String(minutos_total).padStart(2, '0')}:${String(segundos_total).padStart(2, '0')}`;
+    const totalSegundos = Math.floor(res.data.segundosTotales);
+
+    const horas_total = Math.floor(totalSegundos / 3600);
+    const minutos_total = Math.floor((totalSegundos % 3600) / 60);
+    const segundos_total = totalSegundos % 60;
+
+    totalTime.textContent =
+    `${String(horas_total).padStart(2, '0')}:` +
+    `${String(minutos_total).padStart(2, '0')}:` +
+    `${String(segundos_total).padStart(2, '0')}`;
     }
+
     
     btnEntrada.disabled = false;
     btnSalida.disabled = true;
