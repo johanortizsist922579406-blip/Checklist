@@ -31,7 +31,7 @@ exports.getAllAsistencias = async (req, res) => {
 exports.marcarEntrada = async (req, res) => {
   try {
     const usuarioid = req.user.id;
-    const { horaLocal } = req.body; // "HH:MM:SS"
+    const { horaLocal } = req.body; 
 
     if (!horaLocal) {
       return res.status(400).json({ error: 'Falta horaLocal en la petición' });
@@ -52,7 +52,7 @@ exports.marcarEntrada = async (req, res) => {
       const [result] = await executeQuery(
         pool,
         `INSERT INTO asistencias (usuarioid, fecha, horaentrada, estado)
-         VALUES (?, CURRENT_DATE, $1::time, ?)
+         VALUES (?, CURRENT_DATE, ?::time, ?)
          RETURNING id`,
         [usuarioid, horaLocal, 'En jornada']
       );
@@ -73,7 +73,7 @@ exports.marcarEntrada = async (req, res) => {
     const [nuevoTramo] = await executeQuery(
       pool,
       `INSERT INTO asistencia_tramos (asistenciaid, horaentrada)
-       VALUES (?, $1::time)
+       VALUES (?, ?::time)
        RETURNING id`,
       [asistenciaId, horaLocal]
     );
@@ -91,11 +91,11 @@ exports.marcarEntrada = async (req, res) => {
   }
 };
 
+
 exports.marcarSalida = async (req, res) => {
   try {
     const usuarioid = req.user.id;
-    const { horaLocal } = req.body; // "HH:MM:SS"
-
+    const { horaLocal } = req.body;
     if (!horaLocal) {
       return res.status(400).json({ error: 'Falta horaLocal en la petición' });
     }
@@ -129,7 +129,7 @@ exports.marcarSalida = async (req, res) => {
     await executeQuery(
       pool,
       `UPDATE asistencia_tramos
-       SET horasalida = $1::time
+       SET horasalida = ?::time
        WHERE id = ?`,
       [horaLocal, tramoId]
     );
@@ -137,7 +137,7 @@ exports.marcarSalida = async (req, res) => {
     await executeQuery(
       pool,
       `UPDATE asistencias
-       SET horasalida = $1::time
+       SET horasalida = ?::time
        WHERE id = ?`,
       [horaLocal, asistenciaId]
     );
