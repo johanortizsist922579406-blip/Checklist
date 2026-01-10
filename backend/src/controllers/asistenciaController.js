@@ -1,6 +1,5 @@
 const pool = require('../../config/database');
 const { executeQuery } = require('../utils/dbHelper');
-
 exports.getAllAsistencias = async (req, res) => {
   try {
     const usuarioid = req.user.id;
@@ -8,13 +7,13 @@ exports.getAllAsistencias = async (req, res) => {
     const [rows] = await executeQuery(
       pool,
       `SELECT 
-        id,
-        usuarioid,
-        DATE(fecha) AS fecha,
-        horaentrada::time AS horaentrada,
-        horasalida::time AS horasalida,
-        estado,
-        horatotal
+         id,
+         usuarioid,
+         DATE(fecha) AS fecha,
+         horaentrada::time AS horaentrada,
+         horasalida::time AS horasalida,
+         estado,
+         to_char(horatotal, 'HH24:MI:SS') AS horatotal   -- 👈 aquí
        FROM asistencias
        WHERE usuarioid = ?
        ORDER BY fecha DESC`,
@@ -131,29 +130,30 @@ exports.marcarSalida = async (req, res) => {
     );
 
     const [sumRows] = await executeQuery(
-      pool,
-      `SELECT SUM(EXTRACT(EPOCH FROM (horasalida - horaentrada))) AS segundos_totales
-       FROM asistencia_tramos
-       WHERE asistenciaid = ? AND horasalida IS NOT NULL`,
-      [asistenciaId]
+    pool,
+    `SELECT SUM(EXTRACT(EPOCH FROM (horasalida - horaentrada))) AS segundos_totales
+    FROM asistencia_tramos
+    WHERE asistenciaid = ? AND horasalida IS NOT NULL`,
+    [asistenciaId]
     );
 
     const segundosTotales = sumRows[0]?.segundos_totales || 0;
 
     await executeQuery(
-      pool,
-      `UPDATE asistencias
-       SET horatotal = (INTERVAL '1 second' * ?),
-           estado = ?
-       WHERE id = ?`,
-      [segundosTotales, 'Presente', asistenciaId]
+    pool,
+    `UPDATE asistencias
+     SET horatotal = (INTERVAL '1 second' * ?),
+         estado    = ?
+    WHERE id = ?`,
+    [segundosTotales, 'Presente', asistenciaId]
     );
 
     res.json({
-      message: 'Salida registrada',
-      asistenciaId,
-      segundosTotales
+    message: 'Salida registrada',
+    asistenciaId,
+    segundosTotales
     });
+
   } catch (err) {
     console.error('Error en marcarSalida:', err);
     res.status(500).json({ error: err.message });

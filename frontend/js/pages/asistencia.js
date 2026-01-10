@@ -35,11 +35,6 @@ function decodificarToken(token) {
   }
 }
 
-function formatearHoraTotal(raw) {
-  if (!raw) return '--:--:--';
-  return raw.split('.')[0];
-}
-
 setTimeout(function() {
   const btnEntrada = document.getElementById('btnEntrada');
   const btnSalida = document.getElementById('btnSalida');
@@ -177,7 +172,7 @@ async function cargarEstado() {
       btnEntrada.disabled = true;
       btnSalida.disabled = true;
       statusIndicator.innerHTML = '<div class="status-dot completed"></div><span>Jornada completada</span>';
-    statusIndicator.classList.add('completed');
+      statusIndicator.classList.add('completed');
     }
 
   } catch (err) {
