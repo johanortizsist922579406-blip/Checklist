@@ -149,8 +149,9 @@ async function cargarEstado() {
     const res = await axios.get('/api/asistencias/estado-actual', {
       headers: { Authorization: `Bearer ${token}` }
     });
-    console.log('estado-actual data:', res.data); 
+    console.log('estado-actual data:', res.data);
     const data = res.data;
+
     const btnEntrada = document.getElementById('btnEntrada');
     const btnSalida = document.getElementById('btnSalida');
     const entradaTime = document.getElementById('entradaTime');
@@ -158,7 +159,7 @@ async function cargarEstado() {
     const totalTime = document.getElementById('totalTime');
     const statusIndicator = document.getElementById('statusIndicator');
 
-    if (!data.tieneEntradaAbierta) {
+    if (!data.asistenciaId) {
       btnEntrada.disabled = false;
       btnSalida.disabled = true;
       entradaTime.textContent = '--:--';
@@ -169,17 +170,30 @@ async function cargarEstado() {
       return;
     }
 
-    if (data.horaentrada) {
+    if (!data.tieneEntradaAbierta && data.horaentrada && data.horasalida) {
       entradaTime.textContent = data.horaentrada.substring(0, 5);
-    }
-
-    if (data.horasalida) {
       salidaTime.textContent = data.horasalida.substring(0, 5);
       totalTime.textContent = data.horatotal || '--:--:--';
-      btnEntrada.disabled = true;
-      btnSalida.disabled = true;
+
+      btnEntrada.disabled = true; 
+      btnSalida.disabled = true;    
       statusIndicator.innerHTML = '<div class="status-dot completed"></div><span>Jornada completada</span>';
+      statusIndicator.classList.remove('active');
       statusIndicator.classList.add('completed');
+      return;
+    }
+
+    if (data.tieneEntradaAbierta && data.horaentrada && !data.horasalida) {
+      entradaTime.textContent = data.horaentrada.substring(0, 5);
+      salidaTime.textContent = '--:--';
+      totalTime.textContent = '--:--:--';
+
+      btnEntrada.disabled = true;
+      btnSalida.disabled = false;
+      statusIndicator.innerHTML = '<div class="status-dot active"></div><span>En jornada</span>';
+      statusIndicator.classList.add('active');
+      statusIndicator.classList.remove('completed');
+      return;
     }
 
   } catch (err) {
