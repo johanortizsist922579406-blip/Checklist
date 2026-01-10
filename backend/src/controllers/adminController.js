@@ -12,7 +12,7 @@ exports.getHoras = async (req, res) => {
         DATE(a.fecha) AS fecha,
         a.horaentrada::time AS horaentrada,
         a.horasalida::time AS horasalida,
-        a.horatotal
+        to_char(a.horatotal, 'HH24:MI:SS') AS horatotal
       FROM asistencias a
       JOIN usuarios u ON a.usuarioid = u.id
       WHERE 1=1
@@ -79,7 +79,7 @@ exports.exportHorasSheets = async (req, res) => {
         DATE(a.fecha) AS fecha,
         a.horaentrada::time AS horaentrada,
         a.horasalida::time AS horasalida,
-        a.horatotal
+        to_char(a.horatotal, 'HH24:MI:SS') AS horatotal
       FROM asistencias a
       JOIN usuarios u ON a.usuarioid = u.id
       ORDER BY a.fecha DESC, u.nombre ASC
@@ -121,7 +121,7 @@ exports.getAllAsistencias = async (req, res) => {
         horaentrada::time AS horaentrada,
         horasalida::time AS horasalida,
         estado,
-        horatotal
+        to_char(horatotal, 'HH24:MI:SS') AS horatotal
        FROM asistencias
        WHERE usuarioid = ?
        ORDER BY fecha DESC`,

@@ -22,7 +22,6 @@ router.post('/export-horas-sheets', async (req, res) => {
       });
     }
 
-    // Query para obtener HORAS (del panel admin)
     const query = `
       SELECT 
         u.nombre,

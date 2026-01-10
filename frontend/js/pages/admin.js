@@ -24,6 +24,15 @@ function formatearHoraTotal(valor) {
   return str.split('.')[0]; 
 }
 
+function formatearFechaISO(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  const dia = String(d.getDate()).padStart(2, '0');
+  const mes = String(d.getMonth() + 1).padStart(2, '0');
+  const anio = d.getFullYear();
+  return `${dia}/${mes}/${anio}`;
+}
+
 async function cargarHoras() {
   const token = localStorage.getItem('token');
   const nombre = document.getElementById('buscarNombre').value.trim();
@@ -54,11 +63,12 @@ async function cargarHoras() {
       const horaEntrada = row.horaentrada ? row.horaentrada.substring(0, 5) : '--:--';
       const horaSalida  = row.horasalida  ? row.horasalida.substring(0, 5)  : '--:--';
       const totalHoras  = formatearHoraTotal(row.horatotal);
+      const fecha       = formatearFechaISO(row.fecha);
 
       tbody.innerHTML += `
         <tr>
           <td>${row.nombre}</td>
-          <td>${row.fecha}</td>
+          <td>${fecha}</td>
           <td>${horaEntrada}</td>
           <td>${horaSalida}</td>
           <td>${totalHoras}</td>
