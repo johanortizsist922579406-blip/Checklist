@@ -24,10 +24,10 @@ const verifyToken = (req, res, next) => {
   }
 };
 
-    const verifyAdmin = (req, res, next) => {
-    console.log('verifyAdmin req.user =>', req.user);
+const verifyAdmin = (req, res, next) => {
+  console.log('verifyAdmin req.user =>', req.user);
 
-    if (!req.user || (req.user.rol || '').toLowerCase() !== 'admin') {
+  if (!req.user || (req.user.rol || '').toLowerCase() !== 'admin') {
     return res.status(403).json({ message: 'Acceso solo para administradores' });
   }
 

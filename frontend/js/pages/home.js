@@ -37,7 +37,7 @@ function initHome() {
       const usuario = JSON.parse(localStorage.getItem('usuario') || 'null');
       console.log('USUARIO EN HOME =>', usuario);
 
-      if (usuario && usuario.rol === 'ADMIN') {
+      if (usuario && (usuario.rol || '').toLowerCase() === 'admin') {
         window.location.href = '/pages/admin/index.html';
       } else {
         modal.classList.remove('hidden');
