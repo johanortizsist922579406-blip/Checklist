@@ -5,14 +5,82 @@
   <title>Resultados de Evaluación</title>
   <link rel="stylesheet" href="../../assets/css/resultados.css" />
   <link rel="icon" type="image/png" href="../../assets/images/favicon-128x128.png" />
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/zarocknz/javascript-winwheel@2.7.0/Winwheel.min.js"></script>
 </head>
+
 <body>
-  <h1>Resultados de tu autoevaluación</h1>
-  <canvas id="graficoResultados"></canvas>
-  <div id="botonesPuntaje"></div>
-  <div id="mensajeResultado"></div>
-  <button id="verRanking">Ver ranking</button>
+  <div class="container">
+    <div id="ruleta-container">
+      <h2>Ruleta de premios</h2>
+      <div class="ruleta-wrapper">
+        <div class="ruleta-pointer"></div>
+
+        <canvas id="ruletaCanvas" width="400" height="400">
+          Tu navegador no soporta canvas.
+        </canvas>
+      </div>
+
+      <button id="btnGirar">Girar</button>
+      <div id="resultadoRuleta"></div>
+    </div>
+
+    <h1>Resultados de tu autoevaluación</h1>
+    <div class="chart-card">
+      <canvas id="graficoResultados"></canvas>
+    </div>
+
+    <div id="botonesPuntaje"></div>
+    <div id="mensajeResultado"></div>
+    <button id="verRanking">Ver ranking</button>
+  </div>
+
   <script src="../../lib/chart.js"></script>
   <script src="../../js/pages/resultados.js"></script>
+
+  <script>
+    let ruleta;
+
+    function initRuleta() {
+      ruleta = new Winwheel({
+        canvasId: 'ruletaCanvas',
+        numSegments: 6,
+        outerRadius: 180,
+        textFontSize: 16,
+        textOrientation: 'horizontal',
+        textAlignment: 'outer',
+        segments: [
+          { fillStyle: '#f94144', text: 'Día libre' },
+          { fillStyle: '#f8961e', text: 'Gift card' },
+          { fillStyle: '#f9c74f', text: 'Snack' },
+          { fillStyle: '#90be6d', text: 'Tarde libre' },
+          { fillStyle: '#43aa8b', text: 'Reconocimiento' },
+          { fillStyle: '#577590', text: 'Sorpresa' }
+        ],
+        animation: {
+          type: 'spinToStop',
+          duration: 5,
+          spins: 8,
+          callbackFinished: mostrarResultado
+        }
+      });
+    }
+
+    function mostrarResultado(segment) {
+      const div = document.getElementById('resultadoRuleta');
+      div.textContent = 'Te tocó: ' + segment.text;
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      initRuleta();
+
+      document.getElementById('btnGirar').addEventListener('click', () => {
+        if (ruleta.animation && ruleta.animation.isSpinning) return;
+        document.getElementById('resultadoRuleta').textContent = '';
+        ruleta.startAnimation();
+      });
+    });
+  </script>
 </body>
 </html>

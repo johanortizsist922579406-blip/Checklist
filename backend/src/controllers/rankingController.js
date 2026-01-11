@@ -97,7 +97,6 @@ exports.actualizarRankingUsuario = async (req, res) => {
       fechacalculo,
     ]);
 
-
     res.json({ ok: true, message: 'Ranking actualizado sumando puntaje' });
   } catch (err) {
     res.status(500).json({ error: err.message });
