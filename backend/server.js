@@ -18,9 +18,7 @@ console.log('Frontend path:', frontendPath);
 console.log('Frontend exists:', fs.existsSync(frontendPath));
 console.log('Index.html exists:', fs.existsSync(path.join(frontendPath, 'index.html')));
 
-// ===== CREAR TODAS LAS TABLAS =====
 async function createAllTables() {
-  // Tabla areas (necesaria para usuarios)
   await pool.query(`
     CREATE TABLE IF NOT EXISTS areas (
       id SERIAL PRIMARY KEY,
@@ -32,7 +30,6 @@ async function createAllTables() {
   `);
   console.log('✅ areas');
 
-  // Tabla usuarios
   await pool.query(`
     CREATE TABLE IF NOT EXISTS usuarios (
       id SERIAL PRIMARY KEY,
@@ -50,7 +47,6 @@ async function createAllTables() {
   `);
   console.log('✅ usuarios');
 
-  // Tabla asistencias
   await pool.query(`
     CREATE TABLE IF NOT EXISTS asistencias (
       id SERIAL PRIMARY KEY,
@@ -66,7 +62,6 @@ async function createAllTables() {
   `);
   console.log('✅ asistencias');
 
-  // Tabla autoevaluacion
   await pool.query(`
     CREATE TABLE IF NOT EXISTS autoevaluacion (
       id SERIAL PRIMARY KEY,
@@ -81,7 +76,6 @@ async function createAllTables() {
   `);
   console.log('✅ autoevaluacion');
 
-  // Tabla criterios_evaluacion
   await pool.query(`
     CREATE TABLE IF NOT EXISTS criterios_evaluacion (
       id SERIAL PRIMARY KEY,
@@ -94,7 +88,6 @@ async function createAllTables() {
   `);
   console.log('✅ criterios_evaluacion');
 
-  // Tabla respuestas_evaluacion
   await pool.query(`
     CREATE TABLE IF NOT EXISTS respuestas_evaluacion (
       id SERIAL PRIMARY KEY,
@@ -109,7 +102,6 @@ async function createAllTables() {
   `);
   console.log('✅ respuestas_evaluacion');
 
-  // Tabla exportaciones
   await pool.query(`
     CREATE TABLE IF NOT EXISTS exportaciones (
       id SERIAL PRIMARY KEY,
@@ -125,7 +117,6 @@ async function createAllTables() {
   `);
   console.log('✅ exportaciones');
 
-  // Tabla rangos_desempeno
   await pool.query(`
     CREATE TABLE IF NOT EXISTS rangos_desempeno (
       id SERIAL PRIMARY KEY,
@@ -139,7 +130,6 @@ async function createAllTables() {
   `);
   console.log('✅ rangos_desempeno');
 
-  // Tabla logs_auditoria
   await pool.query(`
     CREATE TABLE IF NOT EXISTS logs_auditoria (
       id SERIAL PRIMARY KEY,
@@ -154,7 +144,6 @@ async function createAllTables() {
   `);
   console.log('✅ logs_auditoria');
 
-  // Tabla configuracion
   await pool.query(`
     CREATE TABLE IF NOT EXISTS configuracion (
       id SERIAL PRIMARY KEY,
@@ -168,7 +157,6 @@ async function createAllTables() {
   console.log('✅ configuracion');
 }
 
-// ===== INICIALIZAR DATABASE =====
 async function initializeDatabase() {
   const isPostgres = process.env.NODE_ENV === 'production';
   
@@ -176,10 +164,8 @@ async function initializeDatabase() {
     if (isPostgres) {
       console.log('🔄 Inicializando PostgreSQL...');
       
-      // Crear TODAS las tablas
       await createAllTables();
       
-      // Insertar áreas de ejemplo
       await pool.query(`
         INSERT INTO areas (nombre, descripcion) 
         VALUES 
@@ -193,7 +179,6 @@ async function initializeDatabase() {
       console.log('✅ Database initialized');
     } else {
       console.log('🔄 Inicializando MySQL...');
-      // Código MySQL existente...
     }
   } catch (error) {
     console.log('❌ Error DB:', error);
@@ -202,7 +187,6 @@ async function initializeDatabase() {
   }
 }
 
-// ===== MIDDLEWARE =====
 app.use(cors());
 app.use(express.json());
 
@@ -211,7 +195,6 @@ app.use(express.static(frontendPath, {
   index: false
 }));
 
-// ===== RUTAS =====
 app.get('/', (req, res) => {
   const indexPath = path.join(frontendPath, 'index.html');
   console.log('Attempting to serve:', indexPath);
@@ -232,7 +215,6 @@ app.get('/', (req, res) => {
 app.use('/api', routes);
 app.use('/api/admin', adminRoutes);
 
-// ===== MANEJO DE ERRORES =====
 app.use((err, req, res, next) => {
   console.error('ERROR GLOBAL =>', err);
   res.status(err.status || 500).json({
@@ -240,17 +222,14 @@ app.use((err, req, res, next) => {
   });
 });
 
-// ===== INICIAR SERVIDOR =====
 const PORT = process.env.PORT || 3000;
 
-// Iniciar servidor primero
 app.listen(PORT, () => {
   console.log(`✅ Server running on port ${PORT}`);
   console.log(`📁 Frontend: ${frontendPath}`);
   console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
 });
 
-// Conectar a DB en background (no bloquea el servidor)
 if (process.env.NODE_ENV === 'production') {
   initializeDatabase()
     .then(() => console.log('✅ Database initialized'))
@@ -259,7 +238,6 @@ if (process.env.NODE_ENV === 'production') {
   console.log('⏭️ Development mode - skipping DB initialization');
 }
 
-// ===== MANEJO DE CIERRE GRACEFUL =====
 process.on('SIGTERM', () => {
   console.log('SIGTERM - Cerrando conexión...');
   if (pool) {
