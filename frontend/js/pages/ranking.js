@@ -2,12 +2,25 @@ window.onload = async function() {
   const usuarioid = localStorage.getItem('usuarioid');
   const token = localStorage.getItem('token');
 
+  if (!token) {
+    window.location.href = '../auth/login.html';
+    return;
+  }
+
   await fetch('/api/rankings/recalcular?quincena=actual', {
     method: 'POST',
-    headers: { 'Authorization': `Bearer ${token}` }
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
   });
 
-  const res = await fetch('/api/rankings?quincena=actual', { cache: "no-store" });
+  const res = await fetch('/api/rankings?quincena=actual', {
+    cache: 'no-store',
+    headers: {
+      'Authorization': `Bearer ${token}`  
+    }
+  });
+
   const ranking = await res.json();
   console.log('RANKING DATA =>', ranking);
   renderRanking(ranking, usuarioid);
@@ -17,7 +30,7 @@ function renderRanking(ranking, usuarioid) {
   const lista = document.getElementById('listaRanking');
   lista.innerHTML = '';
 
-  if (ranking.length > 0) {
+  if (Array.isArray(ranking) && ranking.length > 0) {
     ranking.forEach((persona) => {
       let icon = '🌿';
       if (persona.posicion == 1) icon = '🥇';
