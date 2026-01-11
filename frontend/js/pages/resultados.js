@@ -1,34 +1,25 @@
-window.onload = async function() {
-  const res = await fetch('/api/autoevaluaciones/mis-resultados', {
-    headers: {'Authorization': `Bearer ${localStorage.getItem('token')}`}
-  });
-  const resultados = await res.json();
-  
-  const ctx = document.getElementById('graficoResultados').getContext('2d');
-  new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: ['Puntaje'],
-      datasets: [{label: 'Tu puntaje', data: [resultados.puntajeTotal]}]
-    }
-  });
+document.addEventListener('DOMContentLoaded', () => {
+  const modal = document.getElementById('modalAyuda');
+  const btnAyuda = document.getElementById('btnAyudaPremio');
+  const btnCerrar = document.getElementById('btnCerrarAyuda');
+  const backdrop = document.querySelector('.modal-ayuda__backdrop');
 
-  const rangos = [50, 100, 150, 200, 250, 300];
-  const div = document.getElementById('botonesPuntaje');
-  rangos.forEach(r => {
-    const btn = document.createElement('button');
-    btn.innerText = `${r-49} - ${r}`;
-    btn.onclick = () => mostrarMensaje(r, resultados.puntajeTotal);
-    div.appendChild(btn);
-  });
-};
+  function abrirModal() {
+    modal.classList.remove('hidden');
+  }
 
-function mostrarMensaje(rango, puntaje) {
-  const msg = puntaje <= rango
-    ? '¡Sigue mejorando!' : '¡Excelente trabajo!';
-  document.getElementById('mensajeResultado').innerText = msg;
-}
+  function cerrarModal() {
+    modal.classList.add('hidden');
+  }
 
-document.getElementById('verRanking').onclick = function() {
-  window.location.href = '../ranking/index.html';
-};
+  if (btnAyuda) btnAyuda.addEventListener('click', abrirModal);
+  if (btnCerrar) btnCerrar.addEventListener('click', cerrarModal);
+  if (backdrop) backdrop.addEventListener('click', cerrarModal);
+
+  const btnVolver = document.getElementById('btnVolverInicio');
+  if (btnVolver) {
+    btnVolver.addEventListener('click', () => {
+      window.location.href = '/pages/home/index.html';
+    });
+  }
+});
