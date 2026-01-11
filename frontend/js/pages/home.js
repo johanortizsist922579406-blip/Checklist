@@ -24,12 +24,13 @@ async function configurarBotonResultados() {
     const data = await res.json();
 
     if (data.posicion && data.posicion <= 3) {
-      btnResultados.style.display = 'block';
+      btnResultados.style.display = 'flex';
     }
   } catch (err) {
     console.error('Error al configurar botón Resultados:', err);
   }
 }
+
 
 function initHome() {
   const btnLogout = document.getElementById('btnLogout');
