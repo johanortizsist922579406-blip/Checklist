@@ -150,3 +150,34 @@ exports.recalcularRanking = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+exports.getMiPosicion = async (req, res) => {
+  try {
+    const usuarioid = req.user?.id;
+    if (!usuarioid) {
+      return res.status(401).json({ error: 'Usuario no autenticado' });
+    }
+
+    let quincena = req.query.quincena || 'actual';
+    if (quincena === 'actual') {
+      quincena = '1ra';
+    }
+
+    const [rows] = await executeQuery(
+      pool,
+      `SELECT posicion, puntajetotal
+       FROM rankingquincenal
+       WHERE usuarioid = ? AND quincena = ?`,
+      [usuarioid, quincena]
+    );
+
+    if (!rows.length) {
+      return res.json({ posicion: null, puntajetotal: 0 });
+    }
+
+    res.json(rows[0]);
+  } catch (err) {
+    console.error('Error getMiPosicion:', err);
+    res.status(500).json({ error: err.message });
+  }
+};

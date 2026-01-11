@@ -2,6 +2,35 @@ if (!localStorage.getItem('token')) {
   window.location.href = '../auth/login.html';
 }
 
+async function configurarBotonResultados() {
+  const btnResultados = document.querySelector('.nav-button[data-section="resultados"]');
+  if (!btnResultados) return;
+
+  btnResultados.style.display = 'none';
+
+  const token = localStorage.getItem('token');
+  if (!token) return;
+
+  try {
+    const res = await fetch('/api/rankings/mi-posicion?quincena=actual', {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+
+    if (!res.ok) {
+      console.warn('No se pudo obtener posición de ranking');
+      return;
+    }
+
+    const data = await res.json();
+
+    if (data.posicion && data.posicion <= 3) {
+      btnResultados.style.display = 'block';
+    }
+  } catch (err) {
+    console.error('Error al configurar botón Resultados:', err);
+  }
+}
+
 function initHome() {
   const btnLogout = document.getElementById('btnLogout');
   const btnAdmin  = document.getElementById('btnAdmin');
@@ -54,10 +83,11 @@ function initHome() {
       }
     });
   }
+
+  configurarBotonResultados();
 }
 
 document.addEventListener('DOMContentLoaded', initHome);
-
 window.addEventListener('pageshow', (event) => {
   if (event.persisted) {
     initHome();
