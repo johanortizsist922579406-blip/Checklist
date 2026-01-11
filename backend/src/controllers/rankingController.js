@@ -120,23 +120,28 @@ exports.recalcularRanking = async (req, res) => {
 
     await executeQuery(
       pool,
-      `INSERT INTO rankingquincenal (usuarioid, quincena, puntajetotal, posicion, tieneruleta, fechacalculo)
-       SELECT
-        t.usuarioid,
-        t.quincena,
-        t.puntajetotal,
-        ROW_NUMBER() OVER (ORDER BY t.puntajetotal DESC) AS posicion,
-        CASE WHEN ROW_NUMBER() OVER (ORDER BY t.puntajetotal DESC) <= 3 THEN 'SI' ELSE 'NO' END AS tieneruleta,
-        CURRENT_DATE AS fechacalculo
-       FROM (
-        SELECT 
-          a.usuarioid,
-          a.quincena,
-          SUM(a.puntajetotal) AS puntajetotal
-        FROM autoevaluaciones a
-        WHERE a.completada = ? AND a.quincena = ?
-        GROUP BY a.usuarioid, a.quincena
-       ) AS t`,
+      `INSERT INTO rankingquincenal (
+      usuarioid, quincena, puntajetotal, posicion, tieneruleta, fechacalculo
+    )
+      SELECT
+      t.usuarioid,
+      t.quincena,
+      t.puntajetotal,
+      ROW_NUMBER() OVER (ORDER BY t.puntajetotal DESC) AS posicion,
+      CASE 
+       WHEN ROW_NUMBER() OVER (ORDER BY t.puntajetotal DESC) <= 3 THEN TRUE 
+       ELSE FALSE 
+      END AS tieneruleta,
+      CURRENT_DATE AS fechacalculo
+      FROM (
+      SELECT 
+       a.usuarioid,
+       a.quincena,
+       SUM(a.puntajetotal) AS puntajetotal
+      FROM autoevaluaciones a
+      WHERE a.completada = ? AND a.quincena = ?
+      GROUP BY a.usuarioid, a.quincena
+      ) AS t`,
       ['SI', quincena]
     );
 

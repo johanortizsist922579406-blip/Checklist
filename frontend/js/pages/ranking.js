@@ -24,7 +24,7 @@ function renderRanking(ranking, usuarioid) {
       else if (persona.posicion == 2) icon = '🥈';
       else if (persona.posicion == 3) icon = '🥉';
 
-      const ruleta = persona.tieneruleta === 'SI' ? '🎉' : '—';
+      const ruleta = persona.tieneruleta ? '🎉' : '—';
       const highlight = String(persona.usuarioid) === String(usuarioid) ? 'highlight' : '';
 
       lista.innerHTML += `
