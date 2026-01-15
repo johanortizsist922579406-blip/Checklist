@@ -34,10 +34,11 @@ function actualizarSliderVisual(input) {
  input.style.background = `linear-gradient(to right, #22c55e ${percent}%, #e5e7eb ${percent}%)`;
 }
 function getEstadoTexto(valor) {
- if (valor < 2) return '😞 Mal';
- if (valor < 3.5) return '😐 Regular';
- if (valor < 4.5) return '🙂 Bien';
- return '😄 Excelente';
+  if (valor < 1.5) return '😞 Totalmente en desacuerdo';
+  if (valor < 2.5) return '😕 En desacuerdo';
+  if (valor < 3.5) return '😐 Neutral';
+  if (valor < 4.5) return '🙂 De acuerdo';
+  return '😄 Totalmente de acuerdo';
 }
 function renderPreguntas(preguntas) {
  const container = document.getElementById('preguntasContainer');
@@ -73,15 +74,25 @@ function renderPreguntas(preguntas) {
  valueSpan.textContent = Number(inputRange.value).toFixed(1);
  const moodSpan = document.createElement('span');
  moodSpan.className = 'slider-mood';
- moodSpan.textContent = getEstadoTexto(Number(inputRange.value));
+ const moodEmoji = document.createElement('span');
+ moodEmoji.className = 'slider-mood-emoji';
+ const moodLabel = document.createElement('span');
+ moodLabel.className = 'slider-mood-label';
+ const estadoInicial = getEstadoTexto(Number(inputRange.value)).split(' ');
+ moodEmoji.textContent = estadoInicial[0];        
+ moodLabel.textContent = ' ' + estadoInicial.slice(1).join(' '); 
+ moodSpan.appendChild(moodEmoji);
+ moodSpan.appendChild(moodLabel);
  actualizarSliderVisual(inputRange);
  inputRange.addEventListener('input', () => {
- const v = Number(inputRange.value);
- valueSpan.textContent = v.toFixed(1);
- moodSpan.textContent = getEstadoTexto(v);
- respuestas[pregunta.id] = v;
- actualizarSliderVisual(inputRange);
- updateProgress();
+  const v = Number(inputRange.value);
+  valueSpan.textContent = v.toFixed(1);
+  const estado = getEstadoTexto(v).split(' ');
+  moodEmoji.textContent = estado[0];
+  moodLabel.textContent = ' ' + estado.slice(1).join(' ');
+  respuestas[pregunta.id] = v;
+  actualizarSliderVisual(inputRange);
+  updateProgress();
  });
  sliderWrapper.appendChild(inputRange);
  sliderWrapper.appendChild(valueSpan);
