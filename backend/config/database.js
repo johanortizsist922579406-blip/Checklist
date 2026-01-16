@@ -2,13 +2,14 @@ const { Pool } = require('pg');
 
 console.log('🔍 NODE_ENV:', process.env.NODE_ENV);
 console.log('🔍 DATABASE_URL exists:', !!process.env.DATABASE_URL);
+console.log('🔍 USE_POSTGRES:', process.env.USE_POSTGRES);
 
-const isProduction = process.env.NODE_ENV === 'production';
+const usePostgres = process.env.NODE_ENV === 'production' || process.env.USE_POSTGRES === 'true';
 
 let pool;
 
-if (isProduction) {
-  console.log('🔄 Configurando PostgreSQL para PRODUCCIÓN...');
+if (usePostgres) {
+  console.log('🔄 Configurando PostgreSQL...');
   pool = new Pool({
     connectionString: process.env.DATABASE_URL,
     ssl: {

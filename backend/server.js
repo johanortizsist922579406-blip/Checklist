@@ -1,9 +1,12 @@
-const pool = require('./config/database');
-require('dotenv').config();
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
 
+console.log('🧪 TEST - GOOGLE_SHEETS_ID:', process.env.GOOGLE_SHEETS_ID);
+console.log('🧪 TEST - DATABASE_URL:', process.env.DATABASE_URL ? 'Existe' : 'NO EXISTE');
+
+const pool = require('./config/database');
 const express = require('express');
 const cors = require('cors');
-const path = require('path');
 const fs = require('fs');
 
 const app = express();
