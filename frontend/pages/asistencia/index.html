@@ -21,19 +21,19 @@
       <p class="date-display" id="currentDate"></p>
     </div>
 
-    <div class="info-card">
-      <div class="time-display">
-        <div class="clock" id="currentTime">00:00:00</div>
-        <p class="time-label">Hora actual</p>
-      </div>
-      
-      <div class="status-indicator" id="statusIndicator">
-        <div class="status-dot"></div>
-        <span>Sin registrar</span>
-      </div>
-    </div>
-
     <div class="asistencia-card" id="asistencia-info">
+      <div class="acciones-registro">
+        <button class="btn-action btn-entrada" id="btnEntrada">
+          <span class="btn-icon">→</span>
+          <span class="btn-text">Marcar Entrada</span>
+        </button>
+        
+        <button class="btn-action btn-salida" id="btnSalida" disabled>
+          <span class="btn-icon">←</span>
+          <span class="btn-text">Marcar Salida</span>
+        </button>
+      </div>
+
       <div class="info-row">
         <span class="info-label">Entrada:</span>
         <span class="info-value" id="entradaTime">--:--</span>
@@ -46,18 +46,6 @@
         <span class="info-label">Tiempo total:</span>
         <span class="info-value highlight" id="totalTime">-- hrs</span>
       </div>
-    </div>
-
-    <div class="action-buttons">
-      <button class="btn-action btn-entrada" id="btnEntrada">
-        <span class="btn-icon">→</span>
-        <span class="btn-text">Marcar Entrada</span>
-      </button>
-      
-      <button class="btn-action btn-salida" id="btnSalida" disabled>
-        <span class="btn-icon">←</span>
-        <span class="btn-text">Marcar Salida</span>
-      </button>
     </div>
 
     <div class="recent-section" id="ultimaAsistenciaSection" style="display: none;">
@@ -93,12 +81,9 @@
   <script>
     function updateDateTime() {
       const now = new Date();
-      
       const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-      document.getElementById('currentDate').textContent = now.toLocaleDateString('es-ES', dateOptions);
-      
-      const timeString = now.toLocaleTimeString('es-ES', { hour12: false });
-      document.getElementById('currentTime').textContent = timeString;
+      document.getElementById('currentDate').textContent =
+        now.toLocaleDateString('es-ES', dateOptions);
     }
 
     updateDateTime();
@@ -121,18 +106,22 @@
         
         const fecha = new Date(data.fecha);
         document.getElementById('ultimaFecha').textContent = 
-          fecha.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+          fecha.toLocaleDateString('es-ES', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+          });
         
-        document.getElementById('ultimaEntrada').textContent = 
+        document.getElementById('ultimaEntrada').textContent =
           data.hora_entrada || '--:--';
         
-        document.getElementById('ultimaSalida').textContent = 
+        document.getElementById('ultimaSalida').textContent =
           data.hora_salida || 'Pendiente';
         
-        document.getElementById('ultimoEstado').textContent = 
+        document.getElementById('ultimoEstado').textContent =
           data.estado || 'En jornada';
         
-        document.getElementById('ultimoTotal').textContent = 
+        document.getElementById('ultimoTotal').textContent =
           data.hora_total || 'En curso';
       }
     }
