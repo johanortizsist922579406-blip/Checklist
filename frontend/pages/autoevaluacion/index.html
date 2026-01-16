@@ -81,10 +81,9 @@
   <script>
     function updateDateTime() {
       const now = new Date();
-      
       const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-      document.getElementById('currentDate').textContent = now.toLocaleDateString('es-ES', dateOptions);
-      
+      document.getElementById('currentDate').textContent =
+        now.toLocaleDateString('es-ES', dateOptions);
     }
 
     updateDateTime();
@@ -107,18 +106,22 @@
         
         const fecha = new Date(data.fecha);
         document.getElementById('ultimaFecha').textContent = 
-          fecha.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+          fecha.toLocaleDateString('es-ES', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+          });
         
-        document.getElementById('ultimaEntrada').textContent = 
+        document.getElementById('ultimaEntrada').textContent =
           data.hora_entrada || '--:--';
         
-        document.getElementById('ultimaSalida').textContent = 
+        document.getElementById('ultimaSalida').textContent =
           data.hora_salida || 'Pendiente';
         
-        document.getElementById('ultimoEstado').textContent = 
+        document.getElementById('ultimoEstado').textContent =
           data.estado || 'En jornada';
         
-        document.getElementById('ultimoTotal').textContent = 
+        document.getElementById('ultimoTotal').textContent =
           data.hora_total || 'En curso';
       }
     }
