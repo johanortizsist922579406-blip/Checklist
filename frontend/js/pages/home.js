@@ -2,6 +2,12 @@ if (!localStorage.getItem('token')) {
   window.location.href = '/pages/auth/registro.html';
 }
 
+function getTodayKey(prefix) {
+  const usuarioid = localStorage.getItem('usuarioid') || 'anon';
+  const hoy = new Date().toISOString().slice(0, 10); 
+  return `${prefix}_${usuarioid}_${hoy}`;
+}
+
 async function configurarBotonResultados() {
   const btnResultados = document.querySelector('.nav-button[data-section="resultados"]');
   if (!btnResultados) return;
@@ -32,13 +38,13 @@ async function configurarBotonResultados() {
 }
 
 function marcarProgresoHome() {
-  const asistenciaDone = localStorage.getItem('home_asistencia_completa') === '1';
-  const autoevalDone   = localStorage.getItem('home_autoevaluacion_completa') === '1';
-  const rankingVisto   = localStorage.getItem('home_rankings_visto') === '1';
+  const asistenciaDone = localStorage.getItem(getTodayKey('asis_completa')) === '1';
+  const autoevalDone   = localStorage.getItem(getTodayKey('auto_completa')) === '1';
+  const rankingVisto   = localStorage.getItem(getTodayKey('rank_visto')) === '1';
 
-  const cardAsis  = document.getElementById('cardAsistencia');
-  const cardAuto  = document.getElementById('cardAutoevaluacion');
-  const cardRank  = document.getElementById('cardRankings');
+  const cardAsis = document.getElementById('cardAsistencia');
+  const cardAuto = document.getElementById('cardAutoevaluacion');
+  const cardRank = document.getElementById('cardRankings');
 
   if (asistenciaDone && cardAsis) {
     cardAsis.classList.add('nav-button--completed');
@@ -77,6 +83,7 @@ function initHome() {
       localStorage.removeItem('token');
       localStorage.removeItem('usuarioid');
       localStorage.removeItem('usuario');
+      localStorage.clear();
       window.location.href = '/';
     };
   }

@@ -1,7 +1,13 @@
 const API_BASE_URL = window.location.origin;
 let preguntasGlobales = [];
 let respuestas = {};
-let idPreguntaPuntualidad = null;  
+let idPreguntaPuntualidad = null;
+
+function getTodayKey(prefix) {
+  const usuarioid = localStorage.getItem('usuarioid') || 'anon';
+  const hoy = new Date().toISOString().slice(0, 10);
+  return `${prefix}_${usuarioid}_${hoy}`;
+}
 
 window.onload = async function() {
   const areaid = localStorage.getItem('areaid');
@@ -245,6 +251,8 @@ async function enviarRespuestas() {
       puntajetotal.toFixed(2),
       mensajeMotivacional
     );
+
+    localStorage.setItem(getTodayKey('auto_completa'), '1');
 
     const estadoSpan = document.getElementById('estadoAutoevaluacion');
     if (estadoSpan) {

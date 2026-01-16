@@ -35,9 +35,15 @@ function decodificarToken(token) {
   }
 }
 
+function getTodayKey(prefix) {
+  const usuarioid = localStorage.getItem('usuarioid') || 'anon';
+  const hoy = new Date().toISOString().slice(0, 10);
+  return `${prefix}_${usuarioid}_${hoy}`;
+}
+
 setTimeout(function() {
   const btnEntrada = document.getElementById('btnEntrada');
-  const btnSalida = document.getElementById('btnSalida');
+  const btnSalida  = document.getElementById('btnSalida');
   
   if (btnEntrada) {
     btnEntrada.addEventListener('click', marcarEntrada);
@@ -79,7 +85,8 @@ async function marcarEntrada() {
     if (btnEntrada) btnEntrada.disabled = true;
     if (btnSalida)  btnSalida.disabled  = false;
 
-    localStorage.setItem('home_asistencia_usada', '1'); 
+    // marcar que hoy ya usó asistencia (entrada)
+    localStorage.setItem(getTodayKey('asis_usada'), '1');
 
     mostrarToast('Entrada registrada', 'success');
     console.log('4. Estado actualizado');
@@ -134,7 +141,7 @@ async function marcarSalida() {
     if (btnEntrada) btnEntrada.disabled = false;
     if (btnSalida)  btnSalida.disabled  = true;
 
-    localStorage.setItem('home_asistencia_completa', '1'); 
+    localStorage.setItem(getTodayKey('asis_completa'), '1');
 
     mostrarToast('Salida registrada', 'success');
     console.log('4. Estado actualizado');
@@ -158,17 +165,17 @@ async function cargarEstado() {
     const data = res.data;
 
     const btnEntrada = document.getElementById('btnEntrada');
-    const btnSalida = document.getElementById('btnSalida');
+    const btnSalida  = document.getElementById('btnSalida');
     const entradaTime = document.getElementById('entradaTime');
-    const salidaTime = document.getElementById('salidaTime');
-    const totalTime = document.getElementById('totalTime');
+    const salidaTime  = document.getElementById('salidaTime');
+    const totalTime   = document.getElementById('totalTime');
 
     if (!data.asistenciaId) {
       if (btnEntrada) btnEntrada.disabled = false;
-      if (btnSalida) btnSalida.disabled = true;
+      if (btnSalida)  btnSalida.disabled  = true;
       if (entradaTime) entradaTime.textContent = '--:--';
-      if (salidaTime) salidaTime.textContent = '--:--';
-      if (totalTime) totalTime.textContent = '--:--:--';
+      if (salidaTime)  salidaTime.textContent  = '--:--';
+      if (totalTime)   totalTime.textContent   = '--:--:--';
       return;
     }
 
@@ -181,10 +188,10 @@ async function cargarEstado() {
         }
       }
       if (salidaTime) salidaTime.textContent = '--:--';
-      if (totalTime) totalTime.textContent = '--:--:--';
+      if (totalTime)  totalTime.textContent  = '--:--:--';
 
       if (btnEntrada) btnEntrada.disabled = true;
-      if (btnSalida) btnSalida.disabled = false;
+      if (btnSalida)  btnSalida.disabled  = false;
       return;
     }
 
@@ -210,7 +217,7 @@ async function cargarEstado() {
       }
 
       if (btnEntrada) btnEntrada.disabled = false;
-      if (btnSalida) btnSalida.disabled = true;
+      if (btnSalida)  btnSalida.disabled  = true;
       return;
     }
 
