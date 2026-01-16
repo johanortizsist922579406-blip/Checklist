@@ -3,7 +3,7 @@ window.onload = async function() {
   const token = localStorage.getItem('token');
 
   if (!token) {
-    window.location.href = '../auth/login.html';
+    window.location.href = '/pages/auth/registro.html';
     return;
   }
 
@@ -25,6 +25,7 @@ window.onload = async function() {
   console.log('RANKING DATA =>', ranking);
   renderRanking(ranking, usuarioid);
 };
+
 
 function renderRanking(ranking, usuarioid) {
   const lista = document.getElementById('listaRanking');

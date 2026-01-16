@@ -1,5 +1,5 @@
 if (!localStorage.getItem('token')) {
-  window.location.href = '../auth/login.html';
+  window.location.href = '/pages/auth/registro.html';
 }
 
 async function configurarBotonResultados() {
@@ -31,6 +31,25 @@ async function configurarBotonResultados() {
   }
 }
 
+function marcarProgresoHome() {
+  const asistenciaDone = localStorage.getItem('home_asistencia_completa') === '1';
+  const autoevalDone   = localStorage.getItem('home_autoevaluacion_completa') === '1';
+  const rankingVisto   = localStorage.getItem('home_rankings_visto') === '1';
+
+  const cardAsis  = document.getElementById('cardAsistencia');
+  const cardAuto  = document.getElementById('cardAutoevaluacion');
+  const cardRank  = document.getElementById('cardRankings');
+
+  if (asistenciaDone && cardAsis) {
+    cardAsis.classList.add('nav-button--completed');
+  }
+  if (autoevalDone && cardAuto) {
+    cardAuto.classList.add('nav-button--completed');
+  }
+  if (rankingVisto && cardRank) {
+    cardRank.classList.add('nav-button--completed');
+  }
+}
 
 function initHome() {
   const btnLogout = document.getElementById('btnLogout');
@@ -86,6 +105,7 @@ function initHome() {
   }
 
   configurarBotonResultados();
+  marcarProgresoHome();
 }
 
 document.addEventListener('DOMContentLoaded', initHome);

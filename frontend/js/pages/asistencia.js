@@ -62,22 +62,24 @@ async function marcarEntrada() {
     const res = await axios.post('/api/asistencias/entrada', { horaLocal }, {
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${obtenerToken()}`
+        Authorization: `Bearer obtenerToken()`
       }
     });
 
     console.log('3. Respuesta recibida:', res.data);
     
     const btnEntrada = document.getElementById('btnEntrada');
-    const btnSalida = document.getElementById('btnSalida');
+    const btnSalida  = document.getElementById('btnSalida');
     const entradaTime = document.getElementById('entradaTime');
     
     if (entradaTime) {
       entradaTime.textContent = `${horas}:${minutos}`;
     }
-    
+
     if (btnEntrada) btnEntrada.disabled = true;
-    if (btnSalida) btnSalida.disabled = false;
+    if (btnSalida)  btnSalida.disabled  = false;
+
+    localStorage.setItem('home_asistencia_usada', '1'); 
 
     mostrarToast('Entrada registrada', 'success');
     console.log('4. Estado actualizado');
@@ -109,20 +111,19 @@ async function marcarSalida() {
     console.log('3. Respuesta recibida:', res.data);
     
     const btnEntrada = document.getElementById('btnEntrada');
-    const btnSalida = document.getElementById('btnSalida');
+    const btnSalida  = document.getElementById('btnSalida');
     const salidaTime = document.getElementById('salidaTime');
-    const totalTime = document.getElementById('totalTime');
+    const totalTime  = document.getElementById('totalTime');
     
     if (salidaTime) {
       salidaTime.textContent = `${horas}:${minutos}`;
     }
     
     if (res.data.segundosTotales && totalTime) {
-      const totalSegundos = Math.floor(res.data.segundosTotales);
-
-      const horas_total = Math.floor(totalSegundos / 3600);
-      const minutos_total = Math.floor((totalSegundos % 3600) / 60);
-      const segundos_total = totalSegundos % 60;
+      const totalSegundos   = Math.floor(res.data.segundosTotales);
+      const horas_total     = Math.floor(totalSegundos / 3600);
+      const minutos_total   = Math.floor((totalSegundos % 3600) / 60);
+      const segundos_total  = totalSegundos % 60;
 
       totalTime.textContent =
         `${String(horas_total).padStart(2, '0')}:` +
@@ -131,7 +132,9 @@ async function marcarSalida() {
     }
     
     if (btnEntrada) btnEntrada.disabled = false;
-    if (btnSalida) btnSalida.disabled = true;
+    if (btnSalida)  btnSalida.disabled  = true;
+
+    localStorage.setItem('home_asistencia_completa', '1'); 
 
     mostrarToast('Salida registrada', 'success');
     console.log('4. Estado actualizado');
