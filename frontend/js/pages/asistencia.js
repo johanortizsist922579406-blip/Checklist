@@ -70,17 +70,15 @@ async function marcarEntrada() {
     
     const btnEntrada = document.getElementById('btnEntrada');
     const btnSalida = document.getElementById('btnSalida');
-    const statusIndicator = document.getElementById('statusIndicator');
     const entradaTime = document.getElementById('entradaTime');
     
-    entradaTime.textContent = `${horas}:${minutos}`;
+    if (entradaTime) {
+      entradaTime.textContent = `${horas}:${minutos}`;
+    }
     
-    btnEntrada.disabled = true;
-    btnSalida.disabled = false;
-    statusIndicator.innerHTML = '<div class="status-dot active"></div><span>En jornada</span>';
-    statusIndicator.classList.add('active');
-    statusIndicator.classList.remove('completed');
-    
+    if (btnEntrada) btnEntrada.disabled = true;
+    if (btnSalida) btnSalida.disabled = false;
+
     mostrarToast('Entrada registrada', 'success');
     console.log('4. Estado actualizado');
   } catch (error) {
@@ -112,13 +110,14 @@ async function marcarSalida() {
     
     const btnEntrada = document.getElementById('btnEntrada');
     const btnSalida = document.getElementById('btnSalida');
-    const statusIndicator = document.getElementById('statusIndicator');
     const salidaTime = document.getElementById('salidaTime');
     const totalTime = document.getElementById('totalTime');
     
-    salidaTime.textContent = `${horas}:${minutos}`;
+    if (salidaTime) {
+      salidaTime.textContent = `${horas}:${minutos}`;
+    }
     
-    if (res.data.segundosTotales) {
+    if (res.data.segundosTotales && totalTime) {
       const totalSegundos = Math.floor(res.data.segundosTotales);
 
       const horas_total = Math.floor(totalSegundos / 3600);
@@ -131,11 +130,9 @@ async function marcarSalida() {
         `${String(segundos_total).padStart(2, '0')}`;
     }
     
-    btnEntrada.disabled = false;
-    btnSalida.disabled = true;
-    statusIndicator.innerHTML = '<div class="status-dot"></div><span>Sin registrar</span>';
-    statusIndicator.classList.remove('active', 'completed');
-    
+    if (btnEntrada) btnEntrada.disabled = false;
+    if (btnSalida) btnSalida.disabled = true;
+
     mostrarToast('Salida registrada', 'success');
     console.log('4. Estado actualizado');
   } catch (error) {
@@ -162,55 +159,55 @@ async function cargarEstado() {
     const entradaTime = document.getElementById('entradaTime');
     const salidaTime = document.getElementById('salidaTime');
     const totalTime = document.getElementById('totalTime');
-    const statusIndicator = document.getElementById('statusIndicator');
 
     if (!data.asistenciaId) {
-      btnEntrada.disabled = false;
-      btnSalida.disabled = true;
-      entradaTime.textContent = '--:--';
-      salidaTime.textContent = '--:--';
-      totalTime.textContent = '--:--:--';
-      statusIndicator.innerHTML = '<div class="status-dot"></div><span>Sin registrar</span>';
-      statusIndicator.classList.remove('active', 'completed');
+      if (btnEntrada) btnEntrada.disabled = false;
+      if (btnSalida) btnSalida.disabled = true;
+      if (entradaTime) entradaTime.textContent = '--:--';
+      if (salidaTime) salidaTime.textContent = '--:--';
+      if (totalTime) totalTime.textContent = '--:--:--';
       return;
     }
 
     if (data.tieneEntradaAbierta) {
-      if (data.horaentrada) {
-        entradaTime.textContent = data.horaentrada.substring(0, 5);
-      } else {
-        entradaTime.textContent = '--:--';
+      if (entradaTime) {
+        if (data.horaentrada) {
+          entradaTime.textContent = data.horaentrada.substring(0, 5);
+        } else {
+          entradaTime.textContent = '--:--';
+        }
       }
-      salidaTime.textContent = '--:--';
-      totalTime.textContent = '--:--:--';
+      if (salidaTime) salidaTime.textContent = '--:--';
+      if (totalTime) totalTime.textContent = '--:--:--';
 
-      btnEntrada.disabled = true; 
-      btnSalida.disabled = false;  
-      statusIndicator.innerHTML = '<div class="status-dot active"></div><span>En jornada</span>';
-      statusIndicator.classList.add('active');
-      statusIndicator.classList.remove('completed');
+      if (btnEntrada) btnEntrada.disabled = true;
+      if (btnSalida) btnSalida.disabled = false;
       return;
     }
 
     if (!data.tieneEntradaAbierta) {
-      if (data.horaentrada) {
-        entradaTime.textContent = data.horaentrada.substring(0, 5);
-      } else {
-        entradaTime.textContent = '--:--';
+      if (entradaTime) {
+        if (data.horaentrada) {
+          entradaTime.textContent = data.horaentrada.substring(0, 5);
+        } else {
+          entradaTime.textContent = '--:--';
+        }
       }
 
-      if (data.horasalida) {
-        salidaTime.textContent = data.horasalida.substring(0, 5);
-      } else {
-        salidaTime.textContent = '--:--';
+      if (salidaTime) {
+        if (data.horasalida) {
+          salidaTime.textContent = data.horasalida.substring(0, 5);
+        } else {
+          salidaTime.textContent = '--:--';
+        }
       }
 
-      totalTime.textContent = data.horatotal || '--:--:--';
+      if (totalTime) {
+        totalTime.textContent = data.horatotal || '--:--:--';
+      }
 
-      btnEntrada.disabled = false;  
-      btnSalida.disabled = true;    
-      statusIndicator.innerHTML = '<div class="status-dot"></div><span>Sin registrar</span>';
-      statusIndicator.classList.remove('active', 'completed');
+      if (btnEntrada) btnEntrada.disabled = false;
+      if (btnSalida) btnSalida.disabled = true;
       return;
     }
 
