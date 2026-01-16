@@ -62,7 +62,7 @@ async function marcarEntrada() {
     const res = await axios.post('/api/asistencias/entrada', { horaLocal }, {
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer obtenerToken()`
+        Authorization: `Bearer ${obtenerToken()}`
       }
     });
 
