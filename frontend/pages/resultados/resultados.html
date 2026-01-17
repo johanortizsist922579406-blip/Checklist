@@ -11,13 +11,15 @@
 </head>
 
 <body>
+  <img src="../../assets/images/Fondo-ruleta.jpg" alt="Fondo" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: -2;">
+  
   <div class="container">
     <div id="ruleta-container">
-      <h2>Ruleta de premios</h2>
+      <h2>🎰 Ruleta de premios</h2>
       <div class="ruleta-wrapper">
         <div class="ruleta-pointer"></div>
 
-        <canvas id="ruletaCanvas" width="400" height="400">
+        anvas id="ruletaCanvas" width="400" height="400">
           Tu navegador no soporta canvas.
         </canvas>
       </div>
@@ -58,6 +60,7 @@
       </div>
     </div>
   </div>
+
   <script>
     let ruleta;
 
@@ -88,7 +91,7 @@
 
     function mostrarResultado(segment) {
       const div = document.getElementById('resultadoRuleta');
-      div.textContent = 'Te tocó: ' + segment.text;
+      div.textContent = '🎉 Te tocó: ' + segment.text + ' 🎉';
     }
 
     window.addEventListener('DOMContentLoaded', () => {

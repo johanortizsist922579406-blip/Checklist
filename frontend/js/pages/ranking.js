@@ -55,3 +55,4 @@ function renderRanking(ranking, usuarioid) {
     lista.innerHTML = '<div class="no-data">No hay ranking para mostrar.</div>';
   }
 }
+
