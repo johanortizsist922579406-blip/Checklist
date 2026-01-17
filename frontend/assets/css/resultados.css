@@ -26,6 +26,37 @@ body::before {
   pointer-events: none;
 }
 
+.background-image {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -10;
+}
+
+.background-image img {
+  pointer-events: none;
+}
+
+.overlay-background {
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle at top, rgba(15, 118, 110, 0.35), rgba(5, 46, 22, 0.85));
+  backdrop-filter: blur(3px);
+  z-index: -5;
+  pointer-events: none;
+}
+
+#ruletaCanvas {
+  display: block !important;
+  margin: 12px auto 0;
+  width: 400px !important;
+  height: 400px !important;
+  position: relative;
+  z-index: 100;
+}
+
 .container {
   max-width: 900px;
   width: 100%;
@@ -450,6 +481,9 @@ h1 {
 .ruleta-wrapper {
   position: relative;
   display: inline-block;
+  width: 400px;
+  height: 400px;
+  margin: 0 auto;
 }
 
 .ruleta-pointer {
@@ -464,13 +498,6 @@ h1 {
   border-top: 24px solid #e53935; 
   z-index: 5;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.25));
-}
-
-#ruletaCanvas {
-  display: block;
-  margin-top: 12px;
-  max-width: 100%;
-  height: auto !important;
 }
 
 #btnGirar {

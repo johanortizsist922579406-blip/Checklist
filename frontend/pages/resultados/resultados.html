@@ -11,17 +11,18 @@
 </head>
 
 <body>
-  <img src="../../assets/images/Fondo-ruleta.jpg" alt="Fondo" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: -2;">
+  <div class="background-image" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -10;">
+    <img src="../../assets/images/Fondo-ruleta.jpg" alt="Fondo" style="width: 100%; height: 100%; object-fit: cover;">
+  </div>
+  
+  <div class="overlay-background"></div>
   
   <div class="container">
     <div id="ruleta-container">
       <h2>🎰 Ruleta de premios</h2>
       <div class="ruleta-wrapper">
         <div class="ruleta-pointer"></div>
-
-        anvas id="ruletaCanvas" width="400" height="400">
-          Tu navegador no soporta canvas.
-        </canvas>
+        anvas id="ruletaCanvas" width="400" height="400"></canvas>
       </div>
 
       <button id="btnGirar">Girar</button>
@@ -65,28 +66,33 @@
     let ruleta;
 
     function initRuleta() {
-      ruleta = new Winwheel({
-        canvasId: 'ruletaCanvas',
-        numSegments: 6,
-        outerRadius: 180,
-        textFontSize: 16,
-        textOrientation: 'horizontal',
-        textAlignment: 'outer',
-        segments: [
-          { fillStyle: '#f94144', text: 'Día libre' },
-          { fillStyle: '#f8961e', text: 'Gift card' },
-          { fillStyle: '#f9c74f', text: 'Snack' },
-          { fillStyle: '#90be6d', text: 'Tarde libre' },
-          { fillStyle: '#43aa8b', text: 'Reconocimiento' },
-          { fillStyle: '#577590', text: 'Sorpresa' }
-        ],
-        animation: {
-          type: 'spinToStop',
-          duration: 5,
-          spins: 8,
-          callbackFinished: mostrarResultado
-        }
-      });
+      try {
+        ruleta = new Winwheel({
+          canvasId: 'ruletaCanvas',
+          numSegments: 6,
+          outerRadius: 180,
+          textFontSize: 16,
+          textOrientation: 'horizontal',
+          textAlignment: 'outer',
+          segments: [
+            { fillStyle: '#f94144', text: 'Día libre' },
+            { fillStyle: '#f8961e', text: 'Gift card' },
+            { fillStyle: '#f9c74f', text: 'Snack' },
+            { fillStyle: '#90be6d', text: 'Tarde libre' },
+            { fillStyle: '#43aa8b', text: 'Reconocimiento' },
+            { fillStyle: '#577590', text: 'Sorpresa' }
+          ],
+          animation: {
+            type: 'spinToStop',
+            duration: 5,
+            spins: 8,
+            callbackFinished: mostrarResultado
+          }
+        });
+        console.log('✅ Ruleta inicializada correctamente');
+      } catch (error) {
+        console.error('❌ Error al inicializar ruleta:', error);
+      }
     }
 
     function mostrarResultado(segment) {
@@ -95,9 +101,15 @@
     }
 
     window.addEventListener('DOMContentLoaded', () => {
-      initRuleta();
+      setTimeout(() => {
+        initRuleta();
+      }, 100);
 
       document.getElementById('btnGirar').addEventListener('click', () => {
+        if (!ruleta) {
+          alert('La ruleta no se ha cargado correctamente. Recarga la página.');
+          return;
+        }
         if (ruleta.animation && ruleta.animation.isSpinning) return;
         document.getElementById('resultadoRuleta').textContent = '';
         ruleta.startAnimation();
