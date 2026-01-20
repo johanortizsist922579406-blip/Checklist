@@ -1,30 +1,46 @@
 const pool = require('../../config/database');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 const { executeQuery } = require('../utils/dbHelper');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'Sanilab2025';
+const isProduction = process.env.NODE_ENV === 'production';
 
 exports.login = async (req, res) => {
   try {
     const { correo, password } = req.body;
 
+    console.log('📧 Login attempt - correo:', correo);
+    console.log('🔐 Password length:', password?.length);
+
     if (!correo || !password) {
       return res.status(400).json({ error: 'Correo y contraseña son obligatorios' });
     }
 
-    const [rows] = await executeQuery(
-      pool,
-      'SELECT * FROM usuarios WHERE correo = ?',
-      [correo]
-    );
+    let query, params;
+    if (isProduction) {
+      query = 'SELECT * FROM usuarios WHERE correo = $1';
+      params = [correo];
+    } else {
+      query = 'SELECT * FROM usuarios WHERE correo = ?';
+      params = [correo];
+    }
+
+    const result = await pool.query(query, params);
+    const rows = isProduction ? result.rows : result[0];
 
     if (!rows.length) {
+      console.log('❌ Usuario no encontrado');
       return res.status(401).json({ error: 'Credenciales inválidas' });
     }
 
     const usuario = rows[0];
 
-    if (usuario.passwordhash !== password) {
+    // Comparar password con bcrypt
+    const passwordValida = await bcrypt.compare(password, usuario.passwordhash);
+
+    if (!passwordValida) {
+      console.log('❌ Password incorrecta');
       return res.status(401).json({ error: 'Credenciales inválidas' });
     }
 
@@ -36,6 +52,8 @@ exports.login = async (req, res) => {
     };
 
     const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '8h' });
+
+    console.log('✅ Login exitoso para:', usuario.nombre);
 
     return res.json({
       token,
@@ -49,7 +67,7 @@ exports.login = async (req, res) => {
       }
     });
   } catch (err) {
-    console.error('Error login:', err);
+    console.error('❌ Error login:', err);
     return res.status(500).json({ error: err.message });
   }
 };
@@ -62,24 +80,38 @@ exports.registro = async (req, res) => {
       return res.status(400).json({ error: 'Todos los campos son obligatorios' });
     }
 
-    const [existente] = await executeQuery(
-      pool,
-      'SELECT id FROM usuarios WHERE correo = ?',
-      [correo]
-    );
+    let query, params;
+    if (isProduction) {
+      query = 'SELECT id FROM usuarios WHERE correo = $1';
+      params = [correo];
+    } else {
+      query = 'SELECT id FROM usuarios WHERE correo = ?';
+      params = [correo];
+    }
+
+    const checkResult = await pool.query(query, params);
+    const existente = isProduction ? checkResult.rows : checkResult[0];
 
     if (existente.length) {
       return res.status(400).json({ error: 'El correo ya está registrado' });
     }
 
-    const [result] = await executeQuery(
-      pool,
-      `INSERT INTO usuarios (correo, passwordhash, nombre, apellido, areaid, genero, activo, rol)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-      [correo, password, nombre, apellido, areaid, genero, 'SI', 'USER']
-    );
+    // Hashear password con bcrypt
+    const passwordHash = await bcrypt.hash(password, 10);
 
-    const insertId = result.insertId || result[0]?.id;
+    // Insertar usuario
+    if (isProduction) {
+      query = `INSERT INTO usuarios (correo, passwordhash, nombre, apellido, areaid, genero, activo, rol)
+               VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id`;
+      params = [correo, passwordHash, nombre, apellido, areaid, genero, 'SI', 'USER'];
+    } else {
+      query = `INSERT INTO usuarios (correo, passwordhash, nombre, apellido, areaid, genero, activo, rol)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+      params = [correo, passwordHash, nombre, apellido, areaid, genero, 'SI', 'USER'];
+    }
+
+    const result = await pool.query(query, params);
+    const insertId = isProduction ? result.rows[0].id : result[0].insertId;
 
     res.json({ 
       ok: true, 
@@ -100,21 +132,35 @@ exports.cambiarPassword = async (req, res) => {
       return res.status(400).json({ error: 'Correo y nueva contraseña son requeridos' });
     }
 
-    const [usuarios] = await executeQuery(
-      pool,
-      'SELECT id FROM usuarios WHERE correo = ?',
-      [correo]
-    );
+    let query, params;
+    if (isProduction) {
+      query = 'SELECT id FROM usuarios WHERE correo = $1';
+      params = [correo];
+    } else {
+      query = 'SELECT id FROM usuarios WHERE correo = ?';
+      params = [correo];
+    }
+
+    const checkResult = await pool.query(query, params);
+    const usuarios = isProduction ? checkResult.rows : checkResult[0];
 
     if (!usuarios.length) {
       return res.status(404).json({ error: 'Usuario no encontrado' });
     }
 
-    await executeQuery(
-      pool,
-      'UPDATE usuarios SET passwordhash = ? WHERE correo = ?',
-      [nuevaPassword, correo]
-    );
+    // Hashear nueva password
+    const passwordHash = await bcrypt.hash(nuevaPassword, 10);
+
+    // Actualizar
+    if (isProduction) {
+      query = 'UPDATE usuarios SET passwordhash = $1 WHERE correo = $2';
+      params = [passwordHash, correo];
+    } else {
+      query = 'UPDATE usuarios SET passwordhash = ? WHERE correo = ?';
+      params = [passwordHash, correo];
+    }
+
+    await pool.query(query, params);
 
     res.json({ ok: true, message: 'Contraseña actualizada exitosamente' });
   } catch (err) {
