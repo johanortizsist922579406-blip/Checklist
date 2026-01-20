@@ -96,10 +96,8 @@ exports.registro = async (req, res) => {
       return res.status(400).json({ error: 'El correo ya está registrado' });
     }
 
-    // Hashear password con bcrypt
     const passwordHash = await bcrypt.hash(password, 10);
 
-    // Insertar usuario
     if (isProduction) {
       query = `INSERT INTO usuarios (correo, passwordhash, nombre, apellido, areaid, genero, activo, rol)
                VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id`;
@@ -126,19 +124,19 @@ exports.registro = async (req, res) => {
 
 exports.cambiarPassword = async (req, res) => {
   try {
-    const { correo, nuevaPassword } = req.body;
+    const { email, passwordActual, passwordNueva } = req.body;
 
-    if (!correo || !nuevaPassword) {
-      return res.status(400).json({ error: 'Correo y nueva contraseña son requeridos' });
+    if (!email || !passwordNueva) {
+      return res.status(400).json({ error: 'Email y nueva contraseña son requeridos' });
     }
 
     let query, params;
     if (isProduction) {
-      query = 'SELECT id FROM usuarios WHERE correo = $1';
-      params = [correo];
+      query = 'SELECT id, passwordhash FROM usuarios WHERE correo = $1';
+      params = [email]; 
     } else {
-      query = 'SELECT id FROM usuarios WHERE correo = ?';
-      params = [correo];
+      query = 'SELECT id, passwordhash FROM usuarios WHERE correo = ?';
+      params = [email];
     }
 
     const checkResult = await pool.query(query, params);
@@ -148,16 +146,24 @@ exports.cambiarPassword = async (req, res) => {
       return res.status(404).json({ error: 'Usuario no encontrado' });
     }
 
-    // Hashear nueva password
-    const passwordHash = await bcrypt.hash(nuevaPassword, 10);
+    const usuario = usuarios[0];
+
+    if (passwordActual) {
+      const passwordActualValida = await bcrypt.compare(passwordActual, usuario.passwordhash);
+      if (!passwordActualValida) {
+        return res.status(401).json({ error: 'Contraseña actual incorrecta' });
+      }
+    }
+
+    const passwordHash = await bcrypt.hash(passwordNueva, 10);
 
     // Actualizar
     if (isProduction) {
       query = 'UPDATE usuarios SET passwordhash = $1 WHERE correo = $2';
-      params = [passwordHash, correo];
+      params = [passwordHash, email];
     } else {
       query = 'UPDATE usuarios SET passwordhash = ? WHERE correo = ?';
-      params = [passwordHash, correo];
+      params = [passwordHash, email];
     }
 
     await pool.query(query, params);

@@ -21,8 +21,8 @@ router.post('/login',
   loginLimiter,
   body('correo')
     .trim()
-    .isEmail().withMessage('Email inválido')
-    .normalizeEmail(),
+    .isEmail().withMessage('Email inválido'),
+    // ✅ SIN .normalizeEmail()
   body('password')
     .trim()
     .notEmpty().withMessage('La contraseña es obligatoria'),
@@ -44,8 +44,8 @@ router.post('/registro',
   registroLimiter,
   body('email')
     .trim()
-    .isEmail().withMessage('Email inválido')
-    .normalizeEmail(),
+    .isEmail().withMessage('Email inválido'),
+    // ✅ SIN .normalizeEmail()
   body('password')
     .trim()
     .isLength({ min: 8 }).withMessage('La contraseña debe tener al menos 8 caracteres'),
@@ -75,8 +75,8 @@ router.post('/registro',
 router.post('/cambiar-password',
   body('email')
     .trim()
-    .isEmail().withMessage('Email inválido')
-    .normalizeEmail(),
+    .isEmail().withMessage('Email inválido'),
+    // ✅ SIN .normalizeEmail()
   body('passwordActual')
     .trim()
     .notEmpty().withMessage('Contraseña actual obligatoria'),
