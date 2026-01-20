@@ -24,6 +24,7 @@ console.log('Frontend path:', frontendPath);
 console.log('Frontend exists:', fs.existsSync(frontendPath));
 console.log('Index.html exists:', fs.existsSync(path.join(frontendPath, 'index.html')));
 
+app.set('trust proxy', 1);
 app.use(helmet({
   contentSecurityPolicy: false,
   crossOriginEmbedderPolicy: false
