@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { body, validationResult } = require('express-validator');
+
 const asistenciaController = require('../controllers/asistenciaController');
 const { verifyToken } = require('../middlewares/authMiddleware');
 const pool = require('../../config/database');
@@ -8,44 +8,8 @@ const pool = require('../../config/database');
 router.use(verifyToken);
 
 router.get('/', asistenciaController.getAllAsistencias);
-
-router.post('/entrada',
-  body('horaLocal')
-    .trim()
-    .matches(/^([0-1][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$/)
-    .withMessage('Formato de hora inválido (debe ser HH:MM:SS)'),
-  
-  (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ 
-        error: 'Hora inválida',
-        detalles: errors.array().map(e => e.msg)
-      });
-    }
-    next();
-  },
-  asistenciaController.marcarEntrada
-);
-
-router.post('/salida',
-  body('horaLocal')
-    .trim()
-    .matches(/^([0-1][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$/)
-    .withMessage('Formato de hora inválido (debe ser HH:MM:SS)'),
-  
-  (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ 
-        error: 'Hora inválida',
-        detalles: errors.array().map(e => e.msg)
-      });
-    }
-    next();
-  },
-  asistenciaController.marcarSalida
-);
+router.post('/entrada', asistenciaController.marcarEntrada);
+router.post('/salida', asistenciaController.marcarSalida);
 
 router.get('/estado-actual', async (req, res) => {
   try {

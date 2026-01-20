@@ -1,5 +1,4 @@
 const path = require('path');
-const fs = require('fs');
 require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
 
 console.log('🧪 TEST - GOOGLE_SHEETS_ID:', process.env.GOOGLE_SHEETS_ID);
@@ -8,9 +7,7 @@ console.log('🧪 TEST - DATABASE_URL:', process.env.DATABASE_URL ? 'Existe' : '
 const pool = require('./config/database');
 const express = require('express');
 const cors = require('cors');
-const helmet = require('helmet');
-const rateLimit = require('express-rate-limit');
-const xss = require('xss-clean');
+const fs = require('fs');
 
 const app = express();
 const routes = require('./src/routes');
@@ -23,25 +20,6 @@ console.log('Project root:', projectRoot);
 console.log('Frontend path:', frontendPath);
 console.log('Frontend exists:', fs.existsSync(frontendPath));
 console.log('Index.html exists:', fs.existsSync(path.join(frontendPath, 'index.html')));
-
-app.set('trust proxy', 1);
-app.use(helmet({
-  contentSecurityPolicy: false,
-  crossOriginEmbedderPolicy: false
-}));
-
-const generalLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100,
-  message: { error: 'Demasiadas solicitudes, intenta más tarde' },
-  standardHeaders: true,
-  legacyHeaders: false,
-});
-
-app.use(xss());
-app.use(cors());
-app.use(express.json({ limit: '10mb' }));
-app.use('/api/', generalLimiter);
 
 async function createAllTables() {
   await pool.query(`
@@ -188,7 +166,9 @@ async function initializeDatabase() {
   try {
     if (isPostgres) {
       console.log('🔄 Inicializando PostgreSQL...');
+      
       await createAllTables();
+      
       await pool.query(`
         INSERT INTO areas (nombre, descripcion) 
         VALUES 
@@ -198,6 +178,7 @@ async function initializeDatabase() {
           ('Logística', 'Gestión de inventarios')
         ON CONFLICT (nombre) DO NOTHING
       `);
+
       console.log('✅ Database initialized');
     } else {
       console.log('🔄 Inicializando MySQL...');
@@ -208,6 +189,9 @@ async function initializeDatabase() {
     console.log('❌ Error code:', error.code);
   }
 }
+
+app.use(cors());
+app.use(express.json());
 
 app.use(express.static(frontendPath, {
   dotfiles: 'ignore',
@@ -247,7 +231,6 @@ app.listen(PORT, () => {
   console.log(`✅ Server running on port ${PORT}`);
   console.log(`📁 Frontend: ${frontendPath}`);
   console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`🛡️ Seguridad: Helmet ✅ | Rate Limiting ✅ | XSS Protection ✅`);
 });
 
 if (process.env.NODE_ENV === 'production') {
@@ -260,6 +243,17 @@ if (process.env.NODE_ENV === 'production') {
 
 process.on('SIGTERM', () => {
   console.log('SIGTERM - Cerrando conexión...');
+  if (pool) {
+    pool.end(() => {
+      console.log('Pool cerrado');
+      process.exit(0);
+    });
+  }
+});
+
+process.on('SIGTERM', () => {
+  console.log('SIGTERM - Cerrando conexión...');
+  const pool = require('./config/database');
   if (pool && pool.end) {
     pool.end(() => {
       console.log('Pool cerrado');
@@ -272,6 +266,7 @@ process.on('SIGTERM', () => {
 
 process.on('SIGINT', () => {
   console.log('SIGINT - Cerrando conexión...');
+  const pool = require('./config/database');
   if (pool && pool.end) {
     pool.end(() => {
       console.log('Pool cerrado');
@@ -281,3 +276,4 @@ process.on('SIGINT', () => {
     process.exit(0);
   }
 });
+
