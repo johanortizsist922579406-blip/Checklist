@@ -10,6 +10,7 @@ const respuestaAutoevaluacionRoutes = require('./respuestaAutoevaluacionRoutes')
 const rankingRoutes = require('./rankingRoutes');
 const authRoutes = require('./authRoutes');
 const adminRoutes = require('./adminRoutes');
+const horarioRoutes = require('./horarioRoutes');
 
 console.log('authRoutes      =>', typeof authRoutes);
 console.log('asistenciaRoutes =>', typeof asistenciaRoutes);
