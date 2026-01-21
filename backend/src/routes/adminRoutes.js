@@ -25,7 +25,7 @@ router.get('/faltantes-hoy', verifyToken, verifyAdmin, async (req, res) => {
         LEFT JOIN areas a ON u.areaid = a.id
         LEFT JOIN asistencias asi ON u.id = asi.usuarioid AND asi.fecha = CURRENT_DATE
         WHERE u.activo = true
-          AND u.rol != 'admin'
+          AND LOWER(u.rol) != 'admin'
           AND asi.id IS NULL
         ORDER BY u.nombre
       `;
@@ -41,7 +41,7 @@ router.get('/faltantes-hoy', verifyToken, verifyAdmin, async (req, res) => {
         LEFT JOIN areas a ON u.areaid = a.id
         LEFT JOIN asistencias asi ON u.id = asi.usuarioid AND DATE(asi.fecha) = CURDATE()
         WHERE u.activo = 'SI'
-          AND u.rol != 'admin'
+          AND LOWER(u.rol) != 'admin'
           AND asi.id IS NULL
         ORDER BY u.nombre
       `;
