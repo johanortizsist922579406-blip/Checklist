@@ -163,3 +163,51 @@ async function exportarAGoogleSheets() {
     });
   }
 }
+
+const btnVerFaltantes = document.getElementById('btnVerFaltantes');
+if (btnVerFaltantes) {
+  btnVerFaltantes.addEventListener('click', async () => {
+    const token = localStorage.getItem('token');
+    const container = document.getElementById('faltantesContainer');
+    const tbody = document.getElementById('tablaFaltantes');
+    const titulo = document.getElementById('tituloFaltantes');
+
+    try {
+      btnVerFaltantes.textContent = 'Cargando...';
+      btnVerFaltantes.disabled = true;
+
+      const res = await axios.get('/api/admin/faltantes-hoy', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      const { faltantes, total, fecha } = res.data;
+
+      titulo.textContent = `Faltantes del ${fecha} (Total: ${total})`;
+      tbody.innerHTML = '';
+
+      if (total === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">✅ Todos han marcado entrada hoy</td></tr>';
+      } else {
+        faltantes.forEach(f => {
+          tbody.innerHTML += `
+            <tr>
+              <td>${f.id}</td>
+              <td>${f.nombre}</td>
+              <td>${f.apellido || '—'}</td>
+              <td>${f.correo}</td>
+              <td>${f.area || '—'}</td>
+            </tr>
+          `;
+        });
+      }
+
+      container.style.display = 'block';
+    } catch (error) {
+      console.error('Error cargar faltantes:', error);
+      alert('Error al cargar faltantes: ' + error.message);
+    } finally {
+      btnVerFaltantes.textContent = 'Ver quiénes no han marcado entrada hoy';
+      btnVerFaltantes.disabled = false;
+    }
+  });
+}
