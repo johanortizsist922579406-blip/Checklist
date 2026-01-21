@@ -185,6 +185,18 @@ async function createAllTables() {
     END $$;
   `);
   console.log('✅ tardanza_minutos en asistencias');
+
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS constancias (
+      id SERIAL PRIMARY KEY,
+      usuario_id INTEGER NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+      horas_acumuladas DECIMAL(10,2) NOT NULL,
+      fecha_generacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      estado VARCHAR(50) DEFAULT 'generada',
+      UNIQUE(usuario_id)
+    )
+  `);
+  console.log('✅ constancias');
 }
 
 async function initializeDatabase() {

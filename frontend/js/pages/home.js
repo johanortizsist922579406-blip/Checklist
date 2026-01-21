@@ -113,6 +113,65 @@ function initHome() {
 
   configurarBotonResultados();
   marcarProgresoHome();
+  verificarConstancia520();
+}
+
+async function verificarConstancia520() {
+  const token = localStorage.getItem('token');
+  if (!token) return;
+
+  try {
+    const res = await fetch('/api/constancias/verificar-elegibilidad', {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+
+    if (!res.ok) return;
+
+    const data = await res.json();
+    const cardConstancia = document.getElementById('cardConstancia');
+
+    if (data.elegible && !data.yaReclamo && cardConstancia) {
+      cardConstancia.style.display = 'flex';
+      
+      const desc = cardConstancia.querySelector('.button-description');
+      if (desc) {
+        desc.textContent = `Tienes ${data.horasTotales}h acumuladas`;
+      }
+    }
+  } catch (err) {
+    console.error('Error verificar constancia:', err);
+  }
+}
+
+async function solicitarConstancia() {
+  const token = localStorage.getItem('token');
+  
+  if (!confirm('¿Deseas solicitar tu constancia de 520 horas? Recibirás instrucciones para recogerla.')) {
+    return;
+  }
+
+  try {
+    const res = await fetch('/api/constancias/solicitar', {
+      method: 'POST',
+      headers: { 
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      alert(`✅ ${data.mensaje}\n\nContacta a Gerencia:\n📞 +51 981 049 956\n✉️ Indica tu nombre y que completaste 520 horas.`);
+      
+      document.getElementById('cardConstancia').style.display = 'none';
+    } else {
+      alert('❌ ' + data.error);
+    }
+  } catch (error) {
+    console.error('Error solicitar constancia:', error);
+    alert('Error al solicitar constancia');
+  }
 }
 
 document.addEventListener('DOMContentLoaded', initHome);
