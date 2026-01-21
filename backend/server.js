@@ -158,6 +158,33 @@ async function createAllTables() {
     )
   `);
   console.log('✅ configuracion');
+
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS horarios_trabajadores (
+      id SERIAL PRIMARY KEY,
+      usuario_id INTEGER NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+      dia_semana INTEGER NOT NULL CHECK (dia_semana BETWEEN 0 AND 6),
+      hora_entrada_esperada TIME NOT NULL,
+      hora_salida_esperada TIME NOT NULL,
+      activo BOOLEAN DEFAULT true,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      UNIQUE(usuario_id, dia_semana)
+    )
+  `);
+  console.log('✅ horarios_trabajadores');
+
+  await pool.query(`
+    DO $$ 
+    BEGIN
+      IF NOT EXISTS (
+        SELECT 1 FROM information_schema.columns 
+        WHERE table_name = 'asistencias' AND column_name = 'tardanza_minutos'
+      ) THEN
+        ALTER TABLE asistencias ADD COLUMN tardanza_minutos INTEGER DEFAULT 0;
+      END IF;
+    END $$;
+  `);
+  console.log('✅ tardanza_minutos en asistencias');
 }
 
 async function initializeDatabase() {

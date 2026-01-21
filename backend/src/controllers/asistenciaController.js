@@ -1,6 +1,16 @@
 const pool = require('../../config/database');
 const { executeQuery } = require('../utils/dbHelper');
 
+function calcularMinutosTarde(horaEsperada, horaActual) {
+  const [hE, mE] = horaEsperada.split(':').map(Number);
+  const [hA, mA] = horaActual.split(':').map(Number);
+  
+  const minutosEsperados = hE * 60 + mE;
+  const minutosActuales = hA * 60 + mA;
+  
+  return Math.max(0, minutosActuales - minutosEsperados);
+}
+
 exports.getAllAsistencias = async (req, res) => {
   try {
     const usuarioid = req.user.id;
@@ -31,13 +41,34 @@ exports.getAllAsistencias = async (req, res) => {
 exports.marcarEntrada = async (req, res) => {
   try {
     const usuarioid = req.user.id;
-    const { horaLocal } = req.body; 
+    const { horaLocal } = req.body;
 
     if (!horaLocal) {
       return res.status(400).json({ error: 'Falta horaLocal en la petición' });
     }
 
+    console.log('🕐 Marcando entrada:', usuarioid, horaLocal);
+
+    const hoy = new Date();
+    const diaSemana = hoy.getDay();
+
     let asistenciaId;
+    let tardanzaMinutos = 0;
+    let esTarde = false;
+
+    const [horarioRows] = await executeQuery(
+      pool,
+      `SELECT hora_entrada_esperada FROM horarios_trabajadores 
+       WHERE usuario_id = ? AND dia_semana = ? AND activo = true`,
+      [usuarioid, diaSemana]
+    );
+
+    if (horarioRows.length > 0) {
+      const horaEsperada = horarioRows[0].hora_entrada_esperada;
+      tardanzaMinutos = calcularMinutosTarde(horaEsperada, horaLocal);
+      esTarde = tardanzaMinutos > 0;
+      console.log(`⏰ Hora esperada: ${horaEsperada}, Actual: ${horaLocal}, Tardanza: ${tardanzaMinutos} min`);
+    }
 
     const [existentes] = await executeQuery(
       pool,
@@ -51,10 +82,10 @@ exports.marcarEntrada = async (req, res) => {
     } else {
       const [result] = await executeQuery(
         pool,
-        `INSERT INTO asistencias (usuarioid, fecha, horaentrada, estado)
-         VALUES (?, CURRENT_DATE, ?::time, ?)
+        `INSERT INTO asistencias (usuarioid, fecha, horaentrada, estado, tardanza_minutos)
+         VALUES (?, CURRENT_DATE, ?::time, ?, ?)
          RETURNING id`,
-        [usuarioid, horaLocal, 'En jornada']
+        [usuarioid, horaLocal, 'En jornada', tardanzaMinutos]
       );
       asistenciaId = result[0].id;
     }
@@ -70,6 +101,7 @@ exports.marcarEntrada = async (req, res) => {
       return res.status(400).json({ error: 'Ya tienes un tramo de asistencia en curso' });
     }
 
+    // Crear nuevo tramo
     const [nuevoTramo] = await executeQuery(
       pool,
       `INSERT INTO asistencia_tramos (asistenciaid, horaentrada)
@@ -81,16 +113,20 @@ exports.marcarEntrada = async (req, res) => {
     const tramoId = nuevoTramo[0].id;
 
     return res.json({
-      message: 'Entrada registrada',
+      ok: true,
+      message: esTarde 
+        ? `Entrada registrada. Llegaste ${tardanzaMinutos} minutos tarde ⚠️`
+        : 'Entrada registrada puntualmente ✅',
       asistenciaId,
-      tramoId
+      tramoId,
+      tardanza: tardanzaMinutos,
+      esTarde: esTarde
     });
   } catch (err) {
-    console.error('Error en marcarEntrada:', err);
+    console.error('❌ Error en marcarEntrada:', err);
     return res.status(500).json({ error: 'Error interno al marcar entrada' });
   }
 };
-
 
 exports.marcarSalida = async (req, res) => {
   try {

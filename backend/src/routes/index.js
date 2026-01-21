@@ -20,7 +20,7 @@ console.log('autoevalRoutes   =>', typeof autoevaluacionRoutes);
 console.log('respAutoevalRoutes =>', typeof respuestaAutoevaluacionRoutes);
 console.log('rankingRoutes    =>', typeof rankingRoutes);
 console.log('adminRoutes      =>', typeof adminRoutes);
-
+console.log('horarioRoutes    =>', typeof horarioRoutes);
 
 router.use('/auth', authRoutes);
 router.use('/asistencias', asistenciaRoutes);
@@ -31,5 +31,6 @@ router.use('/autoevaluaciones', autoevaluacionRoutes);
 router.use('/respuestas-autoevaluacion', respuestaAutoevaluacionRoutes);
 router.use('/rankings', rankingRoutes);
 router.use('/admin', adminRoutes);
+router.use('/horarios', horarioRoutes);
 
 module.exports = router;

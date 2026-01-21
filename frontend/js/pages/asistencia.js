@@ -85,10 +85,14 @@ async function marcarEntrada() {
     if (btnEntrada) btnEntrada.disabled = true;
     if (btnSalida)  btnSalida.disabled  = false;
 
-    // marcar que hoy ya usó asistencia (entrada)
-    localStorage.setItem(getTodayKey('asis_usada'), '1');
+  localStorage.setItem(getTodayKey('asis_usada'), '1');
 
-    mostrarToast('Entrada registrada', 'success');
+    if (res.data.esTarde) {
+        mostrarToast(`⚠️ ${res.data.message}`, 'error');
+    }     else {
+        mostrarToast(res.data.message || 'Entrada registrada', 'success');
+    }
+
     console.log('4. Estado actualizado');
   } catch (error) {
     console.error('5. Error capturado:', error);
