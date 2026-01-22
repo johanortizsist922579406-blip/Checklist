@@ -40,24 +40,24 @@ router.get('/mi-perfil', async (req, res) => {
     query = isProduction
       ? `SELECT COALESCE(SUM(EXTRACT(EPOCH FROM horatotal) / 3600), 0) as horas_totales
          FROM asistencias 
-         WHERE usuarioid = $1 AND horatotal IS NOT NULL`
+         WHERE usuario_id = $1 AND horatotal IS NOT NULL`
       : `SELECT COALESCE(SUM(TIME_TO_SEC(horatotal) / 3600), 0) as horas_totales
          FROM asistencias 
-         WHERE usuarioid = ? AND horatotal IS NOT NULL`;
+         WHERE usuario_id = ? AND horatotal IS NOT NULL`;
 
     const horasResult = await pool.query(query, [usuarioId]);
     const horasTotales = isProduction ? horasResult.rows[0].horas_totales : horasResult[0][0].horas_totales;
 
     query = isProduction
-      ? `SELECT fechaevaluacion, puntajetotal, quincena, mensajemotivacional
+      ? `SELECT fecha, puntaje_total, observaciones
          FROM autoevaluacion 
-         WHERE usuarioid = $1 
-         ORDER BY fechaevaluacion DESC 
+         WHERE usuario_id = $1 
+         ORDER BY fecha DESC 
          LIMIT 10`
-      : `SELECT fechaevaluacion, puntajetotal, quincena, mensajemotivacional
+      : `SELECT fecha, puntaje_total, observaciones
          FROM autoevaluacion 
-         WHERE usuarioid = ? 
-         ORDER BY fechaevaluacion DESC 
+         WHERE usuario_id = ? 
+         ORDER BY fecha DESC 
          LIMIT 10`;
 
     const autoevalResult = await pool.query(query, [usuarioId]);
@@ -97,10 +97,10 @@ router.get('/mi-perfil', async (req, res) => {
     query = isProduction
       ? `SELECT COALESCE(SUM(tardanza_minutos), 0) as tardanza_total
          FROM asistencias 
-         WHERE usuarioid = $1`
+         WHERE usuario_id = $1`
       : `SELECT COALESCE(SUM(tardanza_minutos), 0) as tardanza_total
          FROM asistencias 
-         WHERE usuarioid = ?`;
+         WHERE usuario_id = ?`;
 
     const tardanzaResult = await pool.query(query, [usuarioId]);
     const tardanzaTotal = isProduction ? tardanzaResult.rows[0].tardanza_total : tardanzaResult[0][0].tardanza_total;

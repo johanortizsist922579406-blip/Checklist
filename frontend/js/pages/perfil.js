@@ -38,14 +38,14 @@ async function cargarPerfil() {
 
     const tablaAuto = document.getElementById('tablaAutoevaluaciones');
     if (data.autoevaluaciones.length > 0) {
-      tablaAuto.innerHTML = data.autoevaluaciones.map(a => `
-        <tr>
-          <td>${formatearFecha(a.fechaevaluacion)}</td>
-          <td><strong>${a.puntajetotal}</strong></td>
-          <td>${a.quincena || '—'}</td>
-          <td class="mensaje-cell">${a.mensajemotivacional || '—'}</td>
+        tablaAuto.innerHTML = data.autoevaluaciones.map(a => `
+    <tr>
+    <td>${formatearFecha(a.fecha)}</td>
+    <td><strong>${a.puntaje_total}</strong></td>
+    <td>${a.quincena || '—'}</td>
+    <td class="mensaje-cell">${a.observaciones || '—'}</td>
         </tr>
-      `).join('');
+    `).join('');
     } else {
       tablaAuto.innerHTML = '<tr><td colspan="4" class="no-data">No hay autoevaluaciones registradas</td></tr>';
     }
