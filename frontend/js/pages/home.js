@@ -60,6 +60,7 @@ function marcarProgresoHome() {
 function initHome() {
   const btnLogout = document.getElementById('btnLogout');
   const btnAdmin  = document.getElementById('btnAdmin');
+  const btnPerfil = document.getElementById('btnPerfil'); // 👈 NUEVO
   const modal     = document.getElementById('no-access-modal');
   const closeBtn  = document.getElementById('closeNoAccess');
 
@@ -72,10 +73,10 @@ function initHome() {
       const saludo = esMujer ? 'Bienvenida' : 'Bienvenido';
       welcomeTitle.textContent = `${saludo} ${usuario.nombre}`;
     }
-  }
 
-  if (modal) {
-    modal.classList.add('hidden');
+    if (btnAdmin && usuario && (usuario.rol || '').toLowerCase() === 'admin') {
+      btnAdmin.style.display = 'inline-flex';
+    }
   }
 
   if (btnLogout) {

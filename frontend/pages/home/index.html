@@ -15,12 +15,19 @@
   />
 </head>
 <body>
-  <div class="home-top-bar">
-    <button id="btnLogout" class="btn-secondary">⟵ Cerrar sesión</button>
-    <button id="btnAdmin" class="btn-primary-outline profile-btn" title="Panel administrativo">
-      <i class="fa-solid fa-user-circle"></i>
+<div class="home-top-bar">
+  <button id="btnLogout" class="btn-secondary">⟵ Cerrar sesión</button>
+  
+  <div class="top-bar-right">
+    <button id="btnPerfil" class="btn-primary-outline" title="Mi perfil" onclick="location.href='/pages/perfil/index.html'">
+      <i class="fa-solid fa-user"></i>
+    </button>
+    
+    <button id="btnAdmin" class="btn-primary-outline profile-btn" title="Panel administrativo" style="display: none;">
+      <i class="fa-solid fa-user-shield"></i>
     </button>
   </div>
+</div>
 
   <div class="container">
     <div class="welcome-section">

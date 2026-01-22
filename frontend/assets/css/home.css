@@ -750,3 +750,44 @@ h1 {
   transform: translateY(-2px);
   box-shadow: 0 6px 28px rgba(76, 175, 80, 0.5);
 }
+
+.home-top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 20px;
+  max-width: 1200px;
+  margin: 0 auto 20px;
+}
+
+.top-bar-right {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.btn-primary-outline {
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid #16a34a;
+  background: #ecfdf3;
+  color: #16a34a;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.18);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.btn-primary-outline:hover {
+  background: #bbf7d0;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(22, 163, 74, 0.25);
+}
+
+.btn-primary-outline i {
+  font-size: 18px;
+}
