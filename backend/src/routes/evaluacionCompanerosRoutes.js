@@ -109,6 +109,8 @@ router.post('/', async (req, res) => {
     const evaluadorId = req.user.id;
     const { evaluadoId, tipoEvaluacion, respuestas, comentarios } = req.body;
 
+    console.log('📝 Creando evaluación:', { evaluadorId, evaluadoId, tipoEvaluacion });
+
     if (!evaluadoId || !respuestas || respuestas.length === 0) {
       return res.status(400).json({ error: 'Datos incompletos' });
     }
@@ -117,20 +119,22 @@ router.post('/', async (req, res) => {
 
     let query, params, result;
     if (isProduction) {
-        query = `INSERT INTO control_evaluacion_companeros (usuario_id, ultima_evaluacion)
-        VALUES ($1, CURRENT_TIMESTAMP)
-        ON CONFLICT (usuario_id) 
-        DO UPDATE SET ultima_evaluacion = CURRENT_TIMESTAMP`;
-        params = [evaluadorId];
+      query = `INSERT INTO evaluacion_companeros 
+               (evaluador_id, evaluado_id, tipo_evaluacion, puntaje_total, comentarios)
+               VALUES ($1, $2, $3, $4, $5) RETURNING id`;
+      params = [evaluadorId, evaluadoId, tipoEvaluacion, puntajeTotal, comentarios || ''];
     } else {
-  query = `INSERT INTO control_evaluacion_companeros (usuario_id, ultima_evaluacion)
-           VALUES (?, NOW())
-           ON DUPLICATE KEY UPDATE ultima_evaluacion = NOW()`;
-  params = [evaluadorId];
-}
+      query = `INSERT INTO evaluacion_companeros 
+               (evaluador_id, evaluado_id, tipo_evaluacion, puntaje_total, comentarios)
+               VALUES (?, ?, ?, ?, ?)`;
+      params = [evaluadorId, evaluadoId, tipoEvaluacion, puntajeTotal, comentarios || ''];
+    }
 
+    console.log('📊 Insertando evaluación...');
     result = await pool.query(query, params);
     const evaluacionId = isProduction ? result.rows[0].id : result[0].insertId;
+
+    console.log('✅ Evaluación creada, ID:', evaluacionId);
 
     for (const resp of respuestas) {
       if (isProduction) {
@@ -145,20 +149,24 @@ router.post('/', async (req, res) => {
       await pool.query(query, params);
     }
 
+    console.log('✅ Respuestas guardadas');
+
     if (isProduction) {
-      query = `INSERT INTO control_evaluacion_companeros (evaluador_id, ultima_evaluacion)
+      query = `INSERT INTO control_evaluacion_companeros (usuario_id, ultima_evaluacion)
                VALUES ($1, CURRENT_TIMESTAMP)
-               ON CONFLICT (evaluador_id) 
+               ON CONFLICT (usuario_id) 
                DO UPDATE SET ultima_evaluacion = CURRENT_TIMESTAMP`;
       params = [evaluadorId];
     } else {
-      query = `INSERT INTO control_evaluacion_companeros (evaluador_id, ultima_evaluacion)
+      query = `INSERT INTO control_evaluacion_companeros (usuario_id, ultima_evaluacion)
                VALUES (?, NOW())
                ON DUPLICATE KEY UPDATE ultima_evaluacion = NOW()`;
       params = [evaluadorId];
     }
 
     await pool.query(query, params);
+
+    console.log('✅ Control actualizado');
 
     res.json({
       ok: true,
@@ -168,10 +176,12 @@ router.post('/', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Error crear evaluación:', error);
+    console.error('❌ Error crear evaluación:', error);
+    console.error('❌ Stack:', error.stack);
     res.status(500).json({ error: error.message });
   }
 });
+
 
 router.get('/historial', async (req, res) => {
   try {
