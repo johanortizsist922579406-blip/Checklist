@@ -20,19 +20,27 @@ router.get('/puede-evaluar', async (req, res) => {
     const control = isProduction ? result.rows : result[0];
 
     if (control.length === 0) {
+      // Primera vez que evalúa
       return res.json({ puedeEvaluar: true, diasRestantes: 0 });
     }
 
     const ultimaEvaluacion = new Date(control[0].ultima_evaluacion);
     const ahora = new Date();
-    const diferenciaDias = Math.floor((ahora - ultimaEvaluacion) / (1000 * 60 * 60 * 24));
+    
+    const milisegundosDif = ahora - ultimaEvaluacion;
+    const diasTranscurridos = Math.floor(milisegundosDif / (1000 * 60 * 60 * 24));
 
-    if (diferenciaDias >= 3) {
+    console.log('📅 Última evaluación:', ultimaEvaluacion);
+    console.log('📅 Ahora:', ahora);
+    console.log('📅 Días transcurridos:', diasTranscurridos);
+
+    if (diasTranscurridos >= 3) {
       return res.json({ puedeEvaluar: true, diasRestantes: 0 });
     } else {
+      const diasRestantes = 3 - diasTranscurridos;
       return res.json({ 
         puedeEvaluar: false, 
-        diasRestantes: 3 - diferenciaDias 
+        diasRestantes: diasRestantes 
       });
     }
 
