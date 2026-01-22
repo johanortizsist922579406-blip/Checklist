@@ -40,10 +40,10 @@ router.get('/mi-perfil', async (req, res) => {
     query = isProduction
       ? `SELECT COALESCE(SUM(EXTRACT(EPOCH FROM horatotal) / 3600), 0) as horas_totales
          FROM asistencias 
-         WHERE usuario_id = $1 AND horatotal IS NOT NULL`
+         WHERE usuarioid = $1 AND horatotal IS NOT NULL`
       : `SELECT COALESCE(SUM(TIME_TO_SEC(horatotal) / 3600), 0) as horas_totales
          FROM asistencias 
-         WHERE usuario_id = ? AND horatotal IS NOT NULL`;
+         WHERE usuarioid = ? AND horatotal IS NOT NULL`;
 
     const horasResult = await pool.query(query, [usuarioId]);
     const horasTotales = isProduction ? horasResult.rows[0].horas_totales : horasResult[0][0].horas_totales;
@@ -97,10 +97,10 @@ router.get('/mi-perfil', async (req, res) => {
     query = isProduction
       ? `SELECT COALESCE(SUM(tardanza_minutos), 0) as tardanza_total
          FROM asistencias 
-         WHERE usuario_id = $1`
+         WHERE usuarioid = $1`
       : `SELECT COALESCE(SUM(tardanza_minutos), 0) as tardanza_total
          FROM asistencias 
-         WHERE usuario_id = ?`;
+         WHERE usuarioid = ?`;
 
     const tardanzaResult = await pool.query(query, [usuarioId]);
     const tardanzaTotal = isProduction ? tardanzaResult.rows[0].tardanza_total : tardanzaResult[0][0].tardanza_total;
