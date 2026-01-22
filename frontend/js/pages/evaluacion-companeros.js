@@ -41,6 +41,8 @@ const preguntasEvaluacion = [
   "¿Contribuye positivamente al ambiente laboral?"
 ];
 
+let evaluacionesPendientes = [];
+
 async function verificarEstadoEvaluacion() {
   try {
     const resultado = await evaluacionCompanerosService.puedeEvaluar();
@@ -50,6 +52,7 @@ async function verificarEstadoEvaluacion() {
     if (!resultado.puedeEvaluar) {
       statusInfo.style.display = 'block';
       statusMessage.textContent = `Debes esperar ${resultado.diasRestantes} día(s) más para evaluar nuevamente.`;
+      document.getElementById('personasContainer').innerHTML = '<p style="text-align: center; color: #666;">No puedes evaluar en este momento.</p>';
       return false;
     }
     return true;
@@ -68,18 +71,18 @@ async function cargarPersonasEvaluables() {
     const container = document.getElementById('personasContainer');
     
     if (resultado.companeros.length === 0) {
-      container.innerHTML = '<p>No hay compañeros disponibles para evaluar.</p>';
+      container.innerHTML = '<p style="text-align: center;">No hay compañeros disponibles para evaluar.</p>';
       return;
     }
 
     container.innerHTML = resultado.companeros.map(persona => `
-      <div class="persona-card">
+      <div class="persona-card" data-persona-id="${persona.id}">
         <div class="persona-header">
           <div class="persona-info">
             <h3>${persona.nombre}</h3>
             <div class="persona-rol">${persona.rol}</div>
           </div>
-          <button class="btn-evaluar" onclick="mostrarFormulario(${persona.id}, '${persona.nombre}', '${persona.rol}')">
+          <button class="btn-evaluar" onclick="mostrarFormulario(${persona.id})">
             Evaluar
           </button>
         </div>
@@ -103,8 +106,8 @@ async function cargarPersonasEvaluables() {
             <textarea class="comentarios-area" id="comentarios-${persona.id}" placeholder="Escribe tus comentarios aquí..."></textarea>
           </div>
           <div style="margin-top: 15px;">
-            <button class="btn btn-primary" onclick="enviarEvaluacion(${persona.id}, '${persona.rol}')">
-              Enviar Evaluación
+            <button class="btn btn-primary" onclick="guardarEvaluacion(${persona.id}, '${persona.rol}')">
+              Guardar esta evaluación
             </button>
             <button class="btn btn-secondary" onclick="ocultarFormulario(${persona.id})" style="margin-left: 10px;">
               Cancelar
@@ -120,7 +123,7 @@ async function cargarPersonasEvaluables() {
   }
 }
 
-function mostrarFormulario(personaId, nombre, rol) {
+function mostrarFormulario(personaId) {
   document.getElementById(`form-${personaId}`).style.display = 'block';
 }
 
@@ -128,50 +131,109 @@ function ocultarFormulario(personaId) {
   document.getElementById(`form-${personaId}`).style.display = 'none';
 }
 
-async function enviarEvaluacion(evaluadoId, rolEvaluado) {
-  try {
-    const respuestas = [];
-    let todasRespondidas = true;
+function guardarEvaluacion(evaluadoId, rolEvaluado) {
+  const respuestas = [];
+  let todasRespondidas = true;
 
-    preguntasEvaluacion.forEach((pregunta, index) => {
-      const respuesta = document.querySelector(`input[name="pregunta-${evaluadoId}-${index}"]:checked`);
-      if (respuesta) {
-        respuestas.push({
-          pregunta: pregunta,
-          respuesta: parseInt(respuesta.value)
-        });
-      } else {
-        todasRespondidas = false;
-      }
-    });
-
-    if (!todasRespondidas) {
-      alert('Por favor responde todas las preguntas.');
-      return;
+  preguntasEvaluacion.forEach((pregunta, index) => {
+    const respuesta = document.querySelector(`input[name="pregunta-${evaluadoId}-${index}"]:checked`);
+    if (respuesta) {
+      respuestas.push({
+        pregunta: pregunta,
+        respuesta: parseInt(respuesta.value)
+      });
+    } else {
+      todasRespondidas = false;
     }
+  });
 
-    const comentarios = document.getElementById(`comentarios-${evaluadoId}`).value;
-    const tipoEvaluacion = rolEvaluado.toLowerCase().includes('gerente') ? 'gerente' : 'companero';
+  if (!todasRespondidas) {
+    alert('Por favor responde todas las preguntas.');
+    return;
+  }
 
-    const evaluacionData = {
+  const comentarios = document.getElementById(`comentarios-${evaluadoId}`).value;
+  const tipoEvaluacion = rolEvaluado.toLowerCase().includes('gerente') ? 'gerente' : 'companero';
+
+  // Guardar en array temporal
+  const indiceExistente = evaluacionesPendientes.findIndex(e => e.evaluadoId === evaluadoId);
+  
+  if (indiceExistente >= 0) {
+    evaluacionesPendientes[indiceExistente] = {
       evaluadoId,
       tipoEvaluacion,
       respuestas,
       comentarios
     };
+  } else {
+    evaluacionesPendientes.push({
+      evaluadoId,
+      tipoEvaluacion,
+      respuestas,
+      comentarios
+    });
+  }
 
-    const resultado = await evaluacionCompanerosService.crearEvaluacion(evaluacionData);
-    
-    if (resultado.message) {
-      alert(`Evaluación enviada correctamente. Puntaje: ${resultado.puntaje}/25`);
-      location.reload();
+  const card = document.querySelector(`[data-persona-id="${evaluadoId}"]`);
+  if (card) {
+    card.style.borderLeft = '4px solid #22c55e';
+    card.style.background = '#f0fdf4';
+  }
+
+  ocultarFormulario(evaluadoId);
+  alert('✅ Evaluación guardada. Completa las demás y luego haz clic en "Enviar Evaluaciones".');
+
+  if (evaluacionesPendientes.length > 0) {
+    document.getElementById('btnEnviarTodas').style.display = 'inline-block';
+  }
+}
+
+async function enviarTodasLasEvaluaciones() {
+  if (evaluacionesPendientes.length === 0) {
+    alert('No hay evaluaciones para enviar.');
+    return;
+  }
+
+  if (!confirm(`¿Enviar ${evaluacionesPendientes.length} evaluación(es)?`)) {
+    return;
+  }
+
+  const btnEnviar = document.getElementById('btnEnviarTodas');
+  btnEnviar.disabled = true;
+  btnEnviar.textContent = 'Enviando...';
+
+  try {
+    let exitosas = 0;
+    let errores = 0;
+
+    for (const evaluacion of evaluacionesPendientes) {
+      try {
+        const resultado = await evaluacionCompanerosService.crearEvaluacion(evaluacion);
+        if (resultado.ok || resultado.message) {
+          exitosas++;
+        } else {
+          errores++;
+        }
+      } catch (error) {
+        console.error('Error enviando evaluación:', error);
+        errores++;
+      }
+    }
+
+    if (exitosas > 0) {
+      alert(`✅ ${exitosas} evaluación(es) enviada(s) correctamente.\nPodrás volver a evaluar en 3 días.`);
+      window.location.href = '/pages/home/index.html';
     } else {
-      alert('Error al enviar la evaluación: ' + (resultado.error || 'Error desconocido'));
+      alert('❌ Error al enviar las evaluaciones');
+      btnEnviar.disabled = false;
+      btnEnviar.textContent = 'Enviar Evaluaciones →';
     }
 
   } catch (error) {
-    console.error('Error enviando evaluación:', error);
-    alert('Error al enviar la evaluación');
+    console.error('Error enviando evaluaciones:', error);
+    alert('Error al enviar las evaluaciones');
+    btnEnviar.disabled = false;
+    btnEnviar.textContent = 'Enviar Evaluaciones →';
   }
 }
 

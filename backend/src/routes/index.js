@@ -12,6 +12,7 @@ const authRoutes = require('./authRoutes');
 const adminRoutes = require('./adminRoutes');
 const horarioRoutes = require('./horarioRoutes');
 const constanciasRoutes = require('./constanciasRoutes');
+const evaluacionCompanerosRoutes = require('./evaluacionCompanerosRoutes');
 
 console.log('authRoutes      =>', typeof authRoutes);
 console.log('asistenciaRoutes =>', typeof asistenciaRoutes);
@@ -35,5 +36,6 @@ router.use('/rankings', rankingRoutes);
 router.use('/admin', adminRoutes);
 router.use('/horarios', horarioRoutes);
 router.use('/constancias', constanciasRoutes);
+router.use('/evaluacion-companeros', evaluacionCompanerosRoutes);
 
 module.exports = router;

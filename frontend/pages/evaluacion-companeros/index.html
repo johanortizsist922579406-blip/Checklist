@@ -12,7 +12,7 @@
   <div class="container">
     <div class="header-panel">
       <h1 class="title">Evaluación de Compañeros</h1>
-      <p class="subtitle">Evalúa el desempeño de tus compañeros y gerente (cada 3 días)</p>
+      <p class="subtitle">Evalúa el desempeño de tus compañeros y gerente (disponible cada 3 días)</p>
 
       <div id="statusInfo" class="status-info" style="display: none;">
         <p id="statusMessage"></p>
@@ -21,9 +21,13 @@
       <div id="personasContainer">
       </div>
 
-      <div class="actions">
-        <a href="../autoevaluacion/" class="btn btn-secondary">
-          ← Volver a Autoevaluación
+      <div class="actions" style="margin-top: 30px;">
+        <button id="btnEnviarTodas" class="btn btn-primary" style="display: none;" onclick="enviarTodasLasEvaluaciones()">
+          Enviar Evaluaciones →
+        </button>
+        
+        <a href="../home/index.html" class="btn btn-secondary">
+          ← Volver al inicio
         </a>
       </div>
     </div>

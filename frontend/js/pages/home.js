@@ -114,6 +114,7 @@ function initHome() {
   configurarBotonResultados();
   marcarProgresoHome();
   verificarConstancia520();
+  verificarEvaluacionCompaneros();
 }
 
 async function verificarConstancia520() {
@@ -140,6 +141,33 @@ async function verificarConstancia520() {
     }
   } catch (err) {
     console.error('Error verificar constancia:', err);
+  }
+}
+
+async function verificarEvaluacionCompaneros() {
+  const token = localStorage.getItem('token');
+  if (!token) return;
+
+  try {
+    const res = await fetch('/api/evaluacion-companeros/puede-evaluar', {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+
+    if (!res.ok) return;
+
+    const data = await res.json();
+    const cardEvalComp = document.getElementById('cardEvaluacionCompaneros');
+
+    if (data.puedeEvaluar && cardEvalComp) {
+      cardEvalComp.style.display = 'flex';
+      
+      const desc = cardEvalComp.querySelector('.button-description');
+      if (desc && !data.puedeEvaluar) {
+        desc.textContent = `Disponible en ${data.diasRestantes} día(s)`;
+      }
+    }
+  } catch (err) {
+    console.error('Error verificar evaluación compañeros:', err);
   }
 }
 
