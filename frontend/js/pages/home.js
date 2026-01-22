@@ -174,7 +174,7 @@ async function verificarEvaluacionCompaneros() {
 async function solicitarConstancia() {
   const token = localStorage.getItem('token');
   
-  if (!confirm('¿Deseas solicitar tu constancia de 520 horas? Recibirás instrucciones para recogerla.')) {
+  if (!confirm('¿Deseas solicitar tu constancia de 520 horas?')) {
     return;
   }
 
@@ -190,8 +190,8 @@ async function solicitarConstancia() {
     const data = await res.json();
 
     if (res.ok) {
-      alert(`✅ ${data.mensaje}\n\nContacta a Gerencia:\n📞 +51 981 049 956\n✉️ Indica tu nombre y que completaste 520 horas.`);
-      
+      // Mostrar modal bonito en vez de alert
+      mostrarModalConstancia();
       document.getElementById('cardConstancia').style.display = 'none';
     } else {
       alert('❌ ' + data.error);
@@ -200,6 +200,32 @@ async function solicitarConstancia() {
     console.error('Error solicitar constancia:', error);
     alert('Error al solicitar constancia');
   }
+}
+
+function mostrarModalConstancia() {
+  document.getElementById('modalConstancia').classList.remove('hidden');
+}
+
+function cerrarModalConstancia() {
+  document.getElementById('modalConstancia').classList.add('hidden');
+}
+
+function copiarTelefono() {
+  const telefono = '+51 981 049 956';
+  navigator.clipboard.writeText(telefono).then(() => {
+    const btnCopy = event.target;
+    const textoOriginal = btnCopy.textContent;
+    btnCopy.textContent = '✅';
+    setTimeout(() => {
+      btnCopy.textContent = textoOriginal;
+    }, 2000);
+  });
+}
+
+function abrirWhatsApp() {
+  const telefono = '51981049956'; // sin espacios ni +
+  const mensaje = encodeURIComponent('Hola, completé 520 horas y quisiera solicitar mi constancia.');
+  window.open(`https://wa.me/${telefono}?text=${mensaje}`, '_blank');
 }
 
 document.addEventListener('DOMContentLoaded', initHome);

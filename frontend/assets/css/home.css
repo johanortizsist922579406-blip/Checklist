@@ -423,3 +423,212 @@ h1 {
   font-weight: 600;
   color: #15803d;
 }
+
+.modal-constancia {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  animation: fadeIn 0.3s ease;
+}
+
+.modal-constancia.hidden {
+  display: none;
+}
+
+.modal-constancia__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(5px);
+}
+
+.modal-constancia__content {
+  position: relative;
+  z-index: 1;
+  width: 90%;
+  max-width: 480px;
+  padding: 40px 30px;
+  border-radius: 24px;
+  background: white;
+  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.4);
+  text-align: center;
+  animation: slideUp 0.4s ease;
+}
+
+.modal-constancia__checkmark {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 25px;
+}
+
+.modal-constancia__checkmark svg {
+  width: 100%;
+  height: 100%;
+}
+
+.modal-constancia__checkmark circle {
+  stroke: #22c55e;
+  stroke-width: 2;
+  stroke-dasharray: 166;
+  stroke-dashoffset: 166;
+  animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+}
+
+.modal-constancia__checkmark path {
+  stroke: #22c55e;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+  stroke-dasharray: 48;
+  stroke-dashoffset: 48;
+  animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.4s forwards;
+}
+
+@keyframes stroke {
+  to { stroke-dashoffset: 0; }
+}
+
+.modal-constancia__content h2 {
+  font-size: 1.8em;
+  color: #2d3436;
+  margin-bottom: 15px;
+  font-weight: 600;
+}
+
+.modal-constancia__message {
+  font-size: 1.05em;
+  color: #636e72;
+  line-height: 1.6;
+  margin-bottom: 30px;
+}
+
+.modal-constancia__message strong {
+  color: #22c55e;
+  font-weight: 700;
+}
+
+.modal-constancia__contact {
+  background: #f0fdf4;
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 25px;
+  border: 2px solid #bbf7d0;
+}
+
+.contact-title {
+  font-weight: 600;
+  color: #2d3436;
+  margin-bottom: 15px;
+}
+
+.contact-info {
+  margin-bottom: 15px;
+}
+
+.contact-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: white;
+  padding: 12px 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.contact-icon {
+  font-size: 1.3em;
+}
+
+.contact-text {
+  font-size: 1.1em;
+  font-weight: 600;
+  color: #16a34a;
+}
+
+.btn-copy {
+  background: #ecfdf3;
+  border: 1px solid #bbf7d0;
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 1.1em;
+}
+
+.btn-copy:hover {
+  background: #dcfce7;
+  transform: scale(1.05);
+}
+
+.contact-instruccion {
+  font-size: 0.95em;
+  color: #15803d;
+  font-weight: 500;
+  margin: 0;
+}
+
+.modal-constancia__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.btn-whatsapp {
+  background: linear-gradient(135deg, #25d366 0%, #128c7e 100%);
+  color: white;
+  padding: 14px 28px;
+  border: none;
+  border-radius: 12px;
+  font-size: 1em;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  box-shadow: 0 4px 20px rgba(37, 211, 102, 0.4);
+  transition: all 0.3s ease;
+}
+
+.btn-whatsapp:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 28px rgba(37, 211, 102, 0.5);
+}
+
+.btn-close-modal {
+  background: white;
+  color: #636e72;
+  padding: 12px 24px;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  font-size: 0.95em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-close-modal:hover {
+  background: #f9fafb;
+  border-color: #d1d5db;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
