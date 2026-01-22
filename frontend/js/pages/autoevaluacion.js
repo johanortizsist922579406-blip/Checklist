@@ -37,6 +37,14 @@ window.onload = async function() {
   }
 
   document.getElementById('enviarRespuestas').onclick = enviarRespuestas;
+  
+  const btnEvaluarCompaneros = document.getElementById('btnEvaluarCompaneros');
+  if (btnEvaluarCompaneros) {
+    btnEvaluarCompaneros.onclick = function(e) {
+      e.preventDefault();
+      window.location.href = "../evaluacion-companeros/index.html";
+    };
+  }
 
   const btnVolver = document.getElementById('btnVolver');
   if (btnVolver) {

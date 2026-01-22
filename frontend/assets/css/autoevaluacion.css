@@ -322,6 +322,17 @@ body {
   transform: none;
 }
 
+.btn-info {
+  background: linear-gradient(135deg, #42a5f5 0%, #2196f3 100%);
+  color: white;
+  box-shadow: 0 4px 15px rgba(33, 150, 243, 0.3);
+}
+
+.btn-info:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 25px rgba(33, 150, 243, 0.4);
+}
+
 .arrow {
   font-size: 1.3em;
   transition: transform 0.3s ease;
