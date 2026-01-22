@@ -13,14 +13,13 @@ router.get('/puede-evaluar', async (req, res) => {
     const evaluadorId = req.user.id;
 
     const query = isProduction
-      ? `SELECT ultima_evaluacion FROM control_evaluacion_companeros WHERE evaluador_id = $1`
-      : `SELECT ultima_evaluacion FROM control_evaluacion_companeros WHERE evaluador_id = ?`;
+      ? `SELECT ultima_evaluacion FROM control_evaluacion_companeros WHERE usuario_id = $1`
+      : `SELECT ultima_evaluacion FROM control_evaluacion_companeros WHERE usuario_id = ?`;
 
     const result = await pool.query(query, [evaluadorId]);
     const control = isProduction ? result.rows : result[0];
 
     if (control.length === 0) {
-      // Primera vez que evalúa
       return res.json({ puedeEvaluar: true, diasRestantes: 0 });
     }
 
@@ -30,8 +29,6 @@ router.get('/puede-evaluar', async (req, res) => {
     const milisegundosDif = ahora - ultimaEvaluacion;
     const diasTranscurridos = Math.floor(milisegundosDif / (1000 * 60 * 60 * 24));
 
-    console.log('📅 Última evaluación:', ultimaEvaluacion);
-    console.log('📅 Ahora:', ahora);
     console.log('📅 Días transcurridos:', diasTranscurridos);
 
     if (diasTranscurridos >= 3) {
@@ -120,14 +117,17 @@ router.post('/', async (req, res) => {
 
     let query, params, result;
     if (isProduction) {
-      query = `INSERT INTO evaluacion_companeros (evaluador_id, evaluado_id, tipo_evaluacion, puntaje_total, comentarios)
-               VALUES ($1, $2, $3, $4, $5) RETURNING id`;
-      params = [evaluadorId, evaluadoId, tipoEvaluacion, puntajeTotal, comentarios];
+        query = `INSERT INTO control_evaluacion_companeros (usuario_id, ultima_evaluacion)
+        VALUES ($1, CURRENT_TIMESTAMP)
+        ON CONFLICT (usuario_id) 
+        DO UPDATE SET ultima_evaluacion = CURRENT_TIMESTAMP`;
+        params = [evaluadorId];
     } else {
-      query = `INSERT INTO evaluacion_companeros (evaluador_id, evaluado_id, tipo_evaluacion, puntaje_total, comentarios)
-               VALUES (?, ?, ?, ?, ?)`;
-      params = [evaluadorId, evaluadoId, tipoEvaluacion, puntajeTotal, comentarios];
-    }
+  query = `INSERT INTO control_evaluacion_companeros (usuario_id, ultima_evaluacion)
+           VALUES (?, NOW())
+           ON DUPLICATE KEY UPDATE ultima_evaluacion = NOW()`;
+  params = [evaluadorId];
+}
 
     result = await pool.query(query, params);
     const evaluacionId = isProduction ? result.rows[0].id : result[0].insertId;
