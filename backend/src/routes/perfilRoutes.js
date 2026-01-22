@@ -50,7 +50,7 @@ router.get('/mi-perfil', async (req, res) => {
 
     query = isProduction
       ? `SELECT fecha, puntaje_total, observaciones
-         FROM autoevaluacion 
+         FROM autoevaluaciones
          WHERE usuarioid = $1 
          ORDER BY fecha DESC 
          LIMIT 10`
