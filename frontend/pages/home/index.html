@@ -88,7 +88,7 @@
 >
   <div class="button-icon">📜</div>
   <div class="button-content">
-    <div class="button-title">Constancia 520h</div>
+    <div class="button-title">Constancia </div>
     <div class="button-description">Solicita tu certificado</div>
   </div>
   <div class="button-arrow">→</div>
@@ -124,12 +124,32 @@
     </div>
   </div>
 
+  <div id="modalConfirmarConstancia" class="modal-confirm hidden">
+  <div class="modal-confirm__backdrop"></div>
+  <div class="modal-confirm__content">
+    <div class="modal-confirm__icon">📜</div>
+    <h2>Solicitar Constancia</h2>
+    <p>¿Deseas solicitar tu constancia de 520 horas?</p>
+    <p class="modal-confirm__subtitle">
+      Recibirás instrucciones para coordinar la entrega con Gerencia.
+    </p>
+    <div class="modal-confirm__actions">
+      <button class="btn-confirm-cancel" onclick="cerrarConfirmacion()">
+        Cancelar
+      </button>
+      <button class="btn-confirm-accept" onclick="confirmarSolicitudConstancia()">
+        Sí, solicitar
+      </button>
+    </div>
+  </div>
+</div>
+
 <div id="modalConstancia" class="modal-constancia hidden">
   <div class="modal-constancia__backdrop"></div>
   <div class="modal-constancia__content">
     <div class="modal-constancia__checkmark">
       <svg viewBox="0 0 52 52">
-        ircle cx="26" cy="26" r="25" fill="none"></circle>
+        <circle cx="26" cy="26" r="25" fill="none"></circle>
         <path d="M14 27 L22 35 L38 19"></path>
       </svg>
     </div>

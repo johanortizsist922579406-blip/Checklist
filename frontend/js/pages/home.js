@@ -172,11 +172,17 @@ async function verificarEvaluacionCompaneros() {
 }
 
 async function solicitarConstancia() {
+  document.getElementById('modalConfirmarConstancia').classList.remove('hidden');
+}
+
+function cerrarConfirmacion() {
+  document.getElementById('modalConfirmarConstancia').classList.add('hidden');
+}
+
+async function confirmarSolicitudConstancia() {
   const token = localStorage.getItem('token');
   
-  if (!confirm('¿Deseas solicitar tu constancia de 520 horas?')) {
-    return;
-  }
+  cerrarConfirmacion();
 
   try {
     const res = await fetch('/api/constancias/solicitar', {
@@ -190,7 +196,6 @@ async function solicitarConstancia() {
     const data = await res.json();
 
     if (res.ok) {
-      // Mostrar modal bonito en vez de alert
       mostrarModalConstancia();
       document.getElementById('cardConstancia').style.display = 'none';
     } else {
@@ -223,8 +228,8 @@ function copiarTelefono() {
 }
 
 function abrirWhatsApp() {
-  const telefono = '51981049956'; // sin espacios ni +
-  const mensaje = encodeURIComponent('Hola, completé 520 horas y quisiera solicitar mi constancia.');
+  const telefono = '51981049956';
+  const mensaje = encodeURIComponent('Buen día, He completado 520 horas y quisiera solicitar, por favor, la constancia correspondiente. Quedo atento(a) a cualquier información adicional que sea necesaria. Muchas gracias');
   window.open(`https://wa.me/${telefono}?text=${mensaje}`, '_blank');
 }
 
