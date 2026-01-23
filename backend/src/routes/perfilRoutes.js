@@ -52,12 +52,12 @@ router.get('/mi-perfil', async (req, res) => {
       ? `SELECT fecha, puntaje_total, observaciones
          FROM autoevaluaciones
          WHERE usuarioid = $1 
-         ORDER BY fecha DESC 
+         ORDER BY fechaevaluacion DESC 
          LIMIT 10`
-      : `SELECT fecha, puntaje_total, observaciones
+      : `SELECT fecha, puntajetotal, observaciones
          FROM autoevaluacion 
          WHERE usuarioid = ? 
-         ORDER BY fecha DESC 
+         ORDER BY fechaevaluacion DESC 
          LIMIT 10`;
 
     const autoevalResult = await pool.query(query, [usuarioId]);
