@@ -141,6 +141,11 @@ router.get('/mi-perfil', async (req, res) => {
   }
 });
 
+console.log('🧪 TEST CLOUDINARY:');
+console.log('  CLOUD_NAME:', process.env.CLOUDINARY_CLOUD_NAME);
+console.log('  API_KEY:', process.env.CLOUDINARY_API_KEY);
+console.log('  API_SECRET:', process.env.CLOUDINARY_API_SECRET);
+
 router.post('/subir-fondo', upload.single('fondoImagen'), async (req, res) => {
   try {
     const usuarioId = req.user.id;
