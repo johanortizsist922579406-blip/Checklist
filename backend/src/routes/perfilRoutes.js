@@ -14,18 +14,37 @@ router.get('/mi-perfil', async (req, res) => {
   try {
     const usuarioId = req.user.id;
 
-    let query = isProduction
-      ? `SELECT u.*, a.nombre as area_nombre 
-         FROM usuarios u 
-         LEFT JOIN areas a ON u.areaid = a.id 
-         WHERE u.id = $1`
-      : `SELECT u.*, a.nombre as area_nombre 
-         FROM usuarios u 
-         LEFT JOIN areas a ON u.areaid = a.id 
-         WHERE u.id = ?`;
+let query = isProduction
+  ? `SELECT 
+       u.id, 
+       u.nombre, 
+       u.apellido, 
+       u.correo, 
+       u.rol, 
+       u.genero, 
+       u.fondo_perfil,
+       a.nombre as area_nombre 
+     FROM usuarios u 
+     LEFT JOIN areas a ON u.areaid = a.id 
+     WHERE u.id = $1`
+  : `SELECT 
+       u.id, 
+       u.nombre, 
+       u.apellido, 
+       u.correo, 
+       u.rol, 
+       u.genero, 
+       u.fondo_perfil,
+       a.nombre as area_nombre 
+     FROM usuarios u 
+     LEFT JOIN areas a ON u.areaid = a.id 
+     WHERE u.id = ?`;
 
-    const userResult = await pool.query(query, [usuarioId]);
-    const usuario = isProduction ? userResult.rows[0] : userResult[0][0];
+const userResult = await pool.query(query, [usuarioId]);
+const usuario = isProduction ? userResult.rows[0] : userResult[0][0];
+
+console.log('👤 Usuario cargado:', usuario);
+console.log('🎨 Fondo en BD:', usuario.fondo_perfil); 
 
     query = isProduction
       ? `SELECT dia_semana, hora_entrada_esperada, hora_salida_esperada 
@@ -125,7 +144,8 @@ router.get('/mi-perfil', async (req, res) => {
         correo: usuario.correo,
         rol: usuario.rol,
         area: usuario.area_nombre,
-        genero: usuario.genero
+        genero: usuario.genero,
+        fondo_perfil: usuario.fondo_perfil
       },
       horarios: horarios,
       horasTotales: parseFloat(horasTotales).toFixed(2),

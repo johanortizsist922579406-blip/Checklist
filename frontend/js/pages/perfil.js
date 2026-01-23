@@ -15,13 +15,18 @@ async function cargarPerfil() {
 
     const data = res.data;
 
+    console.log('📊 Datos de usuario:', data.usuario);
+    console.log('🎨 Fondo guardado:', data.usuario.fondo_perfil);
+
     if (data.usuario.fondo_perfil) {
+    console.log('✅ Aplicando fondo...');
     document.body.style.backgroundImage = `url('${data.usuario.fondo_perfil}')`;
     document.body.style.backgroundSize = 'cover';
     document.body.style.backgroundPosition = 'center';
     document.body.style.backgroundAttachment = 'fixed';
     console.log('🎨 Fondo aplicado:', data.usuario.fondo_perfil);
     }
+    console.log('❌ No hay fondo guardado');
 
     document.getElementById('profileName').textContent = `${data.usuario.nombre} ${data.usuario.apellido || ''}`.trim();
     document.getElementById('profileRole').textContent = data.usuario.rol || 'Usuario';
