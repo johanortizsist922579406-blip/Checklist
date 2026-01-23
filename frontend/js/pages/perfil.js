@@ -175,6 +175,7 @@ async function subirFondo() {
     });
 
     if (res.data.ok) {
+      // Aplicar nuevo fondo
       document.body.style.backgroundImage = `url('${res.data.rutaFondo}')`;
       document.body.style.backgroundSize = 'cover';
       document.body.style.backgroundPosition = 'center';
@@ -188,7 +189,7 @@ async function subirFondo() {
         btnEdit.innerHTML = iconOriginal;
       }, 2000);
       
-      alert('✅ Fondo actualizado correctamente');
+      mostrarModalExito();
       
       archivoSeleccionado = null;
     }
@@ -207,6 +208,14 @@ function cerrarModalFondos() {
   document.getElementById('inputFondo').value = '';
   document.getElementById('btnSubirFondo').disabled = true;
   archivoSeleccionado = null;
+}
+
+function mostrarModalExito() {
+  document.getElementById('modalExito').classList.remove('hidden');
+}
+
+function cerrarModalExito() {
+  document.getElementById('modalExito').classList.add('hidden');
 }
 
 document.addEventListener('DOMContentLoaded', cargarPerfil);
