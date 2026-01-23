@@ -1,4 +1,5 @@
 const diasSemana = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+let archivoSeleccionado = null;
 
 async function cargarPerfil() {
   const token = localStorage.getItem('token');
@@ -13,6 +14,12 @@ async function cargarPerfil() {
     });
 
     const data = res.data;
+
+    if (data.usuario.fondo_perfil && data.usuario.fondo_perfil.startsWith('/assets/uploads/')) {
+      document.body.style.backgroundImage = `url('${data.usuario.fondo_perfil}')`;
+      document.body.style.backgroundSize = 'cover';
+      document.body.style.backgroundPosition = 'center';
+    }
 
     document.getElementById('profileName').textContent = `${data.usuario.nombre} ${data.usuario.apellido || ''}`.trim();
     document.getElementById('profileRole').textContent = data.usuario.rol || 'Usuario';
@@ -36,6 +43,7 @@ async function cargarPerfil() {
       horariosContainer.innerHTML = '<p class="no-data">No tienes horarios configurados</p>';
     }
 
+    // Autoevaluaciones
     const tablaAuto = document.getElementById('tablaAutoevaluaciones');
     if (data.autoevaluaciones.length > 0) {
       tablaAuto.innerHTML = data.autoevaluaciones.map(a => `
@@ -51,7 +59,7 @@ async function cargarPerfil() {
     }
 
     document.getElementById('promedioGeneral').textContent = data.promedioEvaluaciones + '/25';
-
+    
     const tablaEval = document.getElementById('tablaEvaluacionesRecibidas');
     if (data.evaluacionesRecibidas.length > 0) {
       tablaEval.innerHTML = data.evaluacionesRecibidas.map(e => `
@@ -80,6 +88,125 @@ function formatearFecha(fecha) {
   const mes = String(d.getMonth() + 1).padStart(2, '0');
   const anio = d.getFullYear();
   return `${dia}/${mes}/${anio}`;
+}
+
+function abrirModalFondos() {
+  document.getElementById('modalFondos').classList.remove('hidden');
+  
+  const uploadArea = document.getElementById('uploadArea');
+  const inputFondo = document.getElementById('inputFondo');
+
+  uploadArea.onclick = () => inputFondo.click();
+
+  uploadArea.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    uploadArea.style.borderColor = '#22c55e';
+    uploadArea.style.background = '#f0fdf4';
+  });
+
+  uploadArea.addEventListener('dragleave', () => {
+    uploadArea.style.borderColor = '#e5e7eb';
+    uploadArea.style.background = 'white';
+  });
+
+  uploadArea.addEventListener('drop', (e) => {
+    e.preventDefault();
+    uploadArea.style.borderColor = '#e5e7eb';
+    uploadArea.style.background = 'white';
+    
+    const archivo = e.dataTransfer.files[0];
+    if (archivo && archivo.type.startsWith('image/')) {
+      procesarImagen(archivo);
+    } else {
+      alert('Por favor sube solo archivos de imagen');
+    }
+  });
+
+  inputFondo.onchange = (e) => {
+    const archivo = e.target.files[0];
+    if (archivo) {
+      procesarImagen(archivo);
+    }
+  };
+}
+
+function procesarImagen(archivo) {
+  if (archivo.size > 5 * 1024 * 1024) {
+    alert('⚠️ La imagen es muy grande. Máximo 5MB.');
+    return;
+  }
+
+  archivoSeleccionado = archivo;
+
+  const preview = document.getElementById('previewArea');
+  const imgPreview = document.getElementById('imagenPreview');
+  const btnSubir = document.getElementById('btnSubirFondo');
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    imgPreview.src = e.target.result;
+    preview.style.display = 'block';
+    btnSubir.disabled = false;
+  };
+  reader.readAsDataURL(archivo);
+}
+
+async function subirFondo() {
+  if (!archivoSeleccionado) {
+    alert('Selecciona una imagen primero');
+    return;
+  }
+
+  const token = localStorage.getItem('token');
+  const btnSubir = document.getElementById('btnSubirFondo');
+  
+  btnSubir.disabled = true;
+  btnSubir.textContent = 'Subiendo...';
+
+  try {
+    const formData = new FormData();
+    formData.append('fondoImagen', archivoSeleccionado);
+
+    const res = await axios.post('/api/perfil/subir-fondo', formData, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'multipart/form-data'
+      }
+    });
+
+    if (res.data.ok) {
+      document.body.style.backgroundImage = `url('${res.data.rutaFondo}')`;
+      document.body.style.backgroundSize = 'cover';
+      document.body.style.backgroundPosition = 'center';
+      
+      cerrarModalFondos();
+      
+      const btnEdit = document.querySelector('.btn-edit-fondo');
+      const iconOriginal = btnEdit.innerHTML;
+      btnEdit.innerHTML = '<i class="fa-solid fa-check"></i>';
+      setTimeout(() => {
+        btnEdit.innerHTML = iconOriginal;
+      }, 2000);
+      
+      alert('✅ Fondo actualizado correctamente');
+      
+      archivoSeleccionado = null;
+    }
+  } catch (error) {
+    console.error('Error subir fondo:', error);
+    alert('❌ Error al subir imagen: ' + (error.response?.data?.error || error.message));
+  } finally {
+    btnSubir.disabled = false;
+    btnSubir.textContent = 'Guardar fondo';
+  }
+}
+
+function cerrarModalFondos() {
+  document.getElementById('modalFondos').classList.add('hidden');
+  document.getElementById('previewArea').style.display = 'none';
+  document.getElementById('inputFondo').value = '';
+  document.getElementById('btnSubirFondo').disabled = true;
+  archivoSeleccionado = null;
 }
 
 document.addEventListener('DOMContentLoaded', cargarPerfil);

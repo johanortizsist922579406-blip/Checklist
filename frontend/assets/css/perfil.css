@@ -300,3 +300,30 @@ body::before {
     grid-template-columns: 1fr;
   }
 }
+
+.upload-area {
+  border: 3px dashed #e5e7eb;
+  border-radius: 16px;
+  padding: 40px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: white;
+}
+
+.upload-area:hover {
+  border-color: #22c55e;
+  background: #f0fdf4;
+}
+
+.upload-area i {
+  font-size: 3em;
+  color: #22c55e;
+  margin-bottom: 15px;
+  display: block;
+}
+
+.upload-area p {
+  color: #636e72;
+  font-weight: 500;
+}

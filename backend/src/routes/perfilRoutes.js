@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { verifyToken } = require('../middlewares/authMiddleware');
 const pool = require('../../config/database');
+const upload = require('../middlewares/upload');
 
 const isProduction = process.env.NODE_ENV === 'production';
 
@@ -134,6 +135,48 @@ router.get('/mi-perfil', async (req, res) => {
 
   } catch (error) {
     console.error('Error obtener perfil:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.post('/subir-fondo', upload.single('fondoImagen'), async (req, res) => {
+  try {
+    const usuarioId = req.user.id;
+
+    if (!req.file) {
+      return res.status(400).json({ error: 'No se recibió ninguna imagen' });
+    }
+
+    const rutaFondo = `/assets/uploads/fondos/${req.file.filename}`;
+
+    const query = isProduction
+      ? `UPDATE usuarios SET fondo_perfil = $1 WHERE id = $2`
+      : `UPDATE usuarios SET fondo_perfil = ? WHERE id = ?`;
+
+    await pool.query(query, [rutaFondo, usuarioId]);
+
+    const queryAnterior = isProduction
+      ? `SELECT fondo_perfil FROM usuarios WHERE id = $1`
+      : `SELECT fondo_perfil FROM usuarios WHERE id = ?`;
+    
+    const result = await pool.query(queryAnterior, [usuarioId]);
+    const fondoAnterior = isProduction ? result.rows[0]?.fondo_perfil : result[0][0]?.fondo_perfil;
+
+    if (fondoAnterior && fondoAnterior.startsWith('/assets/uploads/')) {
+      const rutaAnterior = path.join(__dirname, '../../../frontend', fondoAnterior);
+      if (fs.existsSync(rutaAnterior)) {
+        fs.unlinkSync(rutaAnterior);
+      }
+    }
+
+    res.json({
+      ok: true,
+      mensaje: 'Fondo actualizado correctamente',
+      rutaFondo: rutaFondo
+    });
+
+  } catch (error) {
+    console.error('Error subir fondo:', error);
     res.status(500).json({ error: error.message });
   }
 });
