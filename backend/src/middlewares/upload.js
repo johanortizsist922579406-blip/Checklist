@@ -1,40 +1,25 @@
+const cloudinary = require('cloudinary').v2;
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
 
-const uploadsDir = path.join(__dirname, '../../../frontend/assets/uploads/fondos');
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
-}
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
+});
 
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, uploadsDir);
-  },
-  filename: function (req, file, cb) {
-    const usuarioId = req.user.id;
-    const extension = path.extname(file.originalname);
-    const nombreArchivo = `fondo-usuario-${usuarioId}-${Date.now()}${extension}`;
-    cb(null, nombreArchivo);
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'checklist-fondos',
+    allowed_formats: ['jpg', 'jpeg', 'png', 'gif', 'webp'],
+    transformation: [{ width: 1920, height: 1080, crop: 'limit' }]
   }
 });
 
-const fileFilter = (req, file, cb) => {
-  const tiposPermitidos = /jpeg|jpg|png|gif|webp/;
-  const extname = tiposPermitidos.test(path.extname(file.originalname).toLowerCase());
-  const mimetype = tiposPermitidos.test(file.mimetype);
-
-  if (extname && mimetype) {
-    cb(null, true);
-  } else {
-    cb(new Error('Solo se permiten imágenes (JPG, PNG, GIF, WEBP)'));
-  }
-};
-
 const upload = multer({
   storage: storage,
-  limits: { fileSize: 5 * 1024 * 1024 },
-  fileFilter: fileFilter
+  limits: { fileSize: 5 * 1024 * 1024 }
 });
 
 module.exports = upload;

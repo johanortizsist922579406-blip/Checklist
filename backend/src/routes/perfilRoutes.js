@@ -149,27 +149,15 @@ router.post('/subir-fondo', upload.single('fondoImagen'), async (req, res) => {
       return res.status(400).json({ error: 'No se recibió ninguna imagen' });
     }
 
-    const rutaFondo = `/assets/uploads/fondos/${req.file.filename}`;
+    const rutaFondo = req.file.path;
+
+    console.log('📸 Imagen subida a Cloudinary:', rutaFondo);
 
     const query = isProduction
       ? `UPDATE usuarios SET fondo_perfil = $1 WHERE id = $2`
       : `UPDATE usuarios SET fondo_perfil = ? WHERE id = ?`;
 
     await pool.query(query, [rutaFondo, usuarioId]);
-
-    const queryAnterior = isProduction
-      ? `SELECT fondo_perfil FROM usuarios WHERE id = $1`
-      : `SELECT fondo_perfil FROM usuarios WHERE id = ?`;
-    
-    const result = await pool.query(queryAnterior, [usuarioId]);
-    const fondoAnterior = isProduction ? result.rows[0]?.fondo_perfil : result[0][0]?.fondo_perfil;
-
-    if (fondoAnterior && fondoAnterior.startsWith('/assets/uploads/')) {
-      const rutaAnterior = path.join(__dirname, '../../../frontend', fondoAnterior);
-      if (fs.existsSync(rutaAnterior)) {
-        fs.unlinkSync(rutaAnterior);
-      }
-    }
 
     res.json({
       ok: true,
