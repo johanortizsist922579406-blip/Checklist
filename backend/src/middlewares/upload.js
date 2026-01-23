@@ -20,8 +20,7 @@ const storage = new CloudinaryStorage({
   params: {
     folder: 'checklist-fondos-perfil',
     allowed_formats: ['jpg', 'jpeg', 'png', 'gif', 'webp'],
-    transformation: [{ width: 1920, height: 1080, crop: 'limit', quality: 'auto' }],
-    public_id: (req, file) => `fondo-usuario-${req.user.id}-${Date.now()}`
+    transformation: [{ width: 1920, height: 1080, crop: 'limit', quality: 'auto' }]
   }
 });
 
