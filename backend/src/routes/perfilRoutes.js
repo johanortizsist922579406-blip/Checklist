@@ -49,16 +49,24 @@ router.get('/mi-perfil', async (req, res) => {
     const horasTotales = isProduction ? horasResult.rows[0].horas_totales : horasResult[0][0].horas_totales;
 
     query = isProduction
-    ? `SELECT fechaevaluacion, puntajetotal, observaciones
-        FROM autoevaluaciones
-        WHERE usuarioid = $1 
-        ORDER BY fechaevaluacion DESC 
-        LIMIT 10`
-    : `SELECT fecha, puntajetotal, observaciones
-        FROM autoevaluacion 
-        WHERE usuarioid = ? 
-        ORDER BY fecha DESC 
-        LIMIT 10`;
+    ? `SELECT 
+       fechaevaluacion       AS fecha,
+       puntajetotal          AS puntaje_total,
+       quincena,
+       mensajemotivacional   AS observaciones
+     FROM autoevaluaciones
+     WHERE usuarioid = $1 
+     ORDER BY fechaevaluacion DESC 
+     LIMIT 10`
+    : `SELECT 
+       fecha                 AS fecha,
+       puntajetotal          AS puntaje_total,
+       quincena,
+       mensajemotivacional   AS observaciones
+     FROM autoevaluacion 
+     WHERE usuarioid = ? 
+     ORDER BY fecha DESC 
+     LIMIT 10`;
 
     const autoevalResult = await pool.query(query, [usuarioId]);
     const autoevaluaciones = isProduction ? autoevalResult.rows : autoevalResult[0];
