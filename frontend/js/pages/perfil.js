@@ -15,10 +15,12 @@ async function cargarPerfil() {
 
     const data = res.data;
 
-    if (data.usuario.fondo_perfil && data.usuario.fondo_perfil.startsWith('/assets/uploads/')) {
-      document.body.style.backgroundImage = `url('${data.usuario.fondo_perfil}')`;
-      document.body.style.backgroundSize = 'cover';
-      document.body.style.backgroundPosition = 'center';
+    if (data.usuario.fondo_perfil) {
+    document.body.style.backgroundImage = `url('${data.usuario.fondo_perfil}')`;
+    document.body.style.backgroundSize = 'cover';
+    document.body.style.backgroundPosition = 'center';
+    document.body.style.backgroundAttachment = 'fixed';
+    console.log('🎨 Fondo aplicado:', data.usuario.fondo_perfil);
     }
 
     document.getElementById('profileName').textContent = `${data.usuario.nombre} ${data.usuario.apellido || ''}`.trim();
