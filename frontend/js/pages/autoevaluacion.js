@@ -2,6 +2,8 @@ const API_BASE_URL = window.location.origin;
 let preguntasGlobales = [];
 let respuestas = {};
 let idPreguntaPuntualidad = null;
+let paginaActual = 1;
+const PREGUNTAS_POR_PAGINA = 6;
 
 function getTodayKey(prefix) {
   const usuarioid = localStorage.getItem('usuarioid') || 'anon';
@@ -22,6 +24,7 @@ window.onload = async function() {
     const preguntas = preguntasRes.data;
     preguntasGlobales = preguntas;
 
+    // Detectar pregunta de puntualidad
     const pPuntual = preguntas.find(
       p => p.orden === 6 || (p.pregunta && p.pregunta.toLowerCase().includes('puntual'))
     );
@@ -29,7 +32,7 @@ window.onload = async function() {
       idPreguntaPuntualidad = pPuntual.id;
     }
 
-    renderPreguntas(preguntas);
+    renderPagina(1);
     updateProgress();
   } catch (error) {
     console.error('Error al cargar preguntas:', error);
@@ -37,14 +40,8 @@ window.onload = async function() {
   }
 
   document.getElementById('enviarRespuestas').onclick = enviarRespuestas;
-  
-  const btnEvaluarCompaneros = document.getElementById('btnEvaluarCompaneros');
-  if (btnEvaluarCompaneros) {
-    btnEvaluarCompaneros.onclick = function(e) {
-      e.preventDefault();
-      window.location.href = "../evaluacion-companeros/index.html";
-    };
-  }
+  document.getElementById('btnSiguiente').onclick = irAPaginaSiguiente;
+  document.getElementById('btnAnterior').onclick = irAPaginaAnterior;
 
   const btnVolver = document.getElementById('btnVolver');
   if (btnVolver) {
@@ -55,36 +52,23 @@ window.onload = async function() {
   }
 };
 
-function actualizarSliderVisual(input) {
-  const min = Number(input.min);
-  const max = Number(input.max);
-  const val = Number(input.value);
-  const percent = ((val - min) / (max - min)) * 100;
-  input.style.background = `linear-gradient(to right, #22c55e ${percent}%, #e5e7eb ${percent}%)`;
+function renderPagina(pagina) {
+  paginaActual = pagina;
+  
+  const inicio = (pagina - 1) * PREGUNTAS_POR_PAGINA;
+  const fin = inicio + PREGUNTAS_POR_PAGINA;
+  const preguntasPagina = preguntasGlobales.slice(inicio, fin);
+
+  renderPreguntas(preguntasPagina, inicio);
+  actualizarBotonesNavegacion();
 }
 
-function getEstadoTexto(valor, preguntaId) {
-  if (preguntaId && preguntaId === idPreguntaPuntualidad) {
-    if (valor < 1.5) return '😞 Muy impuntual';
-    if (valor < 2.5) return '😕 Suele llegar tarde';
-    if (valor < 3.5) return '😐 Puntualidad irregular';
-    if (valor < 4.5) return '🙂 Generalmente puntual';
-    return '😄 Siempre puntual';
-  }
-
-  if (valor < 1.5) return '😞 Totalmente en desacuerdo';
-  if (valor < 2.5) return '😕 En desacuerdo';
-  if (valor < 3.5) return '😐 Neutral';
-  if (valor < 4.5) return '🙂 De acuerdo';
-  return '😄 Totalmente de acuerdo';
-}
-
-function renderPreguntas(preguntas) {
+function renderPreguntas(preguntas, offsetIndex) {
   const container = document.getElementById('preguntasContainer');
   container.innerHTML = '';
-  respuestas = {};
 
   preguntas.forEach((pregunta, index) => {
+    const indexGlobal = offsetIndex + index;
     const questionDiv = document.createElement('div');
     questionDiv.className = 'question-item';
     questionDiv.style.animationDelay = `${index * 0.1}s`;
@@ -94,7 +78,7 @@ function renderPreguntas(preguntas) {
 
     const numberSpan = document.createElement('span');
     numberSpan.className = 'question-number';
-    numberSpan.textContent = index + 1;
+    numberSpan.textContent = indexGlobal + 1;
 
     const textDiv = document.createElement('div');
     textDiv.className = 'question-text';
@@ -112,7 +96,7 @@ function renderPreguntas(preguntas) {
     inputRange.min = '1';
     inputRange.max = '5';
     inputRange.step = '0.5';
-    inputRange.value = '3';
+    inputRange.value = respuestas[pregunta.id] ? respuestas[pregunta.id] : '3';
     inputRange.className = 'score-slider';
     inputRange.dataset.preguntaId = pregunta.id;
 
@@ -157,10 +141,82 @@ function renderPreguntas(preguntas) {
     questionDiv.appendChild(sliderWrapper);
     container.appendChild(questionDiv);
 
-    respuestas[pregunta.id] = Number(inputRange.value);
+    if (!respuestas[pregunta.id]) {
+      respuestas[pregunta.id] = Number(inputRange.value);
+    }
   });
 
   updateProgress();
+}
+
+function actualizarBotonesNavegacion() {
+  const totalPaginas = Math.ceil(preguntasGlobales.length / PREGUNTAS_POR_PAGINA);
+  
+  const btnAnterior = document.getElementById('btnAnterior');
+  const btnSiguiente = document.getElementById('btnSiguiente');
+  const btnEnviar = document.getElementById('enviarRespuestas');
+
+  if (paginaActual === 1) {
+    btnAnterior.style.display = 'none';
+  } else {
+    btnAnterior.style.display = 'inline-flex';
+  }
+
+  if (paginaActual === totalPaginas) {
+    btnSiguiente.style.display = 'none';
+    btnEnviar.style.display = 'inline-flex';
+  } else {
+    btnSiguiente.style.display = 'inline-flex';
+    btnEnviar.style.display = 'none';
+  }
+
+  const dots = document.querySelectorAll('.pagination-dots .dot');
+  dots.forEach((dot, index) => {
+    if (index + 1 === paginaActual) {
+      dot.classList.add('active');
+    } else {
+      dot.classList.remove('active');
+    }
+  });
+}
+
+function irAPaginaSiguiente() {
+  const totalPaginas = Math.ceil(preguntasGlobales.length / PREGUNTAS_POR_PAGINA);
+  if (paginaActual < totalPaginas) {
+    renderPagina(paginaActual + 1);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+}
+
+function irAPaginaAnterior() {
+  if (paginaActual > 1) {
+    renderPagina(paginaActual - 1);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+}
+
+function actualizarSliderVisual(input) {
+  const min = Number(input.min);
+  const max = Number(input.max);
+  const val = Number(input.value);
+  const percent = ((val - min) / (max - min)) * 100;
+  input.style.background = `linear-gradient(to right, #22c55e ${percent}%, #e5e7eb ${percent}%)`;
+}
+
+function getEstadoTexto(valor, preguntaId) {
+  if (preguntaId && preguntaId === idPreguntaPuntualidad) {
+    if (valor < 1.5) return '😞 Muy impuntual';
+    if (valor < 2.5) return '😕 Suele llegar tarde';
+    if (valor < 3.5) return '😐 Puntualidad irregular';
+    if (valor < 4.5) return '🙂 Generalmente puntual';
+    return '😄 Siempre puntual';
+  }
+
+  if (valor < 1.5) return '😞 Totalmente en desacuerdo';
+  if (valor < 2.5) return '😕 En desacuerdo';
+  if (valor < 3.5) return '😐 Neutral';
+  if (valor < 4.5) return '🙂 De acuerdo';
+  return '😄 Totalmente de acuerdo';
 }
 
 function updateProgress() {
@@ -169,8 +225,7 @@ function updateProgress() {
   const porcentaje = total > 0 ? Math.round((respondidas / total) * 100) : 0;
 
   const btnEnviar = document.getElementById('enviarRespuestas');
-  btnEnviar.disabled = !(total > 0);
-  // si quieres usar porcentaje visual, aquí puedes actualizar una barra
+  btnEnviar.disabled = respondidas < total;
 }
 
 function showSuccessModal(msg, score, mensajeMotivacional) {

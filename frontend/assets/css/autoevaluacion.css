@@ -618,3 +618,32 @@ body {
   gap: 12px;
   margin-top: 15px;
 }
+
+.pagination-indicator {
+  text-align: center;
+  margin: 20px 0;
+  color: #636e72;
+  font-weight: 600;
+  font-size: 0.95em;
+}
+
+.pagination-dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #e5e7eb;
+  transition: all 0.3s ease;
+}
+
+.dot.active {
+  background: #22c55e;
+  width: 24px;
+  border-radius: 5px;
+}

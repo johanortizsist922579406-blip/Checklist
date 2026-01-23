@@ -10,50 +10,68 @@
 <body>
   <div class="container">
     <div class="header-panel">
-    <h1 class="title">Autoevaluación</h1>
-    <p class="subtitle">Responde las siguientes preguntas sobre tu desempeño</p>
+      <h1 class="title">Autoevaluación</h1>
+      <p class="subtitle">Responde las siguientes preguntas sobre tu desempeño</p>
 
-    <div class="card user-info">
-      <div class="info-grid">
-        <div class="info-item">
-          <span class="info-label">Periodo:</span>
-          <span class="info-value" id="periodoTexto">Enero 2026</span>
-        </div>
-        <div class="info-item">
-          <span class="info-label">Estado:</span>
-          <span class="info-value status-pending" id="estadoAutoevaluacion">Pendiente</span>
+      <!-- Indicador de página -->
+      <div id="paginationIndicator" class="pagination-indicator">
+        <div class="pagination-dots">
+          <span class="dot active"></span>
+          <span class="dot"></span>
         </div>
       </div>
-    </div>
 
-    <div class="card questions-card">
-      <div id="preguntasContainer"></div>
-
-      <div class="actions">
-        <a href="#" class="btn btn-secondary" id="btnVolver">
-          ← Volver
-        </a>
-
-        <button class="btn btn-primary" id="enviarRespuestas">
-          <span>Enviar Autoevaluación</span>
-          <span class="arrow">→</span>
-        </button>
-      </div>
-    </div>
-
-    <div class="modal-success" id="successModal">
-      <div class="success-card">
-        <button id="btnAceptarModal" class="btn btn-success">Aceptar</button>
-        <div class="success-checkmark">
-          <svg viewBox="0 0 52 52">
-            <circle cx="26" cy="26" r="25" fill="none"></circle>
-            <path d="M14 27 L22 35 L38 19"></path>
-          </svg>
+      <div class="card user-info">
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="info-label">Periodo:</span>
+            <span class="info-value" id="periodoTexto">Enero 2026</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Estado:</span>
+            <span class="info-value status-pending" id="estadoAutoevaluacion">Pendiente</span>
+          </div>
         </div>
-        <div class="success-title" id="successMessage"></div>
-        <div class="success-score" id="successScore"></div>
-        <div class="success-motivational" id="motivationalMessage"
-             style="font-weight:bold;color:#31b46a;"></div>
+      </div>
+
+      <div class="card questions-card">
+        <div id="preguntasContainer"></div>
+
+        <div class="actions">
+          <button class="btn btn-secondary" id="btnVolver">
+            ← Volver
+          </button>
+          
+          <button class="btn btn-secondary" id="btnAnterior" style="display: none;">
+            ← Anterior
+          </button>
+
+          <button class="btn btn-primary" id="btnSiguiente">
+            <span>Siguiente</span>
+            <span class="arrow">→</span>
+          </button>
+          
+          <button class="btn btn-primary" id="enviarRespuestas" style="display: none;">
+            <span>Enviar Autoevaluación</span>
+            <span class="arrow">→</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="modal-success" id="successModal">
+        <div class="success-card">
+          <button id="btnAceptarModal" class="btn btn-success">Aceptar</button>
+          <div class="success-checkmark">
+            <svg viewBox="0 0 52 52">
+              ircle cx="26" cy="26" r="25" fill="none"></circle>
+              <path d="M14 27 L22 35 L38 19"></path>
+            </svg>
+          </div>
+          <div class="success-title" id="successMessage"></div>
+          <div class="success-score" id="successScore"></div>
+          <div class="success-motivational" id="motivationalMessage"
+               style="font-weight:bold;color:#31b46a;"></div>
+        </div>
       </div>
     </div>
   </div>
