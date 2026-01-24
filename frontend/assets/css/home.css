@@ -791,3 +791,83 @@ h1 {
 .btn-primary-outline i {
   font-size: 18px;
 }
+
+#chatbot-widget {
+  position: fixed;
+  bottom: 16px;
+  right: 16px;
+  width: 320px;
+  max-height: 420px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  display: flex;
+  flex-direction: column;
+  font-size: 14px;
+  overflow: hidden;
+  z-index: 9999;
+}
+
+#chatbot-header {
+  background: #198754;
+  color: #fff;
+  padding: 8px 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 600;
+}
+
+#chatbot-toggle {
+  border: none;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+}
+
+#chatbot-messages {
+  padding: 8px;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.msg {
+  margin-bottom: 6px;
+  padding: 6px 8px;
+  border-radius: 8px;
+}
+
+.msg.user {
+  background: #e8f5e9;
+  align-self: flex-end;
+}
+
+.msg.bot {
+  background: #f1f1f1;
+  align-self: flex-start;
+}
+
+#chatbot-input-row {
+  display: flex;
+  border-top: 1px solid #ddd;
+}
+
+#chatbot-input {
+  flex: 1;
+  border: none;
+  padding: 8px;
+  outline: none;
+}
+
+#chatbot-send {
+  border: none;
+  background: #198754;
+  color: #fff;
+  padding: 0 12px;
+  cursor: pointer;
+}
+
+.chatbot-closed #chatbot-messages,
+.chatbot-closed #chatbot-input-row {
+  display: none;
+}

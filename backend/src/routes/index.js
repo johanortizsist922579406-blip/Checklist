@@ -39,6 +39,6 @@ router.use('/admin', adminRoutes);
 router.use('/horarios', horarioRoutes);
 router.use('/constancias', constanciasRoutes);
 router.use('/evaluacion-companeros', evaluacionCompanerosRoutes);
-router.use('/perfil', perfilRoutes); 
+router.use('/perfil', perfilRoutes);
 
 module.exports = router;

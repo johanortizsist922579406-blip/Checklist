@@ -1,6 +1,8 @@
 const path = require('path');
-require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
+require('dotenv').config();   
+const chatbotRoutes = require('./src/routes/chatbotRoutes');
 
+console.log('🧪 TEST - OPENAI_API_KEY:', process.env.OPENAI_API_KEY ? 'OK' : 'MISSING');
 console.log('🧪 TEST - GOOGLE_SHEETS_ID:', process.env.GOOGLE_SHEETS_ID);
 console.log('🧪 TEST - DATABASE_URL:', process.env.DATABASE_URL ? 'Existe' : 'NO EXISTE');
 
@@ -256,6 +258,7 @@ app.get('/', (req, res) => {
 
 app.use('/api', routes);
 app.use('/api/admin', adminRoutes);
+app.use('/api', chatbotRoutes);
 
 app.use((err, req, res, next) => {
   console.error('ERROR GLOBAL =>', err);
