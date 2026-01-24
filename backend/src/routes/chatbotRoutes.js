@@ -24,15 +24,31 @@ router.post('/chatbot', async (req, res) => {
           role: 'system',
           content:
             'Eres el asistente del sistema web "Checklist" de Sanilab. ' +
-            'Respondes en español, en máximo 3 frases. ' +
-            'Guía al usuario usando las secciones reales del sistema: Inicio, Asistencia, Autoevaluación, Evaluación de Compañeros, Perfil, Rankings, Resultados.',
+            'Además de responder en texto, debes detectar si el usuario quiere realizar una acción ' +
+            '(registrar asistencia, ver autoevaluaciones, abrir página de autoevaluación, etc.). ' +
+            'Cuando detectes una acción, devuelve AL FINAL de tu respuesta una línea JSON clara ' +
+            'con la forma: ACTION: {"tipo":"...","datos":{...}}. ' +
+            'Tipos posibles: "registrar_asistencia", "abrir_autoevaluacion", "ver_autoevaluaciones".'
         },
         { role: 'user', content: message },
       ],
     });
 
-    const answer = completion.choices[0].message.content;
-    res.json({ answer });
+    const raw = completion.choices[0].message.content || '';
+    let answer = raw;
+    let action = null;
+
+    const match = raw.match(/ACTION:\s*(\{.*\})/s);
+    if (match) {
+      try {
+        action = JSON.parse(match[1]);
+        answer = raw.replace(match[0], '').trim();
+      } catch (e) {
+        console.error('Error parsing ACTION JSON', e);
+      }
+    }
+
+    res.json({ answer, action });
   } catch (err) {
     console.error('Error en chatbot:', err);
     res.status(500).json({ error: 'Error en el chatbot' });

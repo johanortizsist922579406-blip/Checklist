@@ -20,12 +20,20 @@ async function enviarMensaje() {
     const res = await axios.post(
       '/api/chatbot',
       { message: texto },
-      token
-        ? { headers: { Authorization: `Bearer ${token}` } }
-        : {}
+      token ? { headers: { Authorization: `Bearer ${token}` } } : {}
     );
 
     agregarMensaje('bot', res.data.answer || 'No recibí respuesta.');
+
+    const action = res.data.action;
+    if (action) {
+      if (action.tipo === 'abrir_autoevaluacion') {
+        window.location.href = '/pages/autoevaluacion/index.html';
+      }
+      // aquí podrás ir sumando más acciones:
+      // if (action.tipo === 'ver_autoevaluaciones') { ... }
+      // if (action.tipo === 'registrar_asistencia') { ... }
+    }
   } catch (err) {
     console.error(err);
     agregarMensaje('bot', 'Ocurrió un error al consultar el asistente.');
@@ -35,18 +43,24 @@ async function enviarMensaje() {
 document.addEventListener('DOMContentLoaded', () => {
   const btnSend = document.getElementById('chatbot-send');
   const input = document.getElementById('chatbot-input');
-  const toggle = document.getElementById('chatbot-toggle');
   const widget = document.getElementById('chatbot-widget');
+  const fab = document.getElementById('chatbot-fab');
+  const closeBtn = document.getElementById('chatbot-close');
 
-  if (!btnSend || !input || !toggle || !widget) return;
+  if (!btnSend || !input || !widget || !fab || !closeBtn) return;
 
   btnSend.addEventListener('click', enviarMensaje);
   input.addEventListener('keydown', e => {
     if (e.key === 'Enter') enviarMensaje();
   });
 
-  toggle.addEventListener('click', () => {
-    widget.classList.toggle('chatbot-closed');
+  fab.addEventListener('click', () => {
+    widget.classList.remove('chatbot-closed');
+    input.focus();
+  });
+
+  closeBtn.addEventListener('click', () => {
+    widget.classList.add('chatbot-closed');
   });
 
   agregarMensaje(
