@@ -905,7 +905,6 @@ h1 {
   transform: translateY(0) scale(0.97);
 }
 
-/* Ventana del chat */
 #chatbot-widget {
   position: fixed;
   bottom: 90px;
@@ -924,7 +923,6 @@ h1 {
   border: 1px solid rgba(148, 163, 184, 0.4);
 }
 
-/* cabecera */
 #chatbot-header {
   display: flex;
   align-items: center;
@@ -957,7 +955,6 @@ h1 {
   cursor: pointer;
 }
 
-/* mensajes */
 #chatbot-messages {
   padding: 10px;
   flex: 1;
@@ -988,7 +985,6 @@ h1 {
   border-bottom-left-radius: 4px;
 }
 
-/* input */
 #chatbot-input-row {
   display: flex;
   border-top: 1px solid rgba(148, 163, 184, 0.5);
@@ -1019,6 +1015,10 @@ h1 {
 }
 
 .chatbot-closed {
+  display: none;
+}
+
+#chat-widget.is-hidden {
   display: none;
 }
 

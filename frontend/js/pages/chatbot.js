@@ -55,8 +55,13 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   fab.addEventListener('click', () => {
-    widget.classList.remove('chatbot-closed');
-    input.focus();
+    const isClosed = widget.classList.contains('chatbot-closed');
+    if (isClosed) {
+      widget.classList.remove('chatbot-closed');
+      input.focus();
+    } else {
+      widget.classList.add('chatbot-closed');
+    }
   });
 
   closeBtn.addEventListener('click', () => {
