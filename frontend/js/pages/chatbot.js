@@ -1,5 +1,7 @@
 function agregarMensaje(origen, texto) {
   const cont = document.getElementById('chatbot-messages');
+  if (!cont) return;
+
   const div = document.createElement('div');
   div.className = 'msg ' + origen;
   div.textContent = texto;
@@ -9,6 +11,8 @@ function agregarMensaje(origen, texto) {
 
 async function enviarMensaje() {
   const input = document.getElementById('chatbot-input');
+  if (!input) return;
+
   const texto = input.value.trim();
   if (!texto) return;
 
@@ -47,26 +51,30 @@ document.addEventListener('DOMContentLoaded', () => {
   const fab = document.getElementById('chatbot-fab');
   const closeBtn = document.getElementById('chatbot-close');
 
-  if (!btnSend || !input || !widget || !fab || !closeBtn) return;
+  if (!widget || !fab) return;
 
-  btnSend.addEventListener('click', enviarMensaje);
-  input.addEventListener('keydown', e => {
-    if (e.key === 'Enter') enviarMensaje();
-  });
+  if (btnSend && input) {
+    btnSend.addEventListener('click', enviarMensaje);
+    input.addEventListener('keydown', e => {
+      if (e.key === 'Enter') enviarMensaje();
+    });
+  }
 
   fab.addEventListener('click', () => {
     const isClosed = widget.classList.contains('chatbot-closed');
     if (isClosed) {
       widget.classList.remove('chatbot-closed');
-      input.focus();
+      if (input) input.focus();
     } else {
       widget.classList.add('chatbot-closed');
     }
   });
 
-  closeBtn.addEventListener('click', () => {
-    widget.classList.add('chatbot-closed');
-  });
+  if (closeBtn) {
+    closeBtn.addEventListener('click', () => {
+      widget.classList.add('chatbot-closed');
+    });
+  }
 
   agregarMensaje(
     'bot',
