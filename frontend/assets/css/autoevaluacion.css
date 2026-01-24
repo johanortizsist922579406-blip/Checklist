@@ -647,3 +647,55 @@ body {
   width: 24px;
   border-radius: 5px;
 }
+
+.video-motivador {
+  margin-top: 15px;
+  padding: 12px 16px;
+  background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+  border-radius: 10px;
+  border-left: 4px solid #f39c12;
+  animation: slideIn 0.4s ease;
+}
+
+.motivador-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.95em;
+}
+
+.motivador-icon {
+  font-size: 1.2em;
+}
+
+.motivador-text {
+  color: #856404;
+  font-weight: 600;
+}
+
+.motivador-link {
+  color: #d63031;
+  text-decoration: none;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: rgba(214, 48, 49, 0.1);
+  transition: all 0.3s ease;
+}
+
+.motivador-link:hover {
+  background: #d63031;
+  color: white;
+  transform: translateY(-1px);
+}
+
+.btn-success {
+  background: linear-gradient(135deg, #00b894 0%, #00a085 100%);
+  color: white;
+  box-shadow: 0 4px 15px rgba(0, 184, 148, 0.3);
+}
+
+.btn-success:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 25px rgba(0, 184, 148, 0.4);
+}

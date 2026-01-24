@@ -122,6 +122,22 @@ function renderPreguntas(preguntas, offsetIndex) {
 
     actualizarSliderVisual(inputRange);
 
+    const videoContainer = document.createElement('div');
+    videoContainer.className = 'video-motivador';
+    videoContainer.id = `video-${pregunta.id}`;
+    videoContainer.style.display = Number(inputRange.value) < 3 ? 'block' : 'none';
+    
+    const videoLink = getVideoMotivador(pregunta.pregunta);
+    if (videoLink) {
+      videoContainer.innerHTML = `
+        <div class="motivador-content">
+          <span class="motivador-icon">🎬</span>
+          <span class="motivador-text">Video motivador:</span>
+          <a href="${videoLink}" target="_blank" class="motivador-link">¡Tú puedes mejorar!</a>
+        </div>
+      `;
+    }
+
     inputRange.addEventListener('input', () => {
       const v = Number(inputRange.value);
       valueSpan.textContent = v.toFixed(1);
@@ -132,6 +148,11 @@ function renderPreguntas(preguntas, offsetIndex) {
 
       respuestas[pregunta.id] = v;
       actualizarSliderVisual(inputRange);
+
+      const videoDiv = document.getElementById(`video-${pregunta.id}`);
+      if (videoDiv) {
+        videoDiv.style.display = v < 3 ? 'block' : 'none';
+      }
       updateProgress();
     });
 
@@ -139,6 +160,7 @@ function renderPreguntas(preguntas, offsetIndex) {
     sliderWrapper.appendChild(valueSpan);
     sliderWrapper.appendChild(moodSpan);
     questionDiv.appendChild(sliderWrapper);
+    questionDiv.appendChild(videoContainer);
     container.appendChild(questionDiv);
 
     if (!respuestas[pregunta.id]) {
@@ -237,9 +259,44 @@ function showSuccessModal(msg, score, mensajeMotivacional) {
   const btnAceptar = document.getElementById('btnAceptarModal');
   if (btnAceptar) {
     btnAceptar.onclick = function() {
-      window.location.href = '/pages/ranking/ranking.html';
+    document.getElementById('successModal').style.display = 'none';
+      mostrarBotonRanking();
     };
   }
+}
+
+function mostrarBotonRanking() {
+  const actionsDiv = document.querySelector('.actions');
+  
+  if (document.getElementById('btnRanking')) return;
+  
+  const btnRanking = document.createElement('button');
+  btnRanking.id = 'btnRanking';
+  btnRanking.className = 'btn btn-success';
+  btnRanking.innerHTML = '<span>Ver Ranking</span><span class="arrow">🏆</span>';
+  btnRanking.onclick = function() {
+    window.location.href = '/pages/ranking/ranking.html';
+  };
+  
+  actionsDiv.appendChild(btnRanking);
+}
+
+function getVideoMotivador(pregunta) {
+  const videos = {
+    '¿Mantiene una comunicación abierta y un trabajo colaborativo con sus colegas para cumplir las metas establecidas en el plazo definido por la gerencia?': 'https://vt.tiktok.com/ZSaSo1qVD/',
+    '¿Cumple las tareas asignadas y alcanza los objetivos establecidos, de acuerdo con las indicaciones de la gerencia o del líder autorizado?': 'https://vt.tiktok.com/ZSaSEsu4S/',
+    '¿La gerencia se encuentra plenamente satisfecha con su desempeño cuando presenta el avance de sus actividades?': 'https://youtu.be/H4rEqcv40Ks?si=HzRxncXfxd_rcstF',
+    '¿Cumple puntualmente con su horario de ingreso y salida?': 'https://vt.tiktok.com/ZSaA1dbKC/',
+    '¿Utiliza Notion de forma constante para organizar sus tareas y actividades diarias?': 'https://vt.tiktok.com/ZSaA1Qm6q/',
+    '¿Se considera una persona puntual y ha cumplido con sus horarios de entrada durante esta semana?': 'https://vt.tiktok.com/ZSaAJUPJr/',
+    '¿Considera que Notion le ayuda a ser más organizado y productivo?': 'https://vt.tiktok.com/ZSaAesJAW/',
+    '¿Mantiene actualizadas sus páginas, bases de datos o listas dentro de Notion?': 'https://vt.tiktok.com/ZSaAexghv/',
+    '¿Usa Notion para planificar trabajos, proyectos o estudios con anticipación?': 'https://vt.tiktok.com/ZSaAd1coB/',
+    '¿Mantiene actualizada su lista de actividades y pendientes?': 'https://www.instagram.com/reel/C_BH8W3spws/?igsh=dTNhcTZ2cTBwa29w',
+    '¿Revisa Notion con frecuencia para dar seguimiento a pendientes y plazos?': 'https://vt.tiktok.com/ZSaAdsFb4/'
+  };
+  
+  return videos[pregunta] || null;
 }
 
 function closeSuccessModal() {
